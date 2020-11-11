@@ -94,7 +94,7 @@ for s = 1:size(sess_info{1},1) % for all the sesssions with causal modulators
     
 end
 
-keyboard
+
 
 % -- Write structures files
 save(strcat(dir_RS,sprintf('/session_AM_pval_%.3f_alpha_%.2f.mat',pval,alpha)),'session_AM');
