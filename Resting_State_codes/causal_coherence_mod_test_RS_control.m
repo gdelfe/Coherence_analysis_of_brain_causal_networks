@@ -327,6 +327,8 @@ err_ms_MA_control = std_cho_ms_MA_control/sqrt(48);
 err_mr_MA_control = std_cho_mr_MA_control/sqrt(48);
 
 
+% -- FIGURE: Plot average coherence across sessions for MR, SR, MS
+
 fig = figure;
 % hAx=axes;
 % hAx.XScale='linear'
@@ -370,25 +372,5 @@ saveas(fig,fname)
 fname = strcat(dir_base,sprintf('/control_coherence_AM_mean_causal_MR_SR_fk_%d.png',fk));
 fname = strcat(dir_base,sprintf('/control_coherence_MA_mean_causal_MR_SR_fk_%d_zoom.png',fk));
 saveas(fig,fname)
-
-
-% Prepare data
-
-y=randn(30,80)*5;
-x=(1:size(y,2))-40;
-yP = sin( linspace(-2*pi,2*pi,length(x)) )*20;
-y = bsxfun(@plus,y,yP)+60;
-
-% Make the plot
-clf
-figure;
-errorbar(f,mean_cho_ms_MA,err_ms_MA); hold on
-shadedErrorBar(f,mean(coh_ms_MA),err_ms_MA);
-
-% Overlay the raw data
-hold on
-plot(f,coh_ms_MA,'-','color',[0.5,0.5,0.95])
-
-grid on
 
 

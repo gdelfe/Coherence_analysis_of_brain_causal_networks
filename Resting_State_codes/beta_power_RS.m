@@ -1,4 +1,20 @@
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This code computes the receiver and modulator(s) scores and and plots
+% them together as a function of time. 
+%
+% Scores are computed by using the average beta power of the spectrum in
+% the frequency range 10-40 Hz
+%
+% INPUT: File containing all the Session indx which have causal modulators
+%          Structures containing list of causal and coherent modulators
+%   OUTPUT: plots of receiver and modulator scores as a function of time
+%   
+%   @Gino Del Ferraro, August 2020, Pesaran Lab, NYU
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 clear all; close all;
 
 %%%%%%%%%%%%%%%%%%%
@@ -25,13 +41,14 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
     % addpath('/vol/sas8/Maverick_RecStim_vSUBNETS220/160125/004')
     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
     
+    % -- Load the Resting State LFP
     % file = 'rec004.Frontal.lfp.dat'
     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i})
     fid = fopen(file);
     format = 'float=>single';
     
     CH = 220; % tot number of channels
-    FS = 1000; % sampling
+    FS = 1000; % sampling rate 
     
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',   out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
@@ -49,9 +66,9 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
     receiver = importdata(strcat(dir_Sess,sprintf('/receiver_Sess_%d.txt',Sess)));  % ---- receiver pair
     sender = importdata(strcat(dir_Sess,sprintf('/sender_Sess_%d.txt',Sess))); % ---- sender pair
     
-    
+    % -- Time and frequency parameters
     % ---  time parameter
-    tot_time = 150000;
+    tot_time = 150000; % maximum time used for the analysis, above this time there are artifacts 
     % ---  freq parameter for the masking
     fmin = 10;
     fmax = 40;
@@ -148,8 +165,7 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
         
     end
     
-    
-    % -- receiver and modulator score --- %
+    % --- FIGURE: receiver and modulator score --- %
     leg = cell(size(mod_Ch,2)+1,1); % dynamic legend 
     fig = figure;
     set(0,'DefaultLineLineWidth',2)
