@@ -23,8 +23,8 @@ set(0,'DefaultFigureVisible','off')
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
 
-addpath('/mnt/pesaranlab/People/Gino/DL-modulators/Gino_codes')
-dir_base = '/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State';
+addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
+dir_base = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
 step = 110;
 
 fid = fopen(strcat(dir_base,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
@@ -34,11 +34,8 @@ fclose(fid);
 set(0,'DefaultLineLineWidth',2)
 
 % -- load structure files
-newAM = load(strcat(dir_base,'/session_AM.mat'))
-session_AM = newAM.session_AM;
-
-newMA = load(strcat(dir_base,'/session_MA.mat'))
-session_MA = newMA.session_MA;
+load(strcat(dir_base,'/session_AM.mat'))
+load(strcat(dir_base,'/session_MA.mat'))
 
 
 % -- print structures on stdout
@@ -87,7 +84,7 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     data = fread(fid,[CH,inf],format); % load the RS data
     % h = fread(fid,[CH,diff(bn)*FS./1e3],format);
     % ---- bipolar referencing, pairs of electrodes
-    dir_Sess = sprintf('/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State/Sess_%d',Sess);
+    dir_Sess = strcat(dir_base,sprintf(dir_base,'/Sess_%d',Sess);
     if ~exist(dir_Sess, 'dir')
         mkdir(dir_Sess)
     end
