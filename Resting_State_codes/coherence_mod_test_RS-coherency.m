@@ -6,6 +6,9 @@
 % It computes the mean and the std of such coherence, across all the
 % channels that have causal modulators
 %
+% In contrast to other codes that employes the coherence-gram to estimate
+% the coherence vs frequency, this code employes directly coherency.m
+%
 % INPUT: file with session modulator info
 %        .mat file with structure AM and MA information 
 %
@@ -111,188 +114,74 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % --- COHERENCE-GRAM Sender-Receiver -- %
+    % --- COHERENCE- Sender-Receiver -- %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    display(['Computing coherence-gram...'])
     % ---- parameters for the coherence-gram
-    tapers = [4 4];
-    N = tapers(1);
     nt = tot_time;
-    dn = 0.01;
     fs = 1000;
     fk = 200;
-    pad = 2;
-    nwin = single(floor((nt-N*fs)/(dn*fs)))
-    
+    pad = 2;    
     % --- coherence
     
     mod_Ch = session_AM(i).mod_idx; % causal modulator channel
+  
+    display(['Computing sender-receiver coherence...'])
+    tic
+    % -- coherence calculation via coherency()                
+    [coher_sr,fc,S_X,S_Y,coh_err_ms,SX_err,SY_err] = coherency(lfp_R,lfp_S,[tot_time/fs 0.05],fs,fk,pad,0.05,0,1);
+    toc
     
-    
-    % -- Coherogram sender-receiver calculation
-    [c_sr,tf,f,spec_r,spec_s] = tfcoh_GINO(lfp_R,lfp_S,tapers,1e3,dn,fk,2,[],[],1); % coherence sender-receiver
-   
-    % --- FIGURE: SENDER-RECEIVER COHEROGRAM
-    fig_sr = figure; tvimage(abs(c_sr(:,:))); colorbar; % coherence spectrum
-    xticks = floor(linspace(1,length(tf),5));
-    xticklabels = tf(xticks);
-    xtickformat('%d')
-    yticks = 1:100:length(f);
-    yticklabels = floor(f(yticks));
-    ytickformat('%.2f')
-    set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
-    title(sprintf('S-R Coherogram, sess = %d',Sess),'FontSize',12);
-    xlabel('time (sec)');
-    ylabel('freq (Hz)')
-%     ylim([0,500])
-    set(gcf, 'Position',  [100, 600, 1000, 600])
-    
-    fname = strcat(dir_Sess,sprintf('/SR_coherogram_fk_%d.jpg',fk));
-    saveas(fig_sr,fname);
      
     % -- store coherence values sender-receiver 
-    coh_sr_AM(cnt_sr,:) = abs(mean(c_sr(:,:),1)) ; % assign coherence S-R value 
-    coh_sr_MA(cnt_sr,:) = mean(abs(c_sr(:,:)),1) ; % assign coherence S-R value 
+    coh_sr_abs(cnt_sr,:) = abs(coher_sr); % assign coherence S-R value 
     cnt_sr = cnt_sr + 1;
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % --- COHERENCE- Modulator-Sender/Receiver -- %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     for Ch = mod_Ch % for all the modulators in the session
         
         close all        
         
-        % -- coherence-grams for modulator-sender, modulator-receiver 
-        [c_ms,tf,f,spec_r,spec_s] = tfcoh_GINO(lfpRS(Ch,:),lfp_S,tapers,fs,dn,fk,2,[],[],1); % coherence modulator-sender
-        [c_mr,tf,f,spec_r,spec_s] = tfcoh_GINO(lfpRS(Ch,:),lfp_R,tapers,fs,dn,fk,2,[],[],1); % coherence modulator-receiver
+        % -- coherence for modulator-sender, modulator-receiver 
+        display(['Computing modulator-sender coherence...'])
+        tic
+        [coher_ms,fc,S_X,S_Y,coh_err_ms,SX_err,SY_err] = coherency(lfpRS(Ch,:),lfp_S,[tot_time/fs 0.5],fs,fk,pad,0.05,0,1);
+        toc
         
+        display(['Computing modulator-receiver coherence...'])
+        tic
+        [coher_mr,fc,S_X,S_Y,coh_err_ms,SX_err,SY_err] = coherency(lfpRS(Ch,:),lfp_R,[tot_time/fs 0.5],fs,fk,pad,0.05,0,1);
+        toc
         
-        %     dlmwrite(strcat(dir_Sess,'/sr_coherogram.txt'),c_sr,'delimiter',' ');
-        % -- Figure: coherence spectrum
-        
-        % --- FIGURE: MODULATOR-SENDER COHEROGRAM
-        fig_ms = figure; tvimage(abs(c_ms(:,:))); colorbar; % coherence spectrum
-        xticks = floor(linspace(1,length(tf),5));
-        xticklabels = tf(xticks);
-        xtickformat('%d')
-        yticks = 1:100:length(f);
-        yticklabels = floor(f(yticks));
-        ytickformat('%.2f')
-        set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
-        title(sprintf('M-S Coherogram, Sess = %d, ch = %d',Sess,Ch),'FontSize',12);
-        xlabel('time (sec)');
-        ylabel('freq (Hz)')
-        % ylim([0,120])
-        set(gcf, 'Position',  [100, 600, 1000, 600])
-        
-        fname = strcat(dir_Sess,sprintf('/MS_coherogram_ch_%d_fk_%d.jpg',Ch,fk));
-        saveas(fig_ms,fname);
-        
-        % --- FIGURE: MODULATOR-RECEIVER COHEROGRAM
-        fig_mr = figure; tvimage(abs(c_mr(:,:))); colorbar; % coherence spectrum
-        xticks = floor(linspace(1,length(tf),5));
-        xticklabels = tf(xticks);
-        xtickformat('%d')
-        yticks = 1:100:length(f);
-        yticklabels = floor(f(yticks));
-        ytickformat('%.2f')
-        set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
-        title(sprintf('M-R Coherogram, Sess = %d, ch = %d',Sess,Ch),'FontSize',12);
-        xlabel('time (sec)');
-        ylabel('freq (Hz)')
-        % ylim([0,120])
-        set(gcf, 'Position',  [100, 600, 1000, 600])
-        
-        fname = strcat(dir_Sess,sprintf('/MR_coherogram_ch_%d_fk_%d.jpg',Ch,fk));
-        saveas(fig_mr,fname);
-        
-        
+ 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % MEAN ABS COHERENCE            %%%%%
+        % ABS COHERENCE                 %%%%%
         % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        % --- FIGURE --------- %%
-        % -- Coherence vs time --- %
-        fig = figure;
-        plot(tf,mean(abs(c_sr(:,:)),2)); % sender-receiver
-        hold on
-        plot(tf,mean(abs(c_ms(:,:)),2)); % modulator-sender
-        hold on
-        plot(tf,mean(abs(c_mr(:,:)),2)); % modulator-receiver
-        xlim([2000 50000])
-        legend('S-R coherence','M-S coherence','M-R coherence')
-        title(sprintf('Mean Abs coherence vs time, ch = %d, causal modulator',Ch),'FontSize',10);
-        grid on
-        hold off
-        set(gcf, 'Position',  [100, 600, 1000, 500])
-        
-        fname = strcat(dir_Sess,sprintf('/coherence_vs_time_MA_ch_%d_fk_%d.jpg',Ch,fk));
-        saveas(fig,fname);
         
         
         % --- FIGURE --------- %%
         % -- Coherence vs frequency --- %
         fig = figure;
-        plot(f,mean(abs(c_sr(:,:)),1))
+        plot(fc,abs(coher_sr))
         hold on
-        plot(f,mean(abs(c_ms(:,:)),1))
+        plot(fc,abs(coher_ms))
         hold on
-        plot(f,mean(abs(c_mr(:,:)),1))
+        plot(fc,abs(coher_mr))
         grid on
-        title(sprintf('Mean Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
+        title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
         legend('S-R coherence','M-S coherence','M-R coherence')
 %         xlim([0 60])
         set(gcf, 'Position',  [100, 600, 1000, 500])
     
 
-        fname = strcat(dir_Sess,sprintf('/coherence_vs_freq_MA_ch_%d_fk_%d.jpg',Ch,fk));
+        fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
         saveas(fig,fname);
         
-        coh_ms_MA(cnt,:) = mean(abs(c_ms(:,:)),1) ; % assign coherence M-S value for this modulator
-        coh_mr_MA(cnt,:) = mean(abs(c_mr(:,:)),1) ; % assign coherence M-R value for this modulator
-        
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % ABS MEAN COHERENCE            %%%%%
-        % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        
-        % --- FIGURE --------- %%
-        % -- Coherence vs time --- %
-        fig = figure;
-        plot(tf,abs(mean(c_sr(:,:),2))); % sender-receiver
-        hold on
-        plot(tf,abs(mean(c_ms(:,:),2))); % modulator-sender
-        hold on
-        plot(tf,abs(mean(c_mr(:,:),2))); % modulator-receiver
-        xlim([2000 50000])
-        legend('S-R coherence','M-S coherence','M-R coherence')
-        title(sprintf('Abs Mean coherence vs time, ch = %d, causal modulator',Ch),'FontSize',10);
-        grid on
-        hold off
-        set(gcf, 'Position',  [100, 600, 1000, 500])
-        
-        fname = strcat(dir_Sess,sprintf('/coherence_vs_time_AM_ch_%d_fk_%d.jpg',Ch,fk));
-        saveas(fig,fname);
-        
-        
-        % --- FIGURE --------- %%
-        % -- Coherence vs frequency --- %
-        fig = figure;
-        plot(f,abs(mean(c_sr(:,:),1)))
-        hold on
-        plot(f,abs(mean(c_ms(:,:),1)))
-        hold on
-        plot(f,abs(mean(c_mr(:,:),1)))
-        grid on
-        title(sprintf('Abs Mean coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
-        legend('S-R coherence','M-S coherence','M-R coherence')
-%         xlim([0 60])
-        set(gcf, 'Position',  [100, 600, 1000, 500])
-        
-        fname = strcat(dir_Sess,sprintf('/coherence_vs_freq_AM_ch_%d_fk_%d.jpg',Ch,fk));
-        saveas(fig,fname);
-        
-        coh_ms_AM(cnt,:) = abs(mean(c_ms(:,:),1)) ; % assign coherence M-S value for this modulator
-        coh_mr_AM(cnt,:) = abs(mean(c_mr(:,:),1)) ; % assign coherence M-R value for this modulator
+        coh_ms_abs(cnt,:) = abs(coher_ms) ; % assign coherence M-S value for this modulator
+        coh_mr_abs(cnt,:) = abs(coher_mr) ; % assign coherence M-R value for this modulator
         
         cnt = cnt + 1;
         
