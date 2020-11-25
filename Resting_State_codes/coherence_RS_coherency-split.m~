@@ -94,6 +94,8 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     electrode = importdata(strcat(dir_Sess,sprintf('/recorded_pairs_modulators_Sess_%d.txt',Sess))); %Data.RecordPair;   % ---- all potential modulator pairs
     receiver = importdata(strcat(dir_Sess,sprintf('/receiver_Sess_%d.txt',Sess)));  % ---- receiver pair
     sender = importdata(strcat(dir_Sess,sprintf('/sender_Sess_%d.txt',Sess))); % ---- sender pair
+    find(
+    
     
     % ---  time parameter
     tot_time = 150001;
@@ -112,12 +114,13 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     lfp_R_temp = lfp_R_temp(:,1:tot_time);
     
     
-    % create matrices to store the spitted data: trial x time
+    
     lfp_S = zeros(floor(tot_time/FS),1000);
     lfp_R = zeros(floor(tot_time/FS),1000);
-    lfp_E = zeros(size(lfp_E_temp,1),floor(tot_time/FS),1000); % channel x trial x time 
+    lfp_E = zeros(size(lfp_E_temp,1),floor(tot_time/FS),1000);
     
-   
+    
+    
     % split the Lenghty RS time series into 1000 ms windows
     % format: channel x win_indx xtime. For R and S size_channel = 1  
     delta = 1000;
