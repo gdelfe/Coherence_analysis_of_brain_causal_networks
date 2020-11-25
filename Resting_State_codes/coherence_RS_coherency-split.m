@@ -50,7 +50,7 @@ end
 
 % -- matrices to store coherence for each mod and then compute
 % average
-ftot = 1638; % number of frequency points 
+ftot = 409; % number of frequency points 
 % 48 is the number of overall modulators across sections
 coh_ms = zeros(48,ftot); % to store mod-sender coherence  vs frequency
 coh_mr = zeros(48,ftot); % to store mod-receiver coherence  vs frequency
@@ -163,11 +163,11 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
         
         % -- coherence for modulator-sender, modulator-receiver 
         display(['Computing modulator-sender coherence...'])
-        [c_ms,fc,S_M,S_S] = coherency(sq(lfp_E(Ch,:,:)),lfp_S,[1 5],fs,fk,pad,0.05,1,1);
+        [c_ms,fc,S_m,S_s] = coherency(sq(lfp_E(Ch,:,:)),lfp_S,[1 5],fs,fk,pad,0.05,1,1);
        
         
         display(['Computing modulator-receiver coherence...'])
-        [c_mr,fc,S_M,S_R] = coherency(sq(lfp_E(Ch,:,:)),lfp_R,[1 5],fs,fk,pad,0.05,1,1);
+        [c_mr,fc,S_m,S_r] = coherency(sq(lfp_E(Ch,:,:)),lfp_R,[1 5],fs,fk,pad,0.05,1,1);
         
  
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -193,9 +193,9 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
         fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
         saveas(fig,fname);
         
-        coh_ms(cnt,:) = c_ms ; % assign coherence M-S value for this modulator
-        coh_mr(cnt,:) = c_mr ; % assign coherence M-R value for this modulator
-        
+        coh_ms(cnt_m,:) = c_ms ; % assign coherence M-S value for this modulator
+        coh_mr(cnt_m,:) = c_mr ; % assign coherence M-R value for this modulator
+        spec_r(cnt_m,:) = S_m; 
         cnt_m = cnt_m + 1;
         
     end
@@ -206,7 +206,7 @@ end
 keyboard 
 
 % Write out the data of the coherence vs frequency on txt files
-dlmwrite(strcat(dir_base,sprintf('/coherence_ms_MA_fk_%d.txt',fk)),coh_ms_MA,'delimiter',' ');
+dlmwrite(strcat(dir_base,sprintf('/coherency_ms_fk_%d.txt',fk)),coh_ms,'delimiter',' ');
 dlmwrite(strcat(dir_base,sprintf('/coherence_mr_MA_fk_%d.txt',fk)),coh_mr_MA,'delimiter',' ');
 dlmwrite(strcat(dir_base,sprintf('/coherence_sr_MA_fk_%d.txt',fk)),coh_sr_MA,'delimiter',' ');
 dlmwrite(strcat(dir_base,sprintf('/coherence_ms_AM_fk_%d.txt',fk)),coh_ms_AM,'delimiter',' ');
@@ -218,7 +218,7 @@ keyboard
 
 % --- load data 
 fk = 200;
-coh_ms_MA = importdata(strcat(dir_base,sprintf('/coherence_ms_MA_fk_%d.txt',fk)));
+coh_ms_MA = importdata(strcat(dir_base,sprintf('/coherency_ms_fk_%d.txt',fk)));
 coh_mr_MA = importdata(strcat(dir_base,sprintf('/coherence_mr_MA_fk_%d.txt',fk)));
 coh_sr_MA = importdata(strcat(dir_base,sprintf('/coherence_sr_MA_fk_%d.txt',fk)));
 coh_ms_AM = importdata(strcat(dir_base,sprintf('/coherence_ms_AM_fk_%d.txt',fk)));
