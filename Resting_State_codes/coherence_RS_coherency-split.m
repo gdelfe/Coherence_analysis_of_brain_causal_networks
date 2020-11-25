@@ -52,17 +52,16 @@ end
 % average
 ftot = 1638; % number of frequency points 
 % 48 is the number of overall modulators across sections
-coh_ms_AM = zeros(48,ftot); % to store abs mean coherence mod-sender. # of causal mod, # of freq bins
-coh_mr_AM = zeros(48,ftot); % to store abs mean coherence mod-receiver.# of causal mod, # of freq bins
+coh_ms = zeros(48,ftot); % to store mod-sender coherence  vs frequency
+coh_mr = zeros(48,ftot); % to store mod-receiver coherence  vs frequency
+coh_sr = zeros(20,ftot); % to store sender-receiver coherence  vs frequency
 
-coh_ms_MA = zeros(48,ftot); % mean abs choerence # of causal mod, # of freq bins
-coh_mr_MA = zeros(48,ftot); % mean abs coherence # of causal mod, # of freq bins
+spec_m = zeros(48,ftot); % to store the spectrum of the modulator 
+spec_s = zeros(20,ftot); % to store the spectrum of the sender
+spec_r = zeros(20,ftot); % to store the spectrum of the receiver
 
-coh_sr_AM = zeros(20,ftot); % sender-receiver abs mean coherence # of causal mod, # of freq bin
-coh_sr_MA = zeros(20,ftot); % sender-receiver mean abs coherence # of causal mod, # of freq bin
-
-cnt = 1;
-cnt_sr = 1;
+cnt_m = 1; % counter for the modulator-receiver/sender coherencies 
+cnt_sr = 1; % counter sender-receiver coherencies 
 
 for i=1:size(sess_info{1},1)  % For all the session with a modulator
     
@@ -80,7 +79,7 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     FS = 1000; % sampling
     
     Sess = sess_info{1}(i); % Session number
-    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',   out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
+    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
     data = fread(fid,[CH,inf],format); % load the RS data
     % h = fread(fid,[CH,diff(bn)*FS./1e3],format);
@@ -145,14 +144,13 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     mod_Ch = session_AM(i).mod_idx; % causal modulator channel
   
     display(['Computing sender-receiver coherence...'])
-    tic
     % -- coherence calculation via coherency()                
-    [coher_sr,fc,S_X,S_Y,coh_err_ms,SX_err,SY_err] = coherency(lfp_R,lfp_S,[1 5],fs,fk,pad,0.05,1,1);
-    toc
-    
-     
-    % -- store coherence values sender-receiver 
-    coh_sr_abs(cnt_sr,:) = abs(coher_sr); % assign coherence S-R value 
+    [c_sr,fc,S_s,S_r] = coherency(lfp_S,lfp_R,[1 5],fs,fk,pad,0.05,1,1);
+  
+    % -- store coherence values sender-receiver and spectrums 
+    coh_sr(cnt_sr,:) = c_sr; % assign coherence S-R value
+    spec_s(cnt_sr,:) = S_s; 
+    spec_r(cnt_sr,:) = S_r;
     cnt_sr = cnt_sr + 1;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -165,14 +163,11 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
         
         % -- coherence for modulator-sender, modulator-receiver 
         display(['Computing modulator-sender coherence...'])
-        tic
-        [coher_ms,fc,S_X,S_Y,coh_err_ms,SX_err,SY_err] = coherency(lfp_E(Ch,:),lfp_S,[1 5],fs,fk,pad,0.05,0,1);
-        toc
+        [c_ms,fc,S_M,S_S] = coherency(sq(lfp_E(Ch,:,:)),lfp_S,[1 5],fs,fk,pad,0.05,1,1);
+       
         
         display(['Computing modulator-receiver coherence...'])
-        tic
-        [coher_mr,fc,S_X,S_Y,coh_err_ms,SX_err,SY_err] = coherency(lfp_E(Ch,:),lfp_R,[1 5],fs,fk,pad,0.05,0,1);
-        toc
+        [c_mr,fc,S_M,S_R] = coherency(sq(lfp_E(Ch,:,:)),lfp_R,[1 5],fs,fk,pad,0.05,1,1);
         
  
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,11 +178,11 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
         % --- FIGURE --------- %%
         % -- Coherence vs frequency --- %
         fig = figure;
-        plot(fc,abs(coher_sr))
+        plot(fc,abs(c_sr))
         hold on
-        plot(fc,abs(coher_ms))
+        plot(fc,abs(c_ms))
         hold on
-        plot(fc,abs(coher_mr))
+        plot(fc,abs(c_mr))
         grid on
         title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
         legend('S-R coherence','M-S coherence','M-R coherence')
@@ -198,10 +193,10 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
         fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
         saveas(fig,fname);
         
-        coh_ms_abs(cnt,:) = abs(coher_ms) ; % assign coherence M-S value for this modulator
-        coh_mr_abs(cnt,:) = abs(coher_mr) ; % assign coherence M-R value for this modulator
+        coh_ms(cnt,:) = c_ms ; % assign coherence M-S value for this modulator
+        coh_mr(cnt,:) = c_mr ; % assign coherence M-R value for this modulator
         
-        cnt = cnt + 1;
+        cnt_m = cnt_m + 1;
         
     end
     
