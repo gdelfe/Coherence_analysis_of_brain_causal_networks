@@ -48,22 +48,11 @@ for s=1:size(sess_info{1},1)
     session_MA(s)
 end
 
-% -- matrices to store coherence for each mod and then compute
-% average
-ftot = 1638; % number of frequency points 
-% 48 is the number of overall modulators across sections
-coh_ms = zeros(48,ftot); % to store mod-sender coherence  vs frequency
-coh_mr = zeros(48,ftot); % to store mod-receiver coherence  vs frequency
-coh_sr = zeros(20,ftot); % to store sender-receiver coherence  vs frequency
 
-spec_m = zeros(48,ftot); % to store the spectrum of the modulator 
-spec_s = zeros(20,ftot); % to store the spectrum of the sender
-spec_r = zeros(20,ftot); % to store the spectrum of the receiver
-
-cnt = 1;
+cnt_m = 1; % counter for the modulator-receiver/sender coherencies 
 cnt_sr = 1; % counter sender-receiver coherencies 
 
-for i=1:size(sess_info{1},1)  % For all the session with a modulator
+for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -148,13 +137,13 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     [c_sr,fc,S_s,S_r] = coherency(lfp_S,lfp_R,[1 5],fs,fk,pad,0.05,1,1);
   
     % -- store coherence values sender-receiver and spectrums 
-    coh_sr(cnt_sr,:) = c_sr; % assign coherence S-R value
-    spec_s(cnt_sr,:) = S_s; 
-    spec_r(cnt_sr,:) = S_r;
-    cnt_sr = cnt_sr + 1;
+    stim(cnt_sr).c_sr = c_sr; % assign S-R coherence value
+    stim(cnt_sr).s_s = S_s; % assign sender spectrum 
+    stim(cnt_sr).s_r = S_r; % receiver spectrum 
+    cnt_sr = cnt_sr + 1;    % sender/receiver counter 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % --- COHERENCE- Modulator-Sender/Receiver -- %
+    % --- COHERENCE- Modulator - Sender/Receiver -- %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     for Ch = mod_Ch % for all the modulators in the session
@@ -163,11 +152,11 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
         
         % -- coherence for modulator-sender, modulator-receiver 
         display(['Computing modulator-sender coherence...'])
-        [c_ms,fc,S_X,S_Y] = coherency(sq(lfp_E(Ch,:,:)),lfp_S,[1 5],fs,fk,pad,0.05,1,1);
+        [c_ms,fc,S_m,S_s] = coherency(sq(lfp_E(Ch,:,:)),lfp_S,[1 5],fs,fk,pad,0.05,1,1);
        
         
         display(['Computing modulator-receiver coherence...'])
-        [c_mr,fc,S_X,S_Y] = coherency(sq(lfp_E(Ch,:,:)),lfp_R,[1 5],fs,fk,pad,0.05,1,1);
+        [c_mr,fc,S_m,S_r] = coherency(sq(lfp_E(Ch,:,:)),lfp_R,[1 5],fs,fk,pad,0.05,1,1);
         
  
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -178,25 +167,26 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
         % --- FIGURE --------- %%
         % -- Coherence vs frequency --- %
         fig = figure;
-        plot(fc,abs(coher_sr))
+        plot(fc,abs(c_sr))
         hold on
-        plot(fc,abs(coher_ms))
+        plot(fc,abs(c_ms))
         hold on
-        plot(fc,abs(coher_mr))
+        plot(fc,abs(c_mr))
         grid on
         title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
         legend('S-R coherence','M-S coherence','M-R coherence')
 %         xlim([0 60])
         set(gcf, 'Position',  [100, 600, 1000, 500])
     
-
         fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
         saveas(fig,fname);
         
-        coh_ms_abs(cnt,:) = abs(coher_ms) ; % assign coherence M-S value for this modulator
-        coh_mr_abs(cnt,:) = abs(coher_mr) ; % assign coherence M-R value for this modulator
-        
-        cnt = cnt + 1;
+        % -- structure assignements 
+        mod(cnt_m).c_ms = c_ms ; % assign M-S coherence value for this modulator
+        mod(cnt_m).c_mr = c_mr;  % M-R coherence 
+        mod(cnt_m).s_m = S_m; % Modulator spectrum
+       
+        cnt_m = cnt_m + 1; % modulators counter 
         
     end
     
@@ -205,53 +195,46 @@ end
 
 keyboard 
 
-% Write out the data of the coherence vs frequency on txt files
-dlmwrite(strcat(dir_base,sprintf('/coherence_ms_MA_fk_%d.txt',fk)),coh_ms_MA,'delimiter',' ');
-dlmwrite(strcat(dir_base,sprintf('/coherence_mr_MA_fk_%d.txt',fk)),coh_mr_MA,'delimiter',' ');
-dlmwrite(strcat(dir_base,sprintf('/coherence_sr_MA_fk_%d.txt',fk)),coh_sr_MA,'delimiter',' ');
-dlmwrite(strcat(dir_base,sprintf('/coherence_ms_AM_fk_%d.txt',fk)),coh_ms_AM,'delimiter',' ');
-dlmwrite(strcat(dir_base,sprintf('/coherence_mr_AM_fk_%d.txt',fk)),coh_mr_AM,'delimiter',' ');
-dlmwrite(strcat(dir_base,sprintf('/coherence_sr_AM_fk_%d.txt',fk)),coh_sr_AM,'delimiter',' ');
-dlmwrite(strcat(dir_base,sprintf('/frequency_range_fk_%d.txt',fk)),f,'delimiter',' ');
+% Save coherence and spectrum data in structure format
+save(strcat(dir_base,sprintf('/coh_spec_m_fk_%d.mat',fk)),'mod');
+save(strcat(dir_base,sprintf('/coh_spec_sr_fk_%d.mat',fk)),'stim');
 
-keyboard 
-
-% --- load data 
+% -- load structure files
 fk = 200;
-coh_ms_MA = importdata(strcat(dir_base,sprintf('/coherence_ms_MA_fk_%d.txt',fk)));
-coh_mr_MA = importdata(strcat(dir_base,sprintf('/coherence_mr_MA_fk_%d.txt',fk)));
-coh_sr_MA = importdata(strcat(dir_base,sprintf('/coherence_sr_MA_fk_%d.txt',fk)));
-coh_ms_AM = importdata(strcat(dir_base,sprintf('/coherence_ms_AM_fk_%d.txt',fk)));
-coh_mr_AM = importdata(strcat(dir_base,sprintf('/coherence_mr_AM_fk_%d.txt',fk)));
-coh_sr_AM = importdata(strcat(dir_base,sprintf('/coherence_sr_AM_fk_%d.txt',fk)));
-f = importdata(strcat(dir_base,sprintf('/frequency_range_fk_%d.txt',fk)));
+load(strcat(dir_base,sprintf('/coh_spec_m_fk_%d.mat',fk)))
+load(strcat(dir_base,sprintf('/coh_spec_sr_fk_%d.mat',fk)))
+
+% -- structures to matrices
+mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
+stim_mat = cell2mat(struct2cell(stim)); % transform struct to mat for sender-receiver 
+
+
+% -- assign fields to matrices 
+coh_ms = sq(mod_mat(1,:,:))'; % 1st field, c_ms
+coh_mr = sq(mod_mat(2,:,:))'; %  2nd field, c_mr
+spec_m = sq(mod_mat(3,:,:))'; %  3rd field, spec_m
+
+coh_sr = sq(stim_mat(1,:,:))'; % 1st field, c_sr
+spec_s = sq(stim_mat(2,:,:))'; %  2nd field, spec_s
+spec_r = sq(stim_mat(3,:,:))'; %  3rd field, spec_r
+
+
 
 % --- mean coherences
-mean_cho_ms_MA = mean(coh_ms_MA(:,:));  % modulator - sender
-mean_cho_mr_MA = mean(coh_mr_MA(:,:));  % modulator - receiver
-mean_cho_sr_MA = mean(coh_sr_MA(:,:));  % sender - receiver 
-
-mean_cho_ms_AM = mean(coh_ms_AM(:,:));
-mean_cho_mr_AM = mean(coh_mr_AM(:,:));
-mean_cho_sr_AM = mean(coh_sr_AM(:,:));
+mean_cho_ms = mean(coh_ms);  % modulator - sender
+mean_cho_mr = mean(coh_mr);  % modulator - receiver
+mean_cho_sr = mean(coh_sr);  % sender - receiver 
 
 % --- std coherences
-std_cho_ms_MA = std(coh_ms_MA(:,:));  % modulator - sender
-std_cho_mr_MA = std(coh_mr_MA(:,:));  % modulator - receiver
-std_cho_sr_MA = std(coh_sr_MA(:,:));  % modulator - receiver
-
-std_cho_ms_AM = std(coh_ms_AM(:,:));
-std_cho_mr_AM = std(coh_mr_AM(:,:));
-std_cho_sr_AM = std(coh_sr_AM(:,:));
+std_cho_ms = std(coh_ms);  % modulator - sender
+std_cho_mr = std(coh_mr); % modulator - receiver
+std_cho_sr = std(coh_sr);  % modulator - receiver
 
 % --- Error bars
-err_ms_MA = std_cho_ms_MA/sqrt(48);
-err_mr_MA = std_cho_mr_MA/sqrt(48);
-err_sr_MA = std_cho_sr_MA/sqrt(20);
+err_ms = std_cho_ms/sqrt(48);
+err_mr = std_cho_mr/sqrt(48);
+err_sr = std_cho_sr/sqrt(20);
 
-err_ms_AM = std_cho_ms_AM/sqrt(48);
-err_mr_AM = std_cho_mr_AM/sqrt(48);
-err_sr_AM = std_cho_sr_AM/sqrt(20);
 
 
 set(0,'DefaultFigureVisible','on')
@@ -263,14 +246,14 @@ fig = figure;
 % hAx.YScale='log'
 hold all
 
-% shadedErrorBar(f,mean_cho_ms_MA,err_ms_MA,'lineProps','b','patchSaturation',0.4); hold on
-% shadedErrorBar(f,mean_cho_mr_MA,err_mr_MA,'lineprops',{'color',[255, 83, 26]/255},'patchSaturation',0.4); hold on
-% shadedErrorBar(f,mean_cho_sr_MA,err_sr_MA,'lineprops',{'color',[230, 184 , 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_ms,err_ms,'lineProps','b','patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_mr,err_mr_MA,'lineprops',{'color',[255, 83, 26]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_sr,err_sr_MA,'lineprops',{'color',[230, 184 , 0]/255},'patchSaturation',0.4); hold on
 
 
-shadedErrorBar(f,mean_cho_ms_AM,err_ms_AM,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_cho_mr_AM,err_mr_AM,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_cho_sr_AM,err_sr_AM,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(fc,mean_cho_ms,err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+shadedErrorBar(fc,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(fc,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
 
 grid on
 title('Mean Abs coherence of MS, SR, SR','FontSize',11);
