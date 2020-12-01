@@ -164,10 +164,10 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % ---- parameters for the coherence-gram
-    tapers = [0.6 10];
+    tapers = [0.5 10];
     N = tapers(1);
     nt = tot_time;
-    dn = 0.01;
+    dn = 0.005;
     fs = 1000;
     fk = 200;
     pad = 2;
@@ -189,7 +189,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     % Coherencegram NO SPLIT      %%%%%%%%%%%%%%%%%%%%
     
     % ---- parameters for the coherence-gram
-    tapers = [4 5];
+    tapers = [10 5];
     N = tapers(1);
     nt = tot_time;
     dn = 0.1;
@@ -239,12 +239,17 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     set(gcf, 'Position',  [100, 600, 1000, 600])
     
     
-      
+
     % -- store coherence values sender-receiver and spectrums 
     stim(cnt_sr).c_sr = c_sr; % assign S-R coherence value
     stim(cnt_sr).s_s = S_s; % assign sender spectrum 
     stim(cnt_sr).s_r = S_r; % receiver spectrum 
-    cnt_sr = cnt_sr + 1;    % sender/receiver counter 
+        
+    % -- store coherence values sender-receiver and spectrums 
+    stim_ns(cnt_sr).c_sr = c_sr_ns; % assign S-R coherence value
+    stim_ns(cnt_sr).s_s = S_s_ns; % assign sender spectrum 
+    stim_ns(cnt_sr).s_r = S_r_ns; % receiver spectrum 
+    cnt_sr = cnt_sr + 1;    % sender/receiver counter
     
     
     
