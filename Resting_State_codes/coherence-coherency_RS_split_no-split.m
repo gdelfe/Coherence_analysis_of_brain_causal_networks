@@ -206,6 +206,10 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     toc 
     
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % % FIGURES                  %%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     
     % --- FIGURE: SENDER-RECEIVER COHEROGRAM
     fig_sr = figure; tvimage(abs(c_sr_spec(:,:))); colorbar; % coherence spectrum
@@ -237,26 +241,34 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     ylabel('freq (Hz)')
     %     ylim([0,500])
     set(gcf, 'Position',  [100, 600, 1000, 600])
-    
-    
-    
+ 
     
     
     % --- FIGURE --------- %%
-        % -- Coherence vs frequency --- %
-        fig = figure;
-        plot(f,abs(c_sr))
-        hold on
-        plot1 = plot(f,abs(c_ms))
-        hold on
-        plot(fspec,mean(abs(c_mr(:,:)),1))
-        title(sprintf('coherency vs frequency, ch = %d, causal mod',Ch),'FontSize',13);
-        legend('S-R coherency','M-S coherency','M-R coherency')
-%         xlim([0 60])
-%         plot1.Color(4) = 0.6;
-        set(gcf, 'Position',  [100, 600, 1000, 500])
-        grid on 
+    % -- Coherency and coherence vs frequency --- %
+    fig = figure;
+    plot(f,abs(c_sr)) % coherency split
+    hold on
+    plot(f_ns,abs(c_sr_ns)) % coherency no split
+    hold on
+    plot(fspec,mean(abs(c_sr_spec(:,:)),1))  % coherence-gram split 
+    hold on
+    plot(fspec,abs(mean(c_sr_spec(:,:),1)))
+    hold on
+    plot(fspec_ns,mean(abs(c_sr_spec_ns(:,:)),1)) % coherence gram no split
+    hold on
+    plot(fspec_ns,abs(mean(c_sr_spec_ns(:,:),1)))
+    hold on
+    title(sprintf('coherency and coherence (MA, AM) vs frequency, ch = %d, causal mod',Ch),'FontSize',11);
+    legend('S-R coherency split','S-R coherency no-split','S-R coherence split MA','S-R coherence split AM','S-R coherence no-split MA','S-R coherence no-split AM')
+    %         xlim([0 60])
+    %         plot1.Color(4) = 0.6;
+    set(gcf, 'Position',  [100, 600, 1000, 500])
+    grid on
     
+    
+    fname = strcat(dir_Sess,sprintf('/coherency-coherence-AM-MA_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
+    saveas(fig,fname);
     
 
     % -- store coherence values sender-receiver and spectrums 
