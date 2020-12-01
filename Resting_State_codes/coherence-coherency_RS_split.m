@@ -107,13 +107,13 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
    
     % -- sanity check LFP
-    figure;
-    plot(lfp_S_temp)
-    hold on
-    plot(lfp_R_temp)
-    hold on 
-    plot(lfp_E_temp(6,:,:))
-    legend('sender','receiver','electrode')
+%     figure;
+%     plot(lfp_S_temp)
+%     hold on
+%     plot(lfp_R_temp)
+%     hold on 
+%     plot(lfp_E_temp(6,:,:))
+%     legend('sender','receiver','electrode')
     
     % split the Lenghty RS time series into 1000 ms windows
     % format: channel x win_indx xtime. For R and S size_channel = 1  
@@ -144,51 +144,38 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % % Coherency SPLIT                %%%%%%%%%%%%%%%%%%%%
+    % % Coherency on SPLIT data %%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     display(['Computing sender-receiver coherence...'])
     % -- coherence calculation via coherency()                
+    tic 
     [c_sr,f,S_s,S_r] = coherency(lfp_S,lfp_R,[1 5],fs,fk,pad,0.05,1,1);
-
+    toc 
     
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % % Coherency NO SPLIT                %%%%%%%%%%%%%%%%%%%%
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            [c_sr_full,f_full,S_s,S_r] = coherency(lfp_S_temp,lfp_R_temp,[tot_time/1000 5],fs,fk,pad,0.05,1,1);
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % % Coherence-gram SPLIT %%%%%%%%%%%%%%%%%%%%
+    % % Coherency NO SPLIT      %%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    tic
+    [c_sr_ns,f_ns,S_s_ns,S_r_ns] = coherency(lfp_S_temp,lfp_R_temp,[tot_time/1000 5],fs,fk,pad,0.05,1,1);
+    toc 
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % % COHERENCE-GRAM APPROACH %%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-                tapers = [0.5 10];
+                tapers = [4 4];
                 N = tapers(1);
                 nt = tot_time;
-                nt = 1000
-                dn = 0.001;
+                dn = 0.01;
                 fs = 1000;
                 fk = 200;
                 pad = 2;
                 nwin = single(floor((nt-N*fs)/(dn*fs)))
 
                 % -- Coherogram sender-receiver calculation
-                tic
-                [c_sr_spec,tf,fspec,spec_r,spec_s] = tfcoh_GINO(lfp_R,lfp_S,tapers,1e3,dn,fk,2,[],[]); % coherence sender-receiver
-                toc 
-                    % --- FIGURE: SENDER-RECEIVER COHEROGRAM
-    fig_sr = figure; tvimage(abs(c_sr_spec(:,:))); colorbar; % coherence spectrum
-    xticks = floor(linspace(1,length(tf),5));
-    xticklabels = tf(xticks);
-    xtickformat('%d')
-    yticks = 1:100:length(f);
-    yticklabels = floor(f(yticks));
-    ytickformat('%.2f')
-    set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
-    title(sprintf('S-R Coherogram, sess = %d',Sess),'FontSize',12);
-    xlabel('time (sec)');
-    ylabel('freq (Hz)')
-%     ylim([0,500])
-    set(gcf, 'Position',  [100, 600, 1000, 600])
+                [c_sr_spec,tf,fspec,spec_r,spec_s] = tfcoh_GINO(lfp_R_temp,lfp_S_temp,tapers,1e3,dn,fk,2,[],[],1); % coherence sender-receiver
+    
     
   
     % -- store coherence values sender-receiver and spectrums 
@@ -319,14 +306,14 @@ fig = figure;
 % hAx.YScale='log'
 hold all
 
-% shadedErrorBar(f,mean_cho_ms,err_ms,'lineProps','b','patchSaturation',0.4); hold on
-% shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[255, 83, 26]/255},'patchSaturation',0.4); hold on
-% shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[230, 184 , 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_ms,err_ms,'lineProps','b','patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[255, 83, 26]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[230, 184 , 0]/255},'patchSaturation',0.4); hold on
 
 
-shadedErrorBar(f,mean_cho_ms,err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_ms,err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
 
 grid on
 title('Abs coherency of MS, SR, SR','FontSize',11);
