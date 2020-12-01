@@ -106,6 +106,15 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     lfp_E = zeros(size(lfp_E_temp,1),floor(tot_time/FS),1000); % channel x trial x time 
     
    
+    % -- sanity check LFP
+    figure;
+    plot(lfp_S_temp)
+    hold on
+    plot(lfp_R_temp)
+    hold on 
+    plot(lfp_E_temp(6,:,:))
+    legend('sender','receiver','electrode')
+    
     % split the Lenghty RS time series into 1000 ms windows
     % format: channel x win_indx xtime. For R and S size_channel = 1  
     delta = 1000;
@@ -129,12 +138,44 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     fk = 200;
     pad = 2;    
     % --- coherence
+
     
     mod_Ch = session_AM(i).mod_idx; % causal modulator channel
-  
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % % NO SPLIT                %%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     display(['Computing sender-receiver coherence...'])
     % -- coherence calculation via coherency()                
-    [c_sr,fc,S_s,S_r] = coherency(lfp_S,lfp_R,[1 5],fs,fk,pad,0.05,1,1);
+    [c_sr,f,S_s,S_r] = coherency(lfp_S,lfp_R,[1 5],fs,fk,pad,0.05,1,1);
+
+    
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % % NO SPLIT                %%%%%%%%%%%%%%%%%%%%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            [c_sr_full,f_full,S_s,S_r] = coherency(lfp_S_temp,lfp_R_temp,[tot_time/1000 5],fs,fk,pad,0.05,1,1);
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % % COHERENCE-GRAM APPROACH %%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+                tapers = [4 4];
+                N = tapers(1);
+                nt = tot_time;
+                dn = 0.01;
+                fs = 1000;
+                fk = 200;
+                pad = 2;
+                nwin = single(floor((nt-N*fs)/(dn*fs)))
+
+                % -- Coherogram sender-receiver calculation
+                [c_sr_spec,tf,fspec,spec_r,spec_s] = tfcoh_GINO(lfp_R_temp,lfp_S_temp,tapers,1e3,dn,fk,2,[],[],1); % coherence sender-receiver
+    
+    
+  
+  
   
     % -- store coherence values sender-receiver and spectrums 
     stim(cnt_sr).c_sr = c_sr; % assign S-R coherence value
@@ -152,11 +193,11 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         
         % -- coherence for modulator-sender, modulator-receiver 
         display(['Computing modulator-sender coherence...'])
-        [c_ms,fc,S_m,S_s] = coherency(sq(lfp_E(Ch,:,:)),lfp_S,[1 5],fs,fk,pad,0.05,1,1);
+        [c_ms,f,S_m,S_s] = coherency(sq(lfp_E(Ch,:,:)),lfp_S,[1 5],fs,fk,pad,0.05,1,1);
        
         
         display(['Computing modulator-receiver coherence...'])
-        [c_mr,fc,S_m,S_r] = coherency(sq(lfp_E(Ch,:,:)),lfp_R,[1 5],fs,fk,pad,0.05,1,1);
+        [c_mr,f,S_m,S_r] = coherency(sq(lfp_E(Ch,:,:)),lfp_R,[1 5],fs,fk,pad,0.05,1,1);
         
  
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -167,11 +208,30 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         % --- FIGURE --------- %%
         % -- Coherence vs frequency --- %
         fig = figure;
-        plot(fc,abs(c_sr))
+        plot(f,abs(c_sr))
         hold on
-        plot(fc,abs(c_ms))
+        plot1 = plot(f_full,abs(c_sr_full))
         hold on
-        plot(fc,abs(c_mr))
+        plot(fspec,mean(abs(c_sr_spec(:,:)),1))
+        hold on 
+        plot(fspec,abs(mean(c_sr_spec(:,:),1)))
+        title(sprintf('Abs coherency vs frequency, ch = %d, causal mod',Ch),'FontSize',13);
+        legend('S-R coherency split','S-R coherency no-split','S-R coherence mean abs','S-R coherence abs mean')
+%         xlim([0 60])
+        plot1.Color(4) = 0.6;
+        set(gcf, 'Position',  [100, 600, 1000, 500])
+        grid on 
+        
+        fname = strcat(dir_Sess,sprintf('/coherency_asplit_vs_no-split_%d_fk_%d.jpg',Ch,fk));
+        saveas(fig,fname);
+        
+        
+        fname = strcat(dir_Sess,sprintf('/coherency_split_vs_no-split_%d_fk_%d.jpg',Ch,fk));
+        saveas(fig,fname);
+        
+        plot(f,abs(c_ms))
+        hold on
+        plot(f,abs(c_mr))
         grid on
         title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
         legend('S-R coherence','M-S coherence','M-R coherence')
@@ -238,7 +298,6 @@ err_sr = std_cho_sr/sqrt(20);
 
 
 set(0,'DefaultFigureVisible','on')
-
 % -- FIGURE: Plot average coherence across sessions for MR, SR, MS
 fig = figure;
 % hAx=axes;
@@ -247,16 +306,16 @@ fig = figure;
 hold all
 
 shadedErrorBar(f,mean_cho_ms,err_ms,'lineProps','b','patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_cho_mr,err_mr_MA,'lineprops',{'color',[255, 83, 26]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_cho_sr,err_sr_MA,'lineprops',{'color',[230, 184 , 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[255, 83, 26]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[230, 184 , 0]/255},'patchSaturation',0.4); hold on
 
 
-shadedErrorBar(fc,mean_cho_ms,err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
-shadedErrorBar(fc,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(fc,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_ms,err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Mean Abs coherence of MS, SR, SR','FontSize',11);
+title('Abs coherency of MS, SR, SR','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 % legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
@@ -267,8 +326,7 @@ legend('M-S mean abs','M-R mean abs','S-R mean abs','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_base,sprintf('/coherence_MA_mean_causal_MR_SR_fk_%d.png',fk));
-fname = strcat(dir_base,sprintf('/coherence_MA_mean_causal_MR_SR_fk_%d_zoom.png',fk));
+fname = strcat(dir_base,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d.png',W,fk));
 saveas(fig,fname)
 
 

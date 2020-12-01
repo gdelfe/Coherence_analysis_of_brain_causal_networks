@@ -112,7 +112,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     hold on
     plot(lfp_R_temp)
     hold on 
-    plot(lfp_E_temp(6,:,:)-lfp_R_temp)
+    plot(lfp_E_temp(6,:,:))
     legend('sender','receiver','electrode')
     
     % split the Lenghty RS time series into 1000 ms windows
@@ -138,12 +138,42 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     fk = 200;
     pad = 2;    
     % --- coherence
+
     
     mod_Ch = session_AM(i).mod_idx; % causal modulator channel
-  
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % % NO SPLIT                %%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     display(['Computing sender-receiver coherence...'])
     % -- coherence calculation via coherency()                
     [c_sr,f,S_s,S_r] = coherency(lfp_S,lfp_R,[1 5],fs,fk,pad,0.05,1,1);
+
+    
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % % NO SPLIT                %%%%%%%%%%%%%%%%%%%%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            [c_sr_full,f_full,S_s,S_r] = coherency(lfp_S_temp,lfp_R_temp,[tot_time/1000 5],fs,fk,pad,0.05,1,1);
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % % COHERENCE-GRAM APPROACH %%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+                tapers = [4 4];
+                N = tapers(1);
+                nt = tot_time;
+                dn = 0.01;
+                fs = 1000;
+                fk = 200;
+                pad = 2;
+                nwin = single(floor((nt-N*fs)/(dn*fs)))
+
+                % -- Coherogram sender-receiver calculation
+                [c_sr_spec,tf,fspec,spec_r,spec_s] = tfcoh_GINO(lfp_R_temp,lfp_S_temp,tapers,1e3,dn,fk,2,[],[],1); % coherence sender-receiver
+    
+    
   
     % -- store coherence values sender-receiver and spectrums 
     stim(cnt_sr).c_sr = c_sr; % assign S-R coherence value
@@ -178,6 +208,25 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         fig = figure;
         plot(f,abs(c_sr))
         hold on
+        plot1 = plot(f_full,abs(c_sr_full))
+        hold on
+        plot(fspec,mean(abs(c_sr_spec(:,:)),1))
+        hold on 
+        plot(fspec,abs(mean(c_sr_spec(:,:),1)))
+        title(sprintf('coherency and coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',13);
+        legend('S-R coherency split','S-R coherency no-split','S-R coherence mean abs','S-R coherence abs mean')
+%         xlim([0 60])
+        plot1.Color(4) = 0.6;
+        set(gcf, 'Position',  [100, 600, 1000, 500])
+        grid on 
+        
+        fname = strcat(dir_Sess,sprintf('/coherency_split_vs_no-split_and_coherence_%d_fk_%d.jpg',Ch,fk));
+        saveas(fig,fname);
+        
+        
+        fname = strcat(dir_Sess,sprintf('/coherency_split_vs_no-split_%d_fk_%d.jpg',Ch,fk));
+        saveas(fig,fname);
+        
         plot(f,abs(c_ms))
         hold on
         plot(f,abs(c_mr))
@@ -247,7 +296,6 @@ err_sr = std_cho_sr/sqrt(20);
 
 
 set(0,'DefaultFigureVisible','on')
-
 % -- FIGURE: Plot average coherence across sessions for MR, SR, MS
 fig = figure;
 % hAx=axes;
@@ -265,7 +313,7 @@ shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[230, 184 , 0]/255},'pa
 % shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Mean Abs coherence of MS, SR, SR','FontSize',11);
+title('Abs coherency of MS, SR, SR','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 % legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
