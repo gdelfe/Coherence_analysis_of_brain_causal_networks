@@ -239,10 +239,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     set(gcf, 'Position',  [100, 600, 1000, 600])
     
     
-    
-
-    
-  
+      
     % -- store coherence values sender-receiver and spectrums 
     stim(cnt_sr).c_sr = c_sr; % assign S-R coherence value
     stim(cnt_sr).s_s = S_s; % assign sender spectrum 
