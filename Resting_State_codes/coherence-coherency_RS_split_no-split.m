@@ -90,20 +90,20 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     fmax = 40;
     
     % ---- Lfp of the resting state for that specific pair of electrodes
-    lfp_E_temp = data(electrode(:,1),:) - data(electrode(:,2),:); % all the electrodes
-    lfp_S_temp = data(sender(1),:) - data(sender(2),:); % sender
-    lfp_R_temp = data(receiver(1),:) - data(receiver(2),:); % receiver
+    lfp_E_ns = data(electrode(:,1),:) - data(electrode(:,2),:); % all the electrodes
+    lfp_S_ns = data(sender(1),:) - data(sender(2),:); % sender
+    lfp_R_ns = data(receiver(1),:) - data(receiver(2),:); % receiver
     
     % include signal up to time where signal is not corrupted
-    lfp_E_temp = lfp_E_temp(:,1:tot_time);
-    lfp_S_temp = lfp_S_temp(:,1:tot_time);
-    lfp_R_temp = lfp_R_temp(:,1:tot_time);
+    lfp_E_ns = lfp_E_ns(:,1:tot_time);
+    lfp_S_ns = lfp_S_ns(:,1:tot_time);
+    lfp_R_ns = lfp_R_ns(:,1:tot_time);
     
     
     % create matrices to store the spitted data: trial x time
     lfp_S = zeros(floor(tot_time/FS),1000);
     lfp_R = zeros(floor(tot_time/FS),1000);
-    lfp_E = zeros(size(lfp_E_temp,1),floor(tot_time/FS),1000); % channel x trial x time 
+    lfp_E = zeros(size(lfp_E_ns,1),floor(tot_time/FS),1000); % channel x trial x time 
     
    
     % -- sanity check LFP
@@ -120,10 +120,10 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     delta = 1000;
     cnt = 1;
     for j = 0:delta:(tot_time - delta)
-        lfp_S(cnt,:) = lfp_S_temp(1,j+1:j+delta);
-        lfp_R(cnt,:) = lfp_R_temp(1,j+1:j+delta);
+        lfp_S(cnt,:) = lfp_S_ns(1,j+1:j+delta);
+        lfp_R(cnt,:) = lfp_R_ns(1,j+1:j+delta);
         
-        lfp_E(:,cnt,:) =  lfp_E_temp(:,j+1:j+delta,:);
+        lfp_E(:,cnt,:) =  lfp_E_ns(:,j+1:j+delta,:);
         cnt = cnt + 1;
     end
     
@@ -132,50 +132,115 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     % --- COHERENCE- Sender-Receiver -- %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    % ---- parameters for the coherence-gram
+    % ---- parameters for the coherency
     nt = tot_time;
     fs = 1000;
     fk = 200;
-    pad = 2;    
-    % --- coherence
-
-    
-    mod_Ch = session_AM(i).mod_idx; % causal modulator channel
+    pad = 2;
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % % Coherency on SPLIT data %%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % ---------------------------------------------%
     
-    display(['Computing sender-receiver coherence...'])
-    % -- coherence calculation via coherency()                
-    tic 
+    display(['Computing sender-receiver coherence split data ...'])
+    % -- coherence calculation via coherency()         
+    
+    tic % ~ < 1 sec operation 
     [c_sr,f,S_s,S_r] = coherency(lfp_S,lfp_R,[1 5],fs,fk,pad,0.05,1,1);
     toc 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % % Coherency NO SPLIT      %%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    tic
-    [c_sr_ns,f_ns,S_s_ns,S_r_ns] = coherency(lfp_S_temp,lfp_R_temp,[tot_time/1000 5],fs,fk,pad,0.05,1,1);
+    % ---------------------------------------------%
+    display(['Computing sender-receiver coherence no-split data ...'])
+
+    tic % ~ 2 min operation 
+    [c_sr_ns,f_ns,S_s_ns,S_r_ns] = coherency(lfp_S_ns,lfp_R_ns,[tot_time/1000 5],fs,fk,pad,0.05,1,1);
     toc 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % % COHERENCE-GRAM APPROACH %%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-                tapers = [4 4];
-                N = tapers(1);
-                nt = tot_time;
-                dn = 0.01;
-                fs = 1000;
-                fk = 200;
-                pad = 2;
-                nwin = single(floor((nt-N*fs)/(dn*fs)))
-
-                % -- Coherogram sender-receiver calculation
-                [c_sr_spec,tf,fspec,spec_r,spec_s] = tfcoh_GINO(lfp_R_temp,lfp_S_temp,tapers,1e3,dn,fk,2,[],[],1); % coherence sender-receiver
+    % ---- parameters for the coherence-gram
+    tapers = [0.6 10];
+    N = tapers(1);
+    nt = tot_time;
+    dn = 0.01;
+    fs = 1000;
+    fk = 200;
+    pad = 2;
+    k = floor(2*N*tapers(2)-1)
+    nwin = single(floor((nt-N*fs)/(dn*fs)))
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Coherencegram SPLIT data     %%%%%%%%%%%%%%%%%%%%
+
+        
+    % -- Coherogram sender-receiver calculation
+    display(['Computing sender-receiver coherence-gram split data ...'])
+    
+    tic % ~ 2 sec operation 
+    [c_sr_spec,tf,fspec,spec_r,spec_s] = tfcoh_GINO(lfp_R,lfp_S,tapers,1e3,dn,fk,2,[],[],1); % coherence sender-receiver
+    toc 
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Coherencegram NO SPLIT      %%%%%%%%%%%%%%%%%%%%
+    
+    % ---- parameters for the coherence-gram
+    tapers = [4 5];
+    N = tapers(1);
+    nt = tot_time;
+    dn = 0.1;
+    fs = 1000;
+    fk = 200;
+    pad = 2;
+    k = floor(2*N*tapers(2)-1)
+    nwin = single(floor((nt-N*fs)/(dn*fs)))
+    
+    display(['Computing sender-receiver coherence no-split data ...'])
+    
+    tic % ~ 10 sec operation 
+    [c_sr_spec_ns,tf_ns,fspec_ns,spec_r_ns,spec_s_ns] = tfcoh_GINO(lfp_R_ns,lfp_S_ns,tapers,1e3,dn,fk,2,[],[],1); % coherence sender-receiver
+    toc 
+    
+    
+    
+    % --- FIGURE: SENDER-RECEIVER COHEROGRAM
+    fig_sr = figure; tvimage(abs(c_sr_spec(:,:))); colorbar; % coherence spectrum
+    xticks = floor(linspace(1,length(tf),5));
+    xticklabels = tf(xticks);
+    xtickformat('%d')
+    yticks = 1:100:length(fspec);
+    yticklabels = floor(fspec(yticks));
+    ytickformat('%.2f')
+    set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
+    title(sprintf('S-R Coherogram - split data, sess = %d',Sess),'FontSize',12);
+    xlabel('time (sec)');
+    ylabel('freq (Hz)')
+    %     ylim([0,500])
+    set(gcf, 'Position',  [100, 600, 1000, 600])
+    
+    
+    % --- FIGURE: SENDER-RECEIVER COHEROGRAM
+    fig_sr = figure; tvimage(abs(c_sr_spec_ns(:,:))); colorbar; % coherence spectrum
+    xticks = floor(linspace(1,length(tf_ns),5));
+    xticklabels = tf_ns(xticks);
+    xtickformat('%d')
+    yticks = 1:100:length(fspec_ns);
+    yticklabels = floor(fspec_ns(yticks));
+    ytickformat('%.2f')
+    set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
+    title(sprintf('S-R Coherogram - NO split data, sess = %d',Sess),'FontSize',12);
+    xlabel('time (sec)');
+    ylabel('freq (Hz)')
+    %     ylim([0,500])
+    set(gcf, 'Position',  [100, 600, 1000, 600])
+    
+    
+    
+
     
   
     % -- store coherence values sender-receiver and spectrums 
@@ -184,10 +249,14 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     stim(cnt_sr).s_r = S_r; % receiver spectrum 
     cnt_sr = cnt_sr + 1;    % sender/receiver counter 
     
+    
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % --- COHERENCE- Modulator - Sender/Receiver -- %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
+    mod_Ch = session_AM(i).mod_idx; % causal modulator channel
+        
     for Ch = mod_Ch % for all the modulators in the session
         
         close all        
