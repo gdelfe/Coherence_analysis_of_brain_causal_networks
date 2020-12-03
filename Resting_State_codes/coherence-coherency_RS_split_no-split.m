@@ -159,6 +159,14 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     [c_sr_ns,f_ns,S_s_ns,S_r_ns] = coherency(lfp_S_ns,lfp_R_ns,[tot_time/1000 5],fs,fk,pad,0.05,1,1);
     toc 
     
+    figure;
+    plot(f,abs(c_sr))
+    hold on
+    plot(f_ns,abs(c_sr_ns))
+    
+    
+    
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % % COHERENCE-GRAM APPROACH %%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -384,14 +392,15 @@ spec_r = sq(stim_mat(3,:,:))'; %  3rd field, spec_r
 
 
 % --- mean coherences
-mean_cho_ms = mean(coh_ms);  % modulator - sender
-mean_cho_mr = mean(coh_mr);  % modulator - receiver
-mean_cho_sr = mean(coh_sr);  % sender - receiver 
+mean_cho_ms = mean(abs(coh_ms));  % modulator - sender
+mean_cho_mr = mean(abs(coh_mr));  % modulator - receiver
+mean_cho_sr = mean(abs(coh_sr));  % sender - receiver 
 
 % --- std coherences
-std_cho_ms = std(coh_ms);  % modulator - sender
-std_cho_mr = std(coh_mr); % modulator - receiver
-std_cho_sr = std(coh_sr);  % modulator - receiver
+std_cho_ms = std(abs(coh_ms));  % modulator - sender
+std_cho_mr = std(abs(coh_mr)); % modulator - receiver
+std_cho_sr = std(abs(coh_sr));  % modulator - receiver
+
 
 % --- Error bars
 err_ms = std_cho_ms/sqrt(48);

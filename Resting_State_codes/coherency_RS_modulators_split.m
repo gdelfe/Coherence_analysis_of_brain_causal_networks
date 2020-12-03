@@ -15,7 +15,7 @@
 % OUTPUT: txt files with the values of the coherence MR, MS, SR and
 % corresponding figures
 %
-%    @ Gino Del Ferraro, August 2020, Pesaran lab, NYU
+%    @ Gino Del Ferraro, November 2020, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all; close all;
@@ -51,6 +51,7 @@ end
 
 cnt_m = 1; % counter for the modulator-receiver/sender coherencies 
 cnt_sr = 1; % counter sender-receiver coherencies 
+cnt_el = 0; % counter for how many modulators excluding the receivers modulators 
 
 for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
@@ -90,29 +91,40 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     fmax = 40;
     
     % ---- Lfp of the resting state for that specific pair of electrodes
-    lfp_E_temp = data(electrode(:,1),:) - data(electrode(:,2),:); % all the electrodes
-    lfp_S_temp = data(sender(1),:) - data(sender(2),:); % sender
-    lfp_R_temp = data(receiver(1),:) - data(receiver(2),:); % receiver
+    lfp_E_ns = data(electrode(:,1),:) - data(electrode(:,2),:); % all the electrodes
+    lfp_S_ns = data(sender(1),:) - data(sender(2),:); % sender
+    lfp_R_ns = data(receiver(1),:) - data(receiver(2),:); % receiver
     
     % include signal up to time where signal is not corrupted
-    lfp_E_temp = lfp_E_temp(:,1:tot_time);
-    lfp_S_temp = lfp_S_temp(:,1:tot_time);
-    lfp_R_temp = lfp_R_temp(:,1:tot_time);
+    lfp_E_ns = lfp_E_ns(:,1:tot_time);
+    lfp_S_ns = lfp_S_ns(:,1:tot_time);
+    lfp_R_ns = lfp_R_ns(:,1:tot_time);
     
     
-    % create matrices to store the spitted data: trial x time
+    % create matrices to store the split data: trial x time
     lfp_S = zeros(floor(tot_time/FS),1000);
     lfp_R = zeros(floor(tot_time/FS),1000);
-    lfp_E = zeros(size(lfp_E_temp,1),floor(tot_time/FS),1000); % channel x trial x time 
+    lfp_E = zeros(size(lfp_E_ns,1),floor(tot_time/FS),1000); % channel x trial x time 
     
-   
+
+        % -- sanity check LFP
+    figure;
+    plot(data(sender(2),:))
+    
+    hold on
+    plot(lfp_R_ns)
+    hold on 
+    plot(lfp_E_ns(6,:,:))
+    legend('sender','receiver','electrode')
+    
+    
     % -- sanity check LFP
     figure;
-    plot(lfp_S_temp)
+    plot(lfp_S_ns)
     hold on
-    plot(lfp_R_temp)
+    plot(lfp_R_ns)
     hold on 
-    plot(lfp_E_temp(6,:,:))
+    plot(lfp_E_ns(6,:,:))
     legend('sender','receiver','electrode')
     
     % split the Lenghty RS time series into 1000 ms windows
@@ -120,10 +132,10 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     delta = 1000;
     cnt = 1;
     for j = 0:delta:(tot_time - delta)
-        lfp_S(cnt,:) = lfp_S_temp(1,j+1:j+delta);
-        lfp_R(cnt,:) = lfp_R_temp(1,j+1:j+delta);
+        lfp_S(cnt,:) = lfp_S_ns(1,j+1:j+delta);
+        lfp_R(cnt,:) = lfp_R_ns(1,j+1:j+delta);
         
-        lfp_E(:,cnt,:) =  lfp_E_temp(:,j+1:j+delta,:);
+        lfp_E(:,cnt,:) =  lfp_E_ns(:,j+1:j+delta,:);
         cnt = cnt + 1;
     end
     
@@ -136,7 +148,9 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     nt = tot_time;
     fs = 1000;
     fk = 200;
-    pad = 2;    
+    pad = 2;
+    N = 1;
+    W = 5;
     % --- coherence
 
     
@@ -146,8 +160,17 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     display(['Computing sender-receiver coherence...'])
     % -- coherence calculation via coherency()                
-    [c_sr,f,S_s,S_r] = coherency(lfp_S,lfp_R,[1 5],fs,fk,pad,0.05,1,1);   
-  
+    [c_sr,f,S_s,S_r] = coherency(lfp_S,lfp_R,[N W],fs,fk,pad,0.05,1,1);   
+
+
+%     [c_sr_ns,f_ns,S_s_ns,S_r_ns] = coherency(lfp_S_ns,lfp_R_ns,[floor(tot_time/1000 W],fs,fk,pad,0.05,1,1);   
+% 
+%     figure;
+%     plot(f,abs(c_sr));
+%     hold on
+%     plot(f_ns,abs(c_sr_ns));
+    
+    
     % -- store coherence values sender-receiver and spectrums 
     stim(cnt_sr).c_sr = c_sr; % assign S-R coherence value
     stim(cnt_sr).s_s = S_s; % assign sender spectrum 
@@ -165,15 +188,18 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     for Ch = mod_Ch % for all the modulators in the session
         
-        close all        
+        close all 
         
+        if electrode(Ch) ~= receiver(1) % if the electrode is not the receiver itself
+        cnt_el = cnt_el +1;
+               
         % -- coherence for modulator-sender, modulator-receiver 
         display(['Computing modulator-sender coherence...'])
-        [c_ms,f,S_m,S_s] = coherency(sq(lfp_E(Ch,:,:)),lfp_S,[1 5],fs,fk,pad,0.05,1,1);
+        [c_ms,f,S_m,S_s] = coherency(sq(lfp_E(Ch,:,:)),lfp_S,[N W],fs,fk,pad,0.05,1,1);
        
         
         display(['Computing modulator-receiver coherence...'])
-        [c_mr,f,S_m,S_r] = coherency(sq(lfp_E(Ch,:,:)),lfp_R,[1 5],fs,fk,pad,0.05,1,1);
+        [c_mr,f,S_m,S_r] = coherency(sq(lfp_E(Ch,:,:)),lfp_R,[N W],fs,fk,pad,0.05,1,1);
         
  
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -207,14 +233,14 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         
     end
     
-    
+    end
 end
 
 keyboard 
 
 % Save coherence and spectrum data in structure format
-save(strcat(dir_base,sprintf('/coh_spec_m_fk_%d.mat',fk)),'mod');
-save(strcat(dir_base,sprintf('/coh_spec_sr_fk_%d.mat',fk)),'stim');
+save(strcat(dir_base,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_base,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)),'stim');
 
 % -- load structure files
 fk = 200;
@@ -238,18 +264,18 @@ spec_r = sq(stim_mat(3,:,:))'; %  3rd field, spec_r
 
 
 % --- mean coherences
-mean_cho_ms = mean(coh_ms);  % modulator - sender
-mean_cho_mr = mean(coh_mr);  % modulator - receiver
-mean_cho_sr = mean(coh_sr);  % sender - receiver 
+mean_cho_ms = mean(abs(coh_ms));  % modulator - sender
+mean_cho_mr = mean(abs(coh_mr));  % modulator - receiver
+mean_cho_sr = mean(abs(coh_sr));  % sender - receiver 
 
 % --- std coherences
-std_cho_ms = std(coh_ms);  % modulator - sender
-std_cho_mr = std(coh_mr); % modulator - receiver
-std_cho_sr = std(coh_sr);  % modulator - receiver
+std_cho_ms = std(abs(coh_ms));  % modulator - sender
+std_cho_mr = std(abs(coh_mr)); % modulator - receiver
+std_cho_sr = std(abs(coh_sr));  % modulator - receiver
 
 % --- Error bars
-err_ms = std_cho_ms/sqrt(48);
-err_mr = std_cho_mr/sqrt(48);
+err_ms = std_cho_ms/sqrt(46);
+err_mr = std_cho_mr/sqrt(46);
 err_sr = std_cho_sr/sqrt(20);
 
 
@@ -277,13 +303,13 @@ xlabel('freq (Hz)');
 ylabel('coherence');
 % legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
 % legend('M-S mean abs','M-R mean abs','S-R mean abs','M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-legend('M-S mean abs','M-R mean abs','S-R mean abs','FontSize',10)
+legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10)
 % legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
 % xlim([0 60])
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_base,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d.png',W,fk));
+fname = strcat(dir_base,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d_self-mod-removed-corrected.png',W,fk));
 saveas(fig,fname)
 
 
