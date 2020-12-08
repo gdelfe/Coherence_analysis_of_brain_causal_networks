@@ -212,6 +212,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 
         
     outliers = unique(outliers)  % -- remove repeated entries in outliers 
+    sess(i).outliers_tot = outliers; % -- store the total outliers 
     
     % -- remove outliers from sender and receiver
     lfp_S_clean(outliers,:) = [];
