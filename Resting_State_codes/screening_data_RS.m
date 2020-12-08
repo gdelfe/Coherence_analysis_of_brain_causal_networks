@@ -227,10 +227,12 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     % -- remove outliers from modulators  
+    cnt_m = 1;
     for Ch = mod_Ch % -- for all the electrodes
         lfp_E_clean = sq(lfp_E(Ch,:,:));          % -- get lfp for only that channel
         lfp_E_clean(outliers,:) = [];       % -- remove outliers for this channel
-        sess(i).lfp_E_clean(Ch).lfp = lfp_E_clean;   % -- save to structure
+        sess(i).lfp_E_clean(cnt_m).lfp = lfp_E_clean;   % -- save to structure
+        cnt_m = cnt_m + 1; 
     end
     
 
