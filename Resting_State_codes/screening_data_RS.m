@@ -216,7 +216,15 @@ end
     
 save(strcat(dir_base,'sessions_split.mat'),'sess','-v7.3');
 
-    
+
+for i=1:20
+
+    display(['Session --- ',num2str(i)])
+    badSess(i).std_R
+    badSess(i).std_S
+    badSess(i).std_E
+end
+
   
 
 
