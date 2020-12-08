@@ -152,9 +152,9 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     % --- Store session info and LFP
-    sess(i).idx = [i, Sess];
+    sess(i).sess_idx = [i, Sess];
     % -- store LFP 
-    sess(i).lfp_sS = lfp_S;
+    sess(i).lfp_S = lfp_S;
     sess(i).lfp_R = lfp_R;
     sess(i).lfp_E = lfp_E; % -- all electrodes 
     
@@ -214,8 +214,8 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
 end
     
-    
-    
+save(strcat(dir_base,'sessions_split.mat'),'sess','-v7.3');
+
     
   
 
