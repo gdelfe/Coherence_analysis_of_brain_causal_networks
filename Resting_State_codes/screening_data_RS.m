@@ -7,8 +7,8 @@
 
 clear all; close all;
 
-% set(0,'DefaultFigureVisible','off')
-set(0,'DefaultFigureVisible','on')
+set(0,'DefaultFigureVisible','off')
+% set(0,'DefaultFigureVisible','on')
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
@@ -161,12 +161,8 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     sess(i).mod_idx = mod_Ch; % -- modulator idx
     sess(i).rec_idx = receiver_idx;
     
-    % -- outliers Sender 
-    th_S = 4*std(lfp_S_ns,[],2); % -- threshold for LFP Sender 
-    max_S_split = max(abs(lfp_S),[],2);  % -- max of LFP for each time window   
-    sess(i).outliers_S = find(max_S_split > th_S);
-    
-    if std(lfp_S_ns,[],2) > 150  badSess(i).std_S = std(lfp_S_ns,[],2);             
+    % --- find sessions with high std (>150)
+    if std(lfp_S_ns,[],2) > 150  badSess(i).std_S = std(lfp_S_ns,[],2);
         display(['Sess -- ',num2str(Sess),' Sender -- ']); end 
     
     if std(lfp_R_ns,[],2) > 150  badSess(i).std_R = std(lfp_R_ns,[],2); 
@@ -180,36 +176,63 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
             cnt_M = cnt_M + 1;
     end 
     
+    
+    % -- outliers Sender 
+    th_S = 4*std(lfp_S_ns,[],2); % -- threshold for LFP Sender 
+    max_S_split = max(abs(lfp_S),[],2);  % -- max of LFP for each time window   
+    sess(i).outliers_S = find(max_S_split > th_S)';
+    
     % -- outliers Receiver 
     th_R = 4*std(lfp_R_ns,[],2); % -- threshold for LFP Sender
-    max_R_split = max(abs(lfp_R),[],2);  % -- max of LFP for each time window 
-    sess(i).outliers_R = find(max_R_split > th_R);
-   
+    max_R_split = max(abs(lfp_R),[],2);  % -- max of LFP for each time window
+    sess(i).outliers_R = find(max_R_split > th_R)';
+    
     % %%%%%%%%%%% Sender and Receiver %%%%%%%%%%%%%%%%%%%
     % -- remove windows with artifacts
     lfp_S_clean = lfp_S;
     lfp_R_clean = lfp_R;
     
-    
-    lfp_S_clean(sess(i).outliers_S,:) = [];
-    lfp_R_clean(sess(i).outliers_R,:) = [];
-    
-    sess(i).lfp_S_clean = lfp_S_clean;
-    sess(i).lfp_R_clean = lfp_R_clean;
-
+   
     % %%%%%%% ALL Electrodes %%%%%%%%%%%%%%%%%%%%%
     lfp_E_clean = lfp_E;
-    
+
+  
     % -- outliers all electrodes  
     th_E = 4*std(lfp_E_ns,[],2); % -- threshold for LFP all electrodes 
     max_E_split = max(abs(lfp_E),[],3);  % -- max of LFP for each time window, for each channel
     
-    for Ch = 1:size(lfp_E,1) % -- for all the electrodes
+    for Ch = 1:size(lfp_E,1) % -- for each electrode find outliers
         sess(i).outliers_E(Ch).idx = find(max_E_split(Ch,:) > th_E(Ch)); % -- find outliers for this channel 
-        lfp_E_clean = sq(lfp_E(Ch,:,:));        % -- get lfp for only that channel 
-        lfp_E_clean(sess(i).outliers_E(Ch).idx,:) = []; % -- remove outliers for this channel 
-        sess(i).lfp_E_clean(Ch).lfp = lfp_E_clean;   % -- assign to structure 
     end 
+
+        
+
+    outliers = [];
+    outliers = [outliers, sess(i).outliers_S]; % -- stuck up outliers sender
+    outliers = [outliers, sess(i).outliers_R]; % -- stuck up outliers receiver 
+    
+    for Ch = mod_Ch % -- for all the modulators
+        outliers = [outliers, sess(i).outliers_E(Ch).idx];    % -- stuck up outliers modulators
+    end
+ 
+    outliers = unique(outliers)  % -- remove repeated entries in outliers 
+    
+    % -- remove outliers from sender and receiver
+    lfp_S_clean(outliers,:) = [];
+    lfp_R_clean(outliers,:) = [];
+    
+    % --- save lfp onto strucure
+    sess(i).lfp_S_clean = lfp_S_clean;
+    sess(i).lfp_R_clean = lfp_R_clean;
+    
+    
+    % -- remove outliers from modulators  
+    for Ch = mod_Ch % -- for all the electrodes
+        lfp_E_clean = sq(lfp_E(Ch,:,:));          % -- get lfp for only that channel
+        lfp_E_clean(outliers,:) = [];       % -- remove outliers for this channel
+        sess(i).lfp_E_clean(Ch).lfp = lfp_E_clean;   % -- save to structure
+    end
+    
 
     
 end
