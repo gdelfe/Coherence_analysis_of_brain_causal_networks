@@ -71,6 +71,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     receiver = importdata(strcat(dir_Sess,sprintf('/receiver_Sess_%d.txt',Sess)));  % ---- receiver pair
     sender = importdata(strcat(dir_Sess,sprintf('/sender_Sess_%d.txt',Sess))); % ---- sender pair
     
+    receiver_idx = find(electrode == receiver(1));
     % ---  time parameter
     tot_time = 150001;
     % ---  freq parameter for the masking
@@ -104,7 +105,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 %     legend('sender','receiver','electrode')
 
 
-%     split the Lenghty RS time series into 1000 ms windows
+%     --- Split the Lenghty RS time series into 1000 ms windows
 %     format: channel x win_indx xtime. For R and S size_channel = 1  
     delta = 1000;
     cnt = 1;
@@ -116,11 +117,10 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt = cnt + 1;
     end
     
-    mod_Ch = session_AM(i).mod_idx; % causal modulator channel
 
     
     % -- plot sender / receiver LFP
-    figure;
+    fig = figure;
     plot(lfp_S_ns);
     hold on
     plot(lfp_R_ns);
@@ -129,9 +129,13 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     xlabel('time (sec)');
     ylabel('Lfp');
     legend('Sender','Receiver','FontSize',11);
-    
+    set(gcf, 'Position',  [100, 600, 1000, 600])
+
+    fname = strcat(dir_Sess,'/lfp_Sender_Receiver.png');
+    saveas(fig,fname)
     
     % -- plot modulators LFP
+    mod_Ch = session_AM(i).mod_idx; % causal modulator channel
     figure;
     for Ch = mod_Ch
        plot(lfp_E_ns(Ch,:));
@@ -140,88 +144,80 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     title('Lfp modulator(s)','FontSize',11);
     xlabel('time (sec)');
     ylabel('Lfp');
+    grid on
+    set(gcf, 'Position',  [100, 600, 1000, 600])
+
+    fname = strcat(dir_Sess,'/lfp_Modulators.png');
+    saveas(fig,fname)
     
+    
+    % --- Store session info and LFP
     sess(i).idx = [i, Sess];
     % -- store LFP 
-    sess(i).lfp_S = lfp_S;
+    sess(i).lfp_sS = lfp_S;
     sess(i).lfp_R = lfp_R;
     sess(i).lfp_E = lfp_E; % -- all electrodes 
     
-    sess(i).mod = mod_Ch;
+    sess(i).mod_idx = mod_Ch; % -- modulator idx
+    sess(i).rec_idx = receiver_idx;
     
     % -- outliers Sender 
     th_S = 4*std(lfp_S_ns,[],2); % -- threshold for LFP Sender 
     max_S_split = max(abs(lfp_S),[],2);  % -- max of LFP for each time window   
     sess(i).outliers_S = find(max_S_split > th_S);
     
+    if std(lfp_S_ns,[],2) > 150  badSess(i).std_S = std(lfp_S_ns,[],2);             
+        display(['Sess -- ',num2str(Sess),' Sender -- ']); end 
+    
+    if std(lfp_R_ns,[],2) > 150  badSess(i).std_R = std(lfp_R_ns,[],2); 
+        display(['Sess -- ',num2str(Sess),' Receiver -- ',num2str(Ch)]); end 
+
+    cnt_M = 1;
+    for Ch = mod_Ch
+            if std(lfp_E_ns(Ch,:,:),[],2) > 150  badSess(i).std_E(cnt_M).std = std(lfp_E_ns(Ch,:,:),[],2); 
+            display(['Sess -- ',num2str(Sess),' Modulator -- ',num2str(Ch)])
+            end 
+            cnt_M = cnt_M + 1;
+    end 
+    
     % -- outliers Receiver 
     th_R = 4*std(lfp_R_ns,[],2); % -- threshold for LFP Sender
     max_R_split = max(abs(lfp_R),[],2);  % -- max of LFP for each time window 
     sess(i).outliers_R = find(max_R_split > th_R);
-    
-    % -- outliers Modulators 
-    cnt_m = 1;
-    for Ch = mod_Ch
-        th_E = 4*std(lfp_E_ns(Ch,:),[],2); % -- threshold for LFP Modulator 
-        max_E_split = max(sq(abs(lfp_E(Ch,:,:))),[],2);  % -- max of LFP for each time window
-        sess(i).outliers_m(cnt_m).idx = find(max_E_split > th_E);
-        cnt_m = cnt_m + 1;
-    end
-    
-   out = sess(i).outliers_m.idx;
-        
    
-   
-    figure;
-    plot(lfp_R(134,:))
+    % %%%%%%%%%%% Sender and Receiver %%%%%%%%%%%%%%%%%%%
+    % -- remove windows with artifacts
+    lfp_S_clean = lfp_S;
+    lfp_R_clean = lfp_R;
     
     
-    plot(sq(lfp_E(Ch,out(3),:)));
-    hold on
- 
+    lfp_S_clean(sess(i).outliers_S,:) = [];
+    lfp_R_clean(sess(i).outliers_R,:) = [];
+    
+    sess(i).lfp_S_clean = lfp_S_clean;
+    sess(i).lfp_R_clean = lfp_R_clean;
+
+    % %%%%%%% ALL Electrodes %%%%%%%%%%%%%%%%%%%%%
+    lfp_E_clean = lfp_E;
+    
+    % -- outliers all electrodes  
+    th_E = 4*std(lfp_E_ns,[],2); % -- threshold for LFP all electrodes 
+    max_E_split = max(abs(lfp_E),[],3);  % -- max of LFP for each time window, for each channel
+    
+    for Ch = 1:size(lfp_E,1) % -- for all the electrodes
+        sess(i).outliers_E(Ch).idx = find(max_E_split(Ch,:) > th_E(Ch)); % -- find outliers for this channel 
+        lfp_E_clean = sq(lfp_E(Ch,:,:));        % -- get lfp for only that channel 
+        lfp_E_clean(sess(i).outliers_E(Ch).idx,:) = []; % -- remove outliers for this channel 
+        sess(i).lfp_E_clean(Ch).lfp = lfp_E_clean;   % -- assign to structure 
+    end 
+
+    
 end
-
-
-% -- print structures on stdout
-%format short
-for s=1:size(sess_info{1},1)
-    BadSess(s)
-end
-
-
-sess = 19;
-mod_Ch = session_AM(sess).mod_idx; % causal modulator channel
-th_M = 6*std(lfp_E_ns(mod_Ch,:));
-th_M = repmat(th_M,1,size(lfp_E_ns,2));
-
-figure;
-plot(lfp_E_ns(mod_Ch,:));
-hold on 
-plot(th_M)
-hold on 
-plot(-th_M)
-
-figure;
-plot(lfp_R_ns)
-
-
-outsiders = find(max_S_split > th_S_split);
-sess = 20;
-mod_Ch = session_AM(sess).mod_idx; % causal modulator channel
-
-th = repmat(th_S_split(outsiders(1)),1,size(lfp_S(outsiders(1),:),2));
-figure;
-plot(lfp_S(outsiders(1),:));
-hold on
-plot(th)
-grid on
-
-th = repmat(4*std(lfp_S_ns),1,size(lfp_S_ns,2));
-figure;
-plot(lfp_S_ns)
-hold on 
-plot(th)
-
+    
+    
+    
+    
+  
 
 
 
