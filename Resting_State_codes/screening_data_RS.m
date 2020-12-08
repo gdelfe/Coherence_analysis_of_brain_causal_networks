@@ -96,17 +96,19 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
 % %   %-- sanity check LFP
-%     figure;
-%     plot(lfp_S_ns)
-%     hold on
-%     plot(lfp_R_ns)
-%     hold on 
-%     plot(lfp_E_ns(6,:,:))
-%     legend('sender','receiver','electrode')
+    figure;
+    plot(lfp_S_ns)
+    hold on
+    plot(lfp_R_ns)
+    hold on 
+    plot(lfp_E_ns(6,:,:))
+    legend('sender','receiver','electrode')
 
 
 %     --- Split the Lenghty RS time series into 1000 ms windows
 %     format: channel x win_indx xtime. For R and S size_channel = 1  
+
+    % --- change this operation with reshape 
     delta = 1000;
     cnt = 1;
     for j = 0:delta:(tot_time - delta)
