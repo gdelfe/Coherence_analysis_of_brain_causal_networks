@@ -180,7 +180,7 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
 
     dataG.receiver =  Data.StimResPairs;  % ---- receiver pair
     dataG.sender = Data.StimPairs.Syllable; % ---- sender pair
-    dataG.receiver_idx = find(Data.RecordPair == receiver(1)); % --- receiver label 
+    dataG.receiver_idx = find(Data.RecordPair == Data.StimResPairs(1)); % --- receiver label 
     dataG.modulators_idx = find(Data.Spec.ROC.sigChIndx{1}); % modulators index 
 
     
