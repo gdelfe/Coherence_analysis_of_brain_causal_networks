@@ -20,8 +20,8 @@
 
 clear all; close all;
 
-% set(0,'DefaultFigureVisible','off')
-set(0,'DefaultFigureVisible','on')
+set(0,'DefaultFigureVisible','off')
+% set(0,'DefaultFigureVisible','on')
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
@@ -51,8 +51,10 @@ end
 
 cnt_sr = 1; % counter sender-receiver coherencies 
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators 
+list_sess = 1:19;
+% list_sess(17) = [];
 
-for i=1:size(sess_info{1},1)-1  % For each session with at least one modulator
+for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least one modulator
     
     
     close all
@@ -151,60 +153,79 @@ for i=1:size(sess_info{1},1)-1  % For each session with at least one modulator
         
         % --- FIGURE --------- %%
         % -- Coherence vs frequency --- %
-        fig = figure;
-        plot(f,abs(c_sr))
-        hold on
-        plot(f,abs(c_ms))
-        hold on
-        plot(f,abs(c_mr))
-        grid on
-        title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
-        legend('S-R coherence','M-S coherence','M-R coherence')
-%         xlim([0 60])
-        set(gcf, 'Position',  [100, 600, 1000, 500])
-    
-        fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
-        saveas(fig,fname);
+%         fig = figure;
+%         plot(f,abs(c_sr))
+%         hold on
+%         plot(f,abs(c_ms))
+%         hold on
+%         plot(f,abs(c_mr))
+%         grid on
+%         title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
+%         legend('S-R coherence','M-S coherence','M-R coherence')
+% %         xlim([0 60])
+%         set(gcf, 'Position',  [100, 600, 1000, 500])
+%     
+%         fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
+%         saveas(fig,fname);
         
         % -- structure assignements 
         mod(cnt_el).c_ms = c_ms ; % assign M-S coherence value for this modulator
         mod(cnt_el).c_mr = c_mr;  % M-R coherence 
         mod(cnt_el).s_m = S_m; % Modulator spectrum
+ 
+        % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %   FIGURES     %%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        cnt_m = cnt_m + 1; % counter for modulators within this session 
-        cnt_el = cnt_el + 1; % total modulators counter 
+%         % --- full length with artifacts
+%         lfp_S_rshape = reshape(sess.lfp_S',[],1)';
+%         lfp_R_rshape = reshape(sess.lfp_R',[],1)';
+%         lfp_E_rshape = reshape(sq(sess.lfp_E(Ch,:,:))',[],1)';
+%         
+%         fig = figure;
+%         plot(lfp_S_rshape)
+%         hold on
+%         plot(lfp_R_rshape)
+%         hold on
+%         plot(lfp_E_rshape)
+%         grid on
+%         title(sprintf('full length - modulator %d',Ch),'FontSize',11)
+%         legend('Sender','Receiver','Modulator')
+%         set(gcf, 'Position',  [100, 600, 1000, 500])
+%         
+%         fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d.fig',Ch));
+%         saveas(fig,fig_name);
+%         fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d.png',Ch));
+%         saveas(fig,fig_name);
+%         
+%         % -- full length without artifacts
+%         lfp_S_rshape = reshape(sess.lfp_S_clean',[],1)';
+%         lfp_R_rshape = reshape(sess.lfp_R_clean',[],1)';
+%         lfp_E_rshape = reshape(sess.lfp_E_clean(cnt_m).lfp',[],1)';
+%         
+%         fig = figure;
+%         plot(lfp_S_rshape)
+%         hold on
+%         plot(lfp_R_rshape)
+%         hold on
+%         plot(lfp_E_rshape)
+%         grid on
+%         title('Cleaned version ','FontSize',11)
+%         legend('Sender','Receiver','Modulator')
+%         set(gcf, 'Position',  [100, 600, 1000, 500])
+%         
+%         fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
+%         saveas(fig,fig_name);
+%         fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
+%         saveas(fig,fig_name);
         
-        
-       
-    end
+        cnt_el = cnt_el + 1; % total modulators counter
+        end
+        cnt_m = cnt_m + 1; % counter for modulators within this session
+
     
     end
 end
-
-% full length 
-lfp_S_rshape = reshape(sess.lfp_S',[],1)';
-lfp_R_rshape = reshape(sess.lfp_R',[],1)';
-lfp_E_rshape = reshape(sq(sess.lfp_E(Ch,:,:))',[],1)';
-
-
-
-
-
-
-
-
-lfp_S_rshape = reshape(sess.lfp_S_clean',[],1)';
-lfp_R_rshape = reshape(sess.lfp_R_clean',[],1)';
-lfp_E_rshape = reshape(sess.lfp_E_clean(1).lfp',[],1)';
-
-figure;
-plot(lfp_S_rshape)
-hold on 
-plot(lfp_R_rshape)
-hold on 
-plot(lfp_E_rshape)
-grid on 
-
 
  
 
@@ -244,9 +265,11 @@ std_cho_mr = std(abs(coh_mr)); % modulator - receiver
 std_cho_sr = std(abs(coh_sr));  % modulator - receiver
 
 % --- Error bars
-err_ms = std_cho_ms/sqrt(46);
-err_mr = std_cho_mr/sqrt(46);
-err_sr = std_cho_sr/sqrt(20);
+M = size(coh_ms,1);
+S = size(coh_sr,1);
+err_ms = std_cho_ms/sqrt(M);
+err_mr = std_cho_mr/sqrt(M);
+err_sr = std_cho_sr/sqrt(S);
 
 
 
@@ -268,7 +291,7 @@ shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchS
 shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Abs coherency of MS, SR, SR','FontSize',11);
+title('Abs coherency of MS, SR, SR - Resting State, Sess 20 excluded','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 % legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
@@ -279,7 +302,9 @@ legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_base,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d_self-mod-removed-corrected.png',W,fk));
+fname = strcat(dir_base,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-no-Sess-20.png',W,fk));
+saveas(fig,fname)
+fname = strcat(dir_base,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-no-Sess-20.fig',W,fk));
 saveas(fig,fname)
 
 

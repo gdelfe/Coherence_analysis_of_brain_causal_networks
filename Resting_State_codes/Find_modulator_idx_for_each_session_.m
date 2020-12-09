@@ -29,7 +29,7 @@ for iSess = 1 : numel(PreStimSess)
 end
 
 UsedSess = find(useSessIndx);
-dir_base = '/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State'
+dir_base = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state'
 dlmwrite(strcat(dir_base,'/Sessions_list.txt'),UsedSess); % write the label list of all the used Sessions 
  
 Session = Rest_Database; % Sessions for the RS 
