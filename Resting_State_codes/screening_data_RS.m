@@ -1,6 +1,14 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code check the artifacts in the lfp 
+% This code loads the entire RS time series and check for artifacts in the lfp 
+% It splits the RS time seris into 1 sec windows and remove all the windows
+% which contains artifacts (th = 4*std(lfp))
+%
+% OUTPUT: 1. Strucure of data for each session containing:
+%               a. lfp before removing artifacts
+%               b. lfp after artifacts were removed 
+%         2. Structure of data for all the sessions with the same info as
+%             the structure for each session above
 %
 %    @ Gino Del Ferraro, December 2020, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -9,6 +17,7 @@ clear all; close all;
 
 set(0,'DefaultFigureVisible','off')
 % set(0,'DefaultFigureVisible','on')
+
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
