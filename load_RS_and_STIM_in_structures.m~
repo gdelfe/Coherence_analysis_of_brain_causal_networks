@@ -54,8 +54,10 @@ fclose(fid);
 
 for i=1:size(sess_info{1},1)  % For all the session with a modulator
     
+    clear dataG Data
     Sess = sess_info{1}(i); % Session number
-    
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
+
     disp(['STIMULATION: Session ' num2str(Sess) ' out of ' num2str(length(PreStimSess)) ' ...'])
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
