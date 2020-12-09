@@ -1,0 +1,10 @@
+function [Ch_control] = choose_modulator_control(dataG.RecordPairMRIlabels(:,1),dataG.MRIlabels,mod_Ch)
+
+keyboard 
+
+
+
+
+
+
+end 

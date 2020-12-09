@@ -38,7 +38,7 @@ end
 UsedSess = find(useSessIndx);
 
 %%%%%%%%%%%%%%%%%%%
-% - LOAD DATA --- %
+% - PATHS     --- %
 %%%%%%%%%%%%%%%%%%%
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')

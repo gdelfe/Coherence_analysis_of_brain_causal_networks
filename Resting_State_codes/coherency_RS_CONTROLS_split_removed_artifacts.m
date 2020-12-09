@@ -20,25 +20,25 @@
 
 clear all; close all;
 
-set(0,'DefaultFigureVisible','off')
-% set(0,'DefaultFigureVisible','on')
+% set(0,'DefaultFigureVisible','off')
+set(0,'DefaultFigureVisible','on')
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_base = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
+dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
 step = 110;
 
-fid = fopen(strcat(dir_base,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
 
 % -- load structure files
-load(strcat(dir_base,'/session_AM.mat'))
-load(strcat(dir_base,'/session_MA.mat'))
+load(strcat(dir_RS,'/session_AM.mat'))
+load(strcat(dir_RS,'/session_MA.mat'))
 
 
 % -- print structures on stdout
@@ -51,27 +51,26 @@ end
 
 cnt_sr = 1; % counter sender-receiver coherencies 
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators 
-list_sess = 1:19;
+list_sess = 1:20;
 % list_sess(17) = [];
 
-for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least one modulator
+for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least one modulator
     
     
     close all
-    % addpath('/vol/sas8/Maverick_RecStim_vSUBNETS220/160125/004')
-    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_base,sprintf('/Sess_%d',Sess));
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
 
-    % -- load list electrodes, sender, receiver
-    electrode = importdata(strcat(dir_Sess,sprintf('/recorded_pairs_modulators_Sess_%d.txt',Sess))); %Data.RecordPair;   % ---- all potential modulator pairs
-    receiver = importdata(strcat(dir_Sess,sprintf('/receiver_Sess_%d.txt',Sess)));  % ---- receiver pair
-    sender = importdata(strcat(dir_Sess,sprintf('/sender_Sess_%d.txt',Sess))); % ---- sender pair
-    
-    load(strcat(dir_Sess,'/session_split.mat'));
+    load(strcat(dir_Sess,'/data_RS_and_STIM.mat')); % --- dataG: all data info and LFP
+    load(strcat(dir_Sess,'/session_split.mat')); % RS LFP split into 1 sec window and artifacts removed 
     sess = current_session;  % -- rename structure
     clear current_session;
+   
+    % -- load list electrodes, sender, receiver
+    electrode = dataG.RecordPair; % ---- all electrode pairs
+    receiver = dataG.receiver;  % ---- receiver pair
+    sender = dataG.sender % ---- sender pair
     
     % ---  time parameter
     tot_time = 150001;
@@ -99,7 +98,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % % Coherency SPLIT                %%%%%%%%%%%%%%%%%%%%
+    % % Coherency SPLIT                %%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     display(['Computing sender-receiver coherence...'])
@@ -128,12 +127,15 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     % --- COHERENCE- Modulator - Sender/Receiver -- %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    mod_Ch = session_AM(i).mod_idx; % causal modulator channel
+    mod_Ch = dataG.modulators_idx; % causal modulator channel
     
     cnt_m = 1;
     for Ch = mod_Ch % for all the modulators in the session
         
         close all 
+        
+        
+        [Ch_control] = choose_modulator_control(mod_Ch);
         
         if electrode(Ch) ~= receiver(1) % if the electrode is not the receiver itself
                
@@ -153,20 +155,20 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
         
         % --- FIGURE --------- %%
         % -- Coherence vs frequency --- %
-%         fig = figure;
-%         plot(f,abs(c_sr))
-%         hold on
-%         plot(f,abs(c_ms))
-%         hold on
-%         plot(f,abs(c_mr))
-%         grid on
-%         title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
-%         legend('S-R coherence','M-S coherence','M-R coherence')
-% %         xlim([0 60])
-%         set(gcf, 'Position',  [100, 600, 1000, 500])
-%     
-%         fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
-%         saveas(fig,fname);
+        fig = figure;
+        plot(f,abs(c_sr))
+        hold on
+        plot(f,abs(c_ms))
+        hold on
+        plot(f,abs(c_mr))
+        grid on
+        title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
+        legend('S-R coherence','M-S coherence','M-R coherence')
+%         xlim([0 60])
+        set(gcf, 'Position',  [100, 600, 1000, 500])
+    
+        fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
+        saveas(fig,fname);
         
         % -- structure assignements 
         mod(cnt_el).c_ms = c_ms ; % assign M-S coherence value for this modulator
@@ -177,47 +179,47 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
         %   FIGURES     %%%%%%%%%%%%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-%         % --- full length with artifacts
-%         lfp_S_rshape = reshape(sess.lfp_S',[],1)';
-%         lfp_R_rshape = reshape(sess.lfp_R',[],1)';
-%         lfp_E_rshape = reshape(sq(sess.lfp_E(Ch,:,:))',[],1)';
-%         
-%         fig = figure;
-%         plot(lfp_S_rshape)
-%         hold on
-%         plot(lfp_R_rshape)
-%         hold on
-%         plot(lfp_E_rshape)
-%         grid on
-%         title(sprintf('full length - modulator %d',Ch),'FontSize',11)
-%         legend('Sender','Receiver','Modulator')
-%         set(gcf, 'Position',  [100, 600, 1000, 500])
-%         
-%         fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d.fig',Ch));
-%         saveas(fig,fig_name);
-%         fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d.png',Ch));
-%         saveas(fig,fig_name);
-%         
-%         % -- full length without artifacts
-%         lfp_S_rshape = reshape(sess.lfp_S_clean',[],1)';
-%         lfp_R_rshape = reshape(sess.lfp_R_clean',[],1)';
-%         lfp_E_rshape = reshape(sess.lfp_E_clean(cnt_m).lfp',[],1)';
-%         
-%         fig = figure;
-%         plot(lfp_S_rshape)
-%         hold on
-%         plot(lfp_R_rshape)
-%         hold on
-%         plot(lfp_E_rshape)
-%         grid on
-%         title('Cleaned version ','FontSize',11)
-%         legend('Sender','Receiver','Modulator')
-%         set(gcf, 'Position',  [100, 600, 1000, 500])
-%         
-%         fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
-%         saveas(fig,fig_name);
-%         fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
-%         saveas(fig,fig_name);
+        % --- full length with artifacts
+        lfp_S_rshape = reshape(sess.lfp_S',[],1)';
+        lfp_R_rshape = reshape(sess.lfp_R',[],1)';
+        lfp_E_rshape = reshape(sq(sess.lfp_E(Ch,:,:))',[],1)';
+        
+        fig = figure;
+        plot(lfp_S_rshape)
+        hold on
+        plot(lfp_R_rshape)
+        hold on
+        plot(lfp_E_rshape)
+        grid on
+        title(sprintf('full length - modulator %d',Ch),'FontSize',11)
+        legend('Sender','Receiver','Modulator')
+        set(gcf, 'Position',  [100, 600, 1000, 500])
+        
+        fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d.fig',Ch));
+        saveas(fig,fig_name);
+        fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d.png',Ch));
+        saveas(fig,fig_name);
+        
+        % -- full length without artifacts
+        lfp_S_rshape = reshape(sess.lfp_S_clean',[],1)';
+        lfp_R_rshape = reshape(sess.lfp_R_clean',[],1)';
+        lfp_E_rshape = reshape(sess.lfp_E_clean(cnt_m).lfp',[],1)';
+        
+        fig = figure;
+        plot(lfp_S_rshape)
+        hold on
+        plot(lfp_R_rshape)
+        hold on
+        plot(lfp_E_rshape)
+        grid on
+        title('Cleaned version ','FontSize',11)
+        legend('Sender','Receiver','Modulator')
+        set(gcf, 'Position',  [100, 600, 1000, 500])
+        
+        fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
+        saveas(fig,fig_name);
+        fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
+        saveas(fig,fig_name);
         
         cnt_el = cnt_el + 1; % total modulators counter
         end
@@ -230,13 +232,13 @@ end
  
 
 % Save coherence and spectrum data in structure format
-save(strcat(dir_base,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
-save(strcat(dir_base,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_RS,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)),'stim');
 
 % -- load structure files
 fk = 200;
-load(strcat(dir_base,sprintf('/coh_spec_m_fk_%d.mat',fk)))
-load(strcat(dir_base,sprintf('/coh_spec_sr_fk_%d.mat',fk)))
+load(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d.mat',fk)))
+load(strcat(dir_RS,sprintf('/coh_spec_sr_fk_%d.mat',fk)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
@@ -291,7 +293,7 @@ shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchS
 shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Abs coherency of MS, SR, SR - Resting State, Sess 20 excluded','FontSize',11);
+title('Abs coherency of MS, SR, SR - Resting State, all Sessions','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 % legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
@@ -302,9 +304,9 @@ legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_base,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-no-Sess-20.png',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
 saveas(fig,fname)
-fname = strcat(dir_base,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-no-Sess-20.fig',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
 saveas(fig,fname)
 
 
