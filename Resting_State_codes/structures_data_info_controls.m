@@ -38,19 +38,16 @@ for s=1:size(sess_info{1},1)
     
     for Ch = mod_Ch
         if Ch ~= receiver_idx % if the modulator is a receiver it should be skipped
-            [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
+            [mod_Ch_rand,area_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
         end
     end
-    
-    
+ 
     sess_control = sess_data;
-
-
-    session_control.control_idx = session_MA(s).mod_idx;
-    session_data(s).control_areas = dataG.RecordPairMRIlabels(session_data(s).mod_idx,1)'
-        
-%     sess_data = session_data(s);
-%     save(strcat(dir_Sess,'/session_data_info.mat'),'sess_data');
+    sess_control.ctrl_idx = mod_Ch_rand;
+    sess_control.ctrl_area = area_Ch_rand;
+    sess_control 
+    
+    save(strcat(dir_Sess,'/session_control_info.mat'),'sess_control');
    
     
 end

@@ -48,26 +48,26 @@ for s=1:size(sess_info{1},1)
     session_AM(s)
     
     % -- days and dates
-    sess_data.sess_idx = session_AM(s).session_idx;
-    sess_data.day = dataG.day_STIM;
-    sess_data.rec_STIM = dataG.rec_STIM;
-    sess_data.rec_RS = dataG.rec_RS;
+    sess.sess_idx = session_AM(s).session_idx;
+    session_data.day = dataG.day_STIM;
+    session_data.rec_STIM = dataG.rec_STIM;
+    session_data.rec_RS = dataG.rec_RS;
     
     % -- MRI infos 
-    sess_data.RecordPair = dataG.RecordPair;
-    sess_data.MRIlabels = dataG.MRIlabels;
-    sess_data.RecordPairMRIlabels = dataG.RecordPairMRIlabels;
-    sess_data.Spec = dataG.Spec; % -- p-values and stats 
+    session_data.RecordPair = dataG.RecordPair;
+    session_data.MRIlabels = dataG.MRIlabels;
+    session_data.RecordPairMRIlabels = dataG.RecordPairMRIlabels;
+    session_data.Spec = dataG.Spec; % -- p-values and stats 
     
     % -- indexes and pairs
-    sess_data.sender_pair = session_AM(s).sender;
-    sess_data.sender_area = PreStimSess{Sess}{11}{1};
-    sess_data.receiver_pair = session_AM(s).receiver;
-    sess_data.receiver_idx = dataG.receiver_idx;
-    sess_data.receiver_area = dataG.RecordPairMRIlabels(sess_data.receiver_idx,1)';
+    session_data.sender_pair = session_AM(s).sender;
+    session_data.sender_area = PreStimSess{Sess}{11}{1};
+    session_data.receiver_pair = session_AM(s).receiver;
+    session_data.receiver_idx = dataG.receiver_idx;
+    session_data.receiver_area = dataG.RecordPairMRIlabels(session_data.receiver_idx,1)';
 
-    sess_data.mod_idx = session_MA(s).mod_idx;
-    sess_data.mod_areas = dataG.RecordPairMRIlabels(sess_data.mod_idx,1)'
+    session_data.mod_idx = session_MA(s).mod_idx;
+    session_data.mod_areas = dataG.RecordPairMRIlabels(session_data.mod_idx,1)'
         
     save(strcat(dir_Sess,'/session_data_info.mat'),'sess_data');
    

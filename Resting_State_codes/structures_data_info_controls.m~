@@ -32,10 +32,13 @@ for s=1:size(sess_info{1},1)
     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
     mod_Ch = sess_data.mod_idx;
-    RecordPairMRIlabels -
+    RecordPairMRIlabels = sess_data.RecordPairMRIlabels; % -- MRI labels of the recorder pars 
+    MRIlabels = sess_data.MRIlabels; % -- all the available MRI labels 
+    receiver_idx = sess_data.receiver_idx; % -- receiver idx 
+    
     for Ch = mod_Ch
-        if Ch ~= sess_data.receiver_idx % if the modulator is a receiver it should be skipped
-            [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
+        if Ch ~= receiver_idx % if the modulator is a receiver it should be skipped
+            [mod_Ch_rand,area_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
         end
     end
     
