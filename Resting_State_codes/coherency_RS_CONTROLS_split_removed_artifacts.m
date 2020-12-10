@@ -70,7 +70,7 @@ for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least
     % -- load list electrodes, sender, receiver
     electrode = dataG.RecordPair; % ---- all electrode pairs
     receiver = dataG.receiver;  % ---- receiver pair
-    sender = dataG.sender % ---- sender pair
+    sender = dataG.sender; % ---- sender pair
     
     % ---  time parameter
     tot_time = 150001;
@@ -123,19 +123,27 @@ for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least
     
     
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % --- COHERENCE- Modulator - Sender/Receiver -- %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   
     
     mod_Ch = dataG.modulators_idx; % causal modulator channel
     
+    % -- get indexes for the controls 
+    RecordPairMRIlabels = dataG.RecordPairMRIlabels(:,1); % -- all recorder MRI regions 
+    MRIlabels = dataG.MRIlabels;            % -- indexes of electrodes in each MRI region 
+    receiver_idx = dataG.receiver_idx;          % -- receiver label
+    % mod_Ch_rand contains the control modulatos, as many as the true modulators for this session 
+    [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
+    
     cnt_m = 1;
-    for Ch = mod_Ch % for all the modulators in the session
+    for Ch = mod_Ch_rand % for all the modulators in the session
         
         close all 
         
+        keyboard
         
-        [Ch_control] = choose_modulator_control(mod_Ch);
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % --- COHERENCE- Modulator - Sender/Receiver -- %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         if electrode(Ch) ~= receiver(1) % if the electrode is not the receiver itself
                
@@ -162,12 +170,12 @@ for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least
         hold on
         plot(f,abs(c_mr))
         grid on
-        title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
+        title(sprintf('Abs coherence vs frequency CONTROLS, ch = %d, causal mod',Ch),'FontSize',10);
         legend('S-R coherence','M-S coherence','M-R coherence')
 %         xlim([0 60])
         set(gcf, 'Position',  [100, 600, 1000, 500])
     
-        fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
+        fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_CONTROLS_ch_%d_fk_%d.jpg',Ch,fk));
         saveas(fig,fname);
         
         % -- structure assignements 
@@ -191,13 +199,13 @@ for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least
         hold on
         plot(lfp_E_rshape)
         grid on
-        title(sprintf('full length - modulator %d',Ch),'FontSize',11)
+        title(sprintf('full length - Controls modulator %d',Ch),'FontSize',11)
         legend('Sender','Receiver','Modulator')
         set(gcf, 'Position',  [100, 600, 1000, 500])
         
-        fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d.fig',Ch));
+        fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.fig',Ch));
         saveas(fig,fig_name);
-        fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d.png',Ch));
+        fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.png',Ch));
         saveas(fig,fig_name);
         
         % -- full length without artifacts
@@ -212,13 +220,13 @@ for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least
         hold on
         plot(lfp_E_rshape)
         grid on
-        title('Cleaned version ','FontSize',11)
+        title('Cleaned version LFP Controls ','FontSize',11)
         legend('Sender','Receiver','Modulator')
         set(gcf, 'Position',  [100, 600, 1000, 500])
         
-        fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
+        fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
         saveas(fig,fig_name);
-        fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
+        fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
         saveas(fig,fig_name);
         
         cnt_el = cnt_el + 1; % total modulators counter
@@ -230,15 +238,15 @@ for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least
 end
 
  
-
+keyboard 
 % Save coherence and spectrum data in structure format
-save(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
-save(strcat(dir_RS,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_RS,sprintf('/coh_spec_m_Controls_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_RS,sprintf('/coh_spec_sr_Controls_fk_%d_W_%d.mat',fk,W)),'stim');
 
 % -- load structure files
 fk = 200;
-load(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d.mat',fk)))
-load(strcat(dir_RS,sprintf('/coh_spec_sr_fk_%d.mat',fk)))
+load(strcat(dir_RS,sprintf('/coh_spec_m_Controls_fk_%d.mat',fk)))
+load(strcat(dir_RS,sprintf('/coh_spec_sr_Controls_fk_%d.mat',fk)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
@@ -293,7 +301,7 @@ shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchS
 shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Abs coherency of MS, SR, SR - Resting State, all Sessions','FontSize',11);
+title('Abs coherency CONTROLS of MS, SR, SR - Resting State, all Sessions','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 % legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
@@ -304,9 +312,9 @@ legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_RS,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_mean_Controls_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
 saveas(fig,fname)
-fname = strcat(dir_RS,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_mean_Controls_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
 saveas(fig,fname)
 
 

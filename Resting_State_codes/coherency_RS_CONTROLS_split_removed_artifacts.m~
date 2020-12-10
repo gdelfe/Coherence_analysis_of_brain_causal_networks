@@ -70,7 +70,7 @@ for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least
     % -- load list electrodes, sender, receiver
     electrode = dataG.RecordPair; % ---- all electrode pairs
     receiver = dataG.receiver;  % ---- receiver pair
-    sender = dataG.sender % ---- sender pair
+    sender = dataG.sender; % ---- sender pair
     
     % ---  time parameter
     tot_time = 150001;
@@ -123,19 +123,27 @@ for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least
     
     
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % --- COHERENCE- Modulator - Sender/Receiver -- %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   
     
     mod_Ch = dataG.modulators_idx; % causal modulator channel
     
+    % -- get indexes for the controls 
+    RecordPairMRIlabels = dataG.RecordPairMRIlabels(:,1); % -- all recorder MRI regions 
+    MRIlabels = dataG.MRIlabels;            % -- indexes of electrodes in each MRI region 
+    receiver_idx = dataG.receiver_idx;          % -- receiver label
+    % mod_Ch_rand contains the control modulatos, as many as the true modulators for this session 
+    [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
+    
     cnt_m = 1;
-    for Ch = mod_Ch % for all the modulators in the session
+    for Ch = mod_Ch_rand % for all the modulators in the session
         
         close all 
         
+        keyboard
         
-        [Ch_control] = choose_modulator_control(dataG.RecordPairMRIlabels(:,1),dataG.MRIlabels,mod_Ch);
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % --- COHERENCE- Modulator - Sender/Receiver -- %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         if electrode(Ch) ~= receiver(1) % if the electrode is not the receiver itself
                
@@ -162,7 +170,7 @@ for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least
         hold on
         plot(f,abs(c_mr))
         grid on
-        title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
+        title(sprintf('Abs coherence vs frequency CONTROLS, ch = %d, causal mod',Ch),'FontSize',10);
         legend('S-R coherence','M-S coherence','M-R coherence')
 %         xlim([0 60])
         set(gcf, 'Position',  [100, 600, 1000, 500])
