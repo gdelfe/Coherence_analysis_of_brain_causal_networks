@@ -51,10 +51,10 @@ end
 
 cnt_sr = 1; % counter sender-receiver coherencies 
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators 
-list_sess = 1:20;
+list_sess = 12:19;
 % list_sess(17) = [];
 
-for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least one modulator
+for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least one modulator
     
     
     close all
@@ -131,16 +131,22 @@ for i = 1 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least
     RecordPairMRIlabels = dataG.RecordPairMRIlabels(:,1); % -- all recorder MRI regions 
     MRIlabels = dataG.MRIlabels;            % -- indexes of electrodes in each MRI region 
     receiver_idx = dataG.receiver_idx;          % -- receiver label
-    % mod_Ch_rand contains the control modulatos, as many as the true modulators for this session 
-    [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
+    
+    % -- get random indexes for the control modulators from electrodes in
+    % the same brain area. mod_Ch_rand contains new indexes without
+    % repetition and without the receiver index in case it is one of the
+    % electrodes 
+    for Ch = mod_Ch
+        [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
+    end 
+    
+    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',      -- true mod_Ch:  ',num2str(mod_Ch),'  -- contols mod Ch: ',num2str(mod_Ch_rand)])
     
     cnt_m = 1;
     for Ch = mod_Ch_rand % for all the modulators in the session
         
         close all 
-        
-        keyboard
-        
+               
          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % --- COHERENCE- Modulator - Sender/Receiver -- %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
