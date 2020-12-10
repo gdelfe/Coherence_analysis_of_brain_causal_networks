@@ -30,7 +30,7 @@ UsedSess = find(useSessIndx);
 
 
 
-for iSess = 20 %UsedSess
+for iSess = 1 %UsedSess
     %         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess
     
     disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
@@ -149,6 +149,8 @@ for iSess = 20 %UsedSess
                     if ~exist(dir_sess, 'dir')
                         mkdir(dir_sess)
                     end
+                    
+                    
                         
                     keyboard
                     for iCh = 7  %:2
