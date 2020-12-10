@@ -1,18 +1,19 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This function picks a control electrode (index) in the same 
 % brain area as the modulator.
 % OUTPUT: indexes of the control modulators - as many as the true
 % modulators. Each one of them in the same brain area
 %
 % @ Gino Del Ferraro, December 2020, Pesaran Lab, NYU
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch)
+function [mod_Ch_rand,area_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch)
     
-    mod_Ch_rand = [];
-    area_Ch_rand = {};
+    mod_Ch_rand = []; % -- list to store the control electrodes
+    area_Ch_rand = {}; % -- list to store the control electrodes' brain areas 
     mod_Ch_check = mod_Ch;
     
-    for mod = mod_Ch
+    for mod = mod_Ch % -- for all the modulators 
         
         brainRegions = RecordPairMRIlabels(:,1); % -- get all the brain regions
         brainRegMod = brainRegions{mod};  % -- get the brain region of the modulator in channel Ch
