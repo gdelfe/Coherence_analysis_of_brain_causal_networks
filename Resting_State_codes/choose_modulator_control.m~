@@ -1,6 +1,15 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This function picks a control electrode (index) in the same 
+% brain area as the modulator.
+% OUTPUT: indexes of the control modulators - as many as the true
+% modulators. Each one of them in the same brain area
+%
+% @ Gino Del Ferraro, December 2020, Pesaran Lab, NYU
+
 function [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch)
     
     mod_Ch_rand = [];
+    mod_Ch_check = mod_Ch;
     
     for mod = mod_Ch
         
@@ -10,7 +19,7 @@ function [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,
         
         % -- remove all the modulator indexes from the list of brain indexes
         % This is done to avoid resampling another modulator
-        for elec = mod_Ch
+        for elec = mod_Ch_check
             brain_idx(brain_idx == elec) = [];
         end
         brain_idx(brain_idx == receiver_idx) = []; % -- esclude the receiver from the control modulators, in case it belongs to this brain area
@@ -20,6 +29,8 @@ function [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,
         brain_idx_rand = brain_idx(randperm(L)); % -- randomly permute the indexes of the electrodes in the same brain region
 
         mod_Ch_rand = [mod_Ch_rand, brain_idx_rand(1)]; % return as many modulator controls as the real modulators number
+        area_Ch_rand = [area_Ch_rand, brainRegions{mod_Ch_rand}]; % -- brain area of the control electrode, it should be the same as the modulator's
+        mod_Ch_check = [mod_Ch_check, mod_Ch_rand]; % -- add the rand control to list of modulators in order not to pick it twice (This is a very important line)
         
     end
     

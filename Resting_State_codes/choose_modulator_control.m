@@ -9,6 +9,7 @@
 function [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch)
     
     mod_Ch_rand = [];
+    area_Ch_rand = {};
     mod_Ch_check = mod_Ch;
     
     for mod = mod_Ch
@@ -29,8 +30,10 @@ function [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,
         brain_idx_rand = brain_idx(randperm(L)); % -- randomly permute the indexes of the electrodes in the same brain region
 
         mod_Ch_rand = [mod_Ch_rand, brain_idx_rand(1)]; % return as many modulator controls as the real modulators number
+        area_Ch_rand{end + 1} = brainRegions{brain_idx_rand(1)}; % -- brain area of the control electrode, it should be the same as the modulator's
         mod_Ch_check = [mod_Ch_check, mod_Ch_rand]; % -- add the rand control to list of modulators in order not to pick it twice (This is a very important line)
         
     end
+
     
 end 
