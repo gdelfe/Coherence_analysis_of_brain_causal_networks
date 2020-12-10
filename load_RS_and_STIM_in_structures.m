@@ -1,9 +1,9 @@
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code loads RS and STIM data (lfp and all the relevant infos about
-% electrodes, p-values, etc...)
-%
+% electrodes, p-values, etc...) into a unique structure for each session
+% named data_RS_and_STIM.mat
+%   OUTPUT: data_RS_and_STIM.mat for each session in folder /Resting_State
+%           (later loaded as dataG in other codes)
 %
 % @ Gino Del Ferraro, December 2020, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

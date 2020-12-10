@@ -2,6 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code computes the Resting State coherence between the causal 
 % modulators found by Shaoyu's and both the sender and the receiver
+% for the control electrodes 
 %
 % It computes the mean and the std of such coherence, across all the
 % channels that have causal modulators
@@ -51,7 +52,7 @@ end
 
 cnt_sr = 1; % counter sender-receiver coherencies 
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators 
-list_sess = 12:19;
+list_sess = 1:20;
 % list_sess(17) = [];
 
 for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least one modulator
@@ -63,7 +64,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
 
     load(strcat(dir_Sess,'/data_RS_and_STIM.mat')); % --- dataG: all data info and LFP
-    load(strcat(dir_Sess,'/session_split.mat')); % RS LFP split into 1 sec window and artifacts removed 
+    load(strcat(dir_Sess,'/session_split.mat')); % RS LFP split into 1 sec window and artifacts removed
     sess = current_session;  % -- rename structure
     clear current_session;
    
@@ -119,10 +120,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     stim(cnt_sr).s_s = S_s; % assign sender spectrum 
     stim(cnt_sr).s_r = S_r; % receiver spectrum 
     cnt_sr = cnt_sr + 1;    % sender/receiver counter 
-    
-    
-    
-    
+   
    
     
     mod_Ch = dataG.modulators_idx; % causal modulator channel
@@ -137,8 +135,10 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     % repetition and without the receiver index in case it is one of the
     % electrodes 
     for Ch = mod_Ch
-        [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
-    end 
+        if Ch ~= receiver_idx % if the modulator is a receiver it should be skipped 
+            [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
+        end
+    end
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',      -- true mod_Ch:  ',num2str(mod_Ch),'  -- contols mod Ch: ',num2str(mod_Ch_rand)])
     
