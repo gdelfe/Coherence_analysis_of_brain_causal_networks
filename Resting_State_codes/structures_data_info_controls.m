@@ -1,6 +1,12 @@
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This code creates the structures session_control_info.mat containing all the
+% info about the data except for the LFPs for the case of the
+% the controls electrodes
+% INPUT:  session_data_info.mat
+% OUTPUT: session_control_info.mat in each Session folder containing a modulator 
+% 
+% @ Gino Del Ferraro, December 2020, Pesaran Lab, NYU
+
 
 clear all; close all;
 
@@ -10,7 +16,6 @@ set(0,'DefaultFigureVisible','on')
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
-
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';

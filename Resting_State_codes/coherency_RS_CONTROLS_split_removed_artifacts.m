@@ -125,20 +125,8 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     
     mod_Ch = dataG.modulators_idx; % causal modulator channel
     
-    % -- get indexes for the controls 
-    RecordPairMRIlabels = dataG.RecordPairMRIlabels(:,1); % -- all recorder MRI regions 
-    MRIlabels = dataG.MRIlabels;            % -- indexes of electrodes in each MRI region 
-    receiver_idx = dataG.receiver_idx;          % -- receiver label
-    
-    % -- get random indexes for the control modulators from electrodes in
-    % the same brain area. mod_Ch_rand contains new indexes without
-    % repetition and without the receiver index in case it is one of the
-    % electrodes 
-    for Ch = mod_Ch
-        if Ch ~= receiver_idx % if the modulator is a receiver it should be skipped 
-            [mod_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
-        end
-    end
+
+  
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',      -- true mod_Ch:  ',num2str(mod_Ch),'  -- contols mod Ch: ',num2str(mod_Ch_rand)])
     

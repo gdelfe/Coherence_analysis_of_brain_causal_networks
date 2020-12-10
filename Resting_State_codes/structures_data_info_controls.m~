@@ -1,6 +1,12 @@
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This code creates the structures session_control_info.mat containing all the
+% info about the data except for the LFPs for the case of the
+% the controls electrodes
+% INPUT: structure_AM or structure_MA
+% OUTPUT: session_data_info.mat in each Session folder containing a modulator 
+% 
+% @ Gino Del Ferraro, December 2020, Pesaran Lab, NYU
+
 
 clear all; close all;
 
@@ -35,22 +41,15 @@ for s=1:size(sess_info{1},1)
     RecordPairMRIlabels = sess_data.RecordPairMRIlabels; % -- MRI labels of the recorder pars 
     MRIlabels = sess_data.MRIlabels; % -- all the available MRI labels 
     receiver_idx = sess_data.receiver_idx; % -- receiver idx 
-    
-    for Ch = mod_Ch
-        if Ch ~= receiver_idx % if the modulator is a receiver it should be skipped
-            [mod_Ch_rand,area_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,Ch,mod_Ch);
-        end
-    end
-    
-    
+
+    [mod_Ch_rand,area_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
+
     sess_control = sess_data;
-
-
-    session_control.control_idx = session_MA(s).mod_idx;
-    session_data(s).control_areas = dataG.RecordPairMRIlabels(session_data(s).mod_idx,1)'
-        
-%     sess_data = session_data(s);
-%     save(strcat(dir_Sess,'/session_data_info.mat'),'sess_data');
+    sess_control.ctrl_idx = mod_Ch_rand;
+    sess_control.ctrl_area = area_Ch_rand;
+    sess_control 
+    
+    save(strcat(dir_Sess,'/session_control_info.mat'),'sess_control');
    
     
 end

@@ -64,12 +64,12 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     CH = 220; % tot number of channels
     FS = 1000; % sampling
     
-    Sess = sess_info{1}(i); % Session number
-    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    
     data = fread(fid,[CH,inf],format); % load the RS data
     % h = fread(fid,[CH,diff(bn)*FS./1e3],format);
     % ---- bipolar referencing, pairs of electrodes
+    
+    Sess = sess_info{1}(i); % Session number
+    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Sess = strcat(dir_base,sprintf('/Sess_%d',Sess));
     if ~exist(dir_Sess, 'dir')
         mkdir(dir_Sess)
