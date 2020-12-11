@@ -2,6 +2,7 @@
 % This code creates the structures session_data_info.mat containing all the
 % info about the data except for the LFPs for the case of the
 % modulators' data (not the controls)
+%
 % INPUT: structure_AM or structure_MA
 % OUTPUT: session_data_info.mat in each Session folder containing a modulator 
 % 
