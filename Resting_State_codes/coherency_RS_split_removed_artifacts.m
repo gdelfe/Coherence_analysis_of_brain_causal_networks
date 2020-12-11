@@ -1,7 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code computes the Resting State coherence between the causal 
-% modulators found by Shaoyu's and both the sender and the receiver
+% This code computes the Resting State coherence between the 
+% modulators found by Shaoyu's and both the sender and the receiver 
 %
 % It computes the mean and the std of such coherence, across all the
 % channels that have causal modulators
@@ -9,8 +9,8 @@
 % In contrast to other codes that employes the coherence-gram to estimate
 % the coherence vs frequency, this code employes directly coherency.m
 %
-% INPUT: file with session modulator info
-%        .mat file with structure AM and MA information 
+% INPUT: sess_data_lfp.mat 
+%        structure containing all modulator infos + RS LFP split   
 %
 % OUTPUT: txt files with the values of the coherence MR, MS, SR and
 % corresponding figures
@@ -27,61 +27,39 @@ set(0,'DefaultFigureVisible','on')
 %%%%%%%%%%%%%%%%%%%
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_base = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
+dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
 step = 110;
 
-fid = fopen(strcat(dir_base,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
 
-% -- load structure files
-load(strcat(dir_base,'/session_AM.mat'))
-load(strcat(dir_base,'/session_MA.mat'))
 
-
-% -- print structures on stdout
-%format short
-for s=1:size(sess_info{1},1)
-    session_AM(s)
-    session_MA(s)
-end
 
 
 cnt_sr = 1; % counter sender-receiver coherencies 
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators 
-list_sess = 1:20;
-% list_sess(17) = [];
+list_sess = 1:19;
+list_sess(17) = []; % -- Session 17 and 20 are full of artifacts 
 
-for i = 20 %list_sess %1:size(sess_info{1},1)-1  % For each session with at least one modulator
+for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least one modulator
     
     
     close all
-    % addpath('/vol/sas8/Maverick_RecStim_vSUBNETS220/160125/004')
-    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_base,sprintf('/Sess_%d',Sess));
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
 
-    % -- load list electrodes, sender, receiver
-    electrode = importdata(strcat(dir_Sess,sprintf('/recorded_pairs_modulators_Sess_%d.txt',Sess))); %Data.RecordPair;   % ---- all potential modulator pairs
-    receiver = importdata(strcat(dir_Sess,sprintf('/receiver_Sess_%d.txt',Sess)));  % ---- receiver pair
-    sender = importdata(strcat(dir_Sess,sprintf('/sender_Sess_%d.txt',Sess))); % ---- sender pair
-    
-    load(strcat(dir_Sess,'/session_split.mat'));
-    sess = current_session;  % -- rename structure
-    clear current_session;
-    
-    % ---  time parameter
+    load(strcat(dir_Sess,'/sess_data_lfp.mat')); % RS LFP split into 1 sec window and artifacts removed
+
+%     % ---  time parameter
     tot_time = 150001;
-    % ---  freq parameter for the masking
-    fmin = 10;
-    fmax = 40;
     
-    lfp_S = sess.lfp_S_clean;
-    lfp_R = sess.lfp_R_clean;
-    lfp_E = sess.lfp_E_clean; % -- structure type 
+    lfp_S = sess_data_lfp.lfp_S_clean;
+    lfp_R = sess_data_lfp.lfp_R_clean;
+    lfp_E = sess_data_lfp.lfp_E_clean; % -- structure type 
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,7 +77,7 @@ for i = 20 %list_sess %1:size(sess_info{1},1)-1  % For each session with at leas
 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % % Coherency SPLIT                %%%%%%%%%%%%%%%%%%%%
+    % % Coherency SPLIT                %%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     display(['Computing sender-receiver coherence...'])
@@ -120,22 +98,22 @@ for i = 20 %list_sess %1:size(sess_info{1},1)-1  % For each session with at leas
     stim(cnt_sr).s_s = S_s; % assign sender spectrum 
     stim(cnt_sr).s_r = S_r; % receiver spectrum 
     cnt_sr = cnt_sr + 1;    % sender/receiver counter 
+   
+   
+    mod_Ch = sess_data_lfp.mod_idx; % -- modulators (not controls!) index
     
-    
-    
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % --- COHERENCE- Modulator - Sender/Receiver -- %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    mod_Ch = session_AM(i).mod_idx; % causal modulator channel
+    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch)])
     
     cnt_m = 1;
     for Ch = mod_Ch % for all the modulators in the session
         
         close all 
+               
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % --- COHERENCE- Modulator - Sender/Receiver -- %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        if electrode(Ch) ~= receiver(1) % if the electrode is not the receiver itself
+        if Ch ~= sess_data_lfp.receiver_idx % if the electrode is not the receiver itself
                
         % -- coherence for modulator-sender, modulator-receiver 
         display(['Computing modulator-sender coherence...'])
@@ -178,9 +156,9 @@ for i = 20 %list_sess %1:size(sess_info{1},1)-1  % For each session with at leas
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         % --- full length with artifacts
-        lfp_S_rshape = reshape(sess.lfp_S',[],1)';
-        lfp_R_rshape = reshape(sess.lfp_R',[],1)';
-        lfp_E_rshape = reshape(sq(sess.lfp_E(Ch,:,:))',[],1)';
+        lfp_S_rshape = reshape(sess_data_lfp.lfp_S',[],1)';
+        lfp_R_rshape = reshape(sess_data_lfp.lfp_R',[],1)';
+        lfp_E_rshape = reshape(sq(sess_data_lfp.lfp_E(Ch,:,:))',[],1)';
         
         fig = figure;
         plot(lfp_S_rshape)
@@ -199,9 +177,9 @@ for i = 20 %list_sess %1:size(sess_info{1},1)-1  % For each session with at leas
         saveas(fig,fig_name);
         
         % -- full length without artifacts
-        lfp_S_rshape = reshape(sess.lfp_S_clean',[],1)';
-        lfp_R_rshape = reshape(sess.lfp_R_clean',[],1)';
-        lfp_E_rshape = reshape(sess.lfp_E_clean(cnt_m).lfp',[],1)';
+        lfp_S_rshape = reshape(sess_data_lfp.lfp_S_clean',[],1)';
+        lfp_R_rshape = reshape(sess_data_lfp.lfp_R_clean',[],1)';
+        lfp_E_rshape = reshape(sess_data_lfp.lfp_E_clean(cnt_m).lfp',[],1)';
         
         fig = figure;
         plot(lfp_S_rshape)
@@ -210,7 +188,7 @@ for i = 20 %list_sess %1:size(sess_info{1},1)-1  % For each session with at leas
         hold on
         plot(lfp_E_rshape)
         grid on
-        title('Cleaned version ','FontSize',11)
+        title('Cleaned version LFP ','FontSize',11)
         legend('Sender','Receiver','Modulator')
         set(gcf, 'Position',  [100, 600, 1000, 500])
         
@@ -228,15 +206,15 @@ for i = 20 %list_sess %1:size(sess_info{1},1)-1  % For each session with at leas
 end
 
  
-
+keyboard 
 % Save coherence and spectrum data in structure format
-save(strcat(dir_base,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
-save(strcat(dir_base,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_RS,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)),'stim');
 
 % -- load structure files
 fk = 200;
-load(strcat(dir_base,sprintf('/coh_spec_m_fk_%d.mat',fk)))
-load(strcat(dir_base,sprintf('/coh_spec_sr_fk_%d.mat',fk)))
+load(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)))
+load(strcat(dir_RS,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
@@ -302,9 +280,9 @@ legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_base,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
 saveas(fig,fname)
-fname = strcat(dir_base,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
 saveas(fig,fname)
 
 

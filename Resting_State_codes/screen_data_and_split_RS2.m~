@@ -10,55 +10,37 @@
 % OUTPUT: 1. sess_data_lfp.mat: 
 %               Strucure of data for each session containing:
 %               a. lfp before removing artifacts
-%               b. lfp after artifacts were removed       
+%               b. lfp after artifacts were removed 
 %
 %    @ Gino Del Ferraro, December 2020, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all; close all;
 
-set(0,'DefaultFigureVisible','off')
-% set(0,'DefaultFigureVisible','on')
+% set(0,'DefaultFigureVisible','off')
+set(0,'DefaultFigureVisible','on')
 
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_base = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
+dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
 step = 110;
 
-fid = fopen(strcat(dir_base,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
 
-% -- load structure files
-load(strcat(dir_base,'/session_AM.mat'))
-load(strcat(dir_base,'/session_MA.mat'))
-
-
-% -- print structures on stdout
-%format short
-for s=1:size(sess_info{1},1)
-    session_AM(s)
-    session_MA(s)
-end
-
-
-cnt_m = 1; % counter for the modulator-receiver/sender coherencies 
-cnt_sr = 1; % counter sender-receiver coherencies 
-cnt_el = 0; % counter for how many modulators excluding the receivers modulators 
-
 for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
-    % addpath('/vol/sas8/Maverick_RecStim_vSUBNETS220/160125/004')
     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
-    
-    % file = 'rec004.Frontal.lfp.dat'
+
+   % file = 'rec004.Frontal.lfp.dat'
     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i})
     fid = fopen(file);
     format = 'float=>single';
@@ -72,17 +54,19 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_base,sprintf('/Sess_%d',Sess));
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
     if ~exist(dir_Sess, 'dir')
         mkdir(dir_Sess)
     end
     
+
+    load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+
     % -- load list electrodes, sender, receiver
-    electrode = importdata(strcat(dir_Sess,sprintf('/recorded_pairs_modulators_Sess_%d.txt',Sess))); %Data.RecordPair;   % ---- all potential modulator pairs
-    receiver = importdata(strcat(dir_Sess,sprintf('/receiver_Sess_%d.txt',Sess)));  % ---- receiver pair
-    sender = importdata(strcat(dir_Sess,sprintf('/sender_Sess_%d.txt',Sess))); % ---- sender pair
-    
-    receiver_idx = find(electrode == receiver(1));
+    electrode = sess_control.RecordPair; % ---- all electrode pairs
+    receiver = sess_control.receiver_pair;  % ---- receiver pair
+    sender = sess_control.sender_pair; % ---- sender pair
+
     % ---  time parameter
     tot_time = 150001;
     % ---  freq parameter for the masking
@@ -107,13 +91,13 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
 % %   %-- sanity check LFP
-    figure;
-    plot(lfp_S_ns)
-    hold on
-    plot(lfp_R_ns)
-    hold on 
-    plot(lfp_E_ns(6,:,:))
-    legend('sender','receiver','electrode')
+%     figure;
+%     plot(lfp_S_ns)
+%     hold on
+%     plot(lfp_R_ns)
+%     hold on 
+%     plot(lfp_E_ns(6,:,:))
+%     legend('sender','receiver','electrode')
 
 
 %     --- Split the Lenghty RS time series into 1000 ms windows
@@ -131,6 +115,9 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     end
     
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %  FIGURES          %%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % -- plot sender / receiver LFP
     fig = figure;
@@ -147,33 +134,36 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     fname = strcat(dir_Sess,'/lfp_Sender_Receiver.png');
     saveas(fig,fname)
     
-    % -- plot modulators LFP
-    mod_Ch = session_AM(i).mod_idx; % causal modulator channel
+    % -- plot controls LFP
+    ctrl_Ch = sess_control.ctrl_idx; % control modulators 
     figure;
-    for Ch = mod_Ch
+    for Ch = ctrl_Ch
        plot(lfp_E_ns(Ch,:));
        hold on 
     end
-    title('Lfp modulator(s)','FontSize',11);
+    title('Lfp control(s)','FontSize',11);
     xlabel('time (sec)');
     ylabel('Lfp');
     grid on
     set(gcf, 'Position',  [100, 600, 1000, 600])
 
-    fname = strcat(dir_Sess,'/lfp_Modulators.png');
+    fname = strcat(dir_Sess,'/lfp_Controls.png');
     saveas(fig,fname)
     
     
-    % --- Store session info and LFP
-    sess(i).sess_idx = [i, Sess];
-    % -- store LFP 
-    sess(i).lfp_S = lfp_S;
-    sess(i).lfp_R = lfp_R;
-    sess(i).lfp_E = lfp_E; % -- all electrodes 
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % ASSIGN LFP SPLIT ALL ELECTRODES with artifacts included
+    % ------------------------------------------------------------
     
-    sess(i).mod_idx = mod_Ch; % -- modulator idx
-    sess(i).rec_idx = receiver_idx;
+    sess_control_lfp = sess_control; 
     
+    % -- store LFP split 
+    sess_control_lfp.lfp_S = lfp_S;
+    sess_control_lfp.lfp_R = lfp_R;
+    sess_control_lfp.lfp_E = lfp_E; % -- all electrodes 
+    
+
+    % %%%%%%%%% SESSIONS WITH HIGH STD %%%%%%%%%%%%%%%%%%%%%%%%
     % --- find sessions with high std (>150)
     if std(lfp_S_ns,[],2) > 150  badSess(i).std_S = std(lfp_S_ns,[],2);
         display(['Sess -- ',num2str(Sess),' Sender -- ']); end 
@@ -182,30 +172,25 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         display(['Sess -- ',num2str(Sess),' Receiver -- ',num2str(Ch)]); end 
 
     cnt_M = 1;
-    for Ch = mod_Ch
+    for Ch = ctrl_Ch
             if std(lfp_E_ns(Ch,:,:),[],2) > 150  badSess(i).std_E(cnt_M).std = std(lfp_E_ns(Ch,:,:),[],2); 
             display(['Sess -- ',num2str(Sess),' Modulator -- ',num2str(Ch)])
             end 
             cnt_M = cnt_M + 1;
     end 
     
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %  FIND OUTLIERS, i.e. windows with artifacts, and remove them  %%%%%%%
     
     % -- outliers Sender 
     th_S = 4*std(lfp_S_ns,[],2); % -- threshold for LFP Sender 
     max_S_split = max(abs(lfp_S),[],2);  % -- max of LFP for each time window   
-    sess(i).outliers_S = find(max_S_split > th_S)';
+    sess_control_lfp.outliers_S = find(max_S_split > th_S)';
     
     % -- outliers Receiver 
     th_R = 4*std(lfp_R_ns,[],2); % -- threshold for LFP Sender
     max_R_split = max(abs(lfp_R),[],2);  % -- max of LFP for each time window
-    sess(i).outliers_R = find(max_R_split > th_R)';
-    
-    % %%%%%%%%%%% Sender and Receiver %%%%%%%%%%%%%%%%%%%
-    lfp_S_clean = lfp_S;
-    lfp_R_clean = lfp_R;
-    
-    % %%%%%%% ALL Electrodes %%%%%%%%%%%%%%%%%%%%%
-    lfp_E_clean = lfp_E;
+    sess_control_lfp.outliers_R = find(max_R_split > th_R)';
 
   
     % -- outliers all electrodes  
@@ -213,45 +198,53 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     max_E_split = max(abs(lfp_E),[],3);  % -- max of LFP for each time window, for each channel
     
     outliers = [];
-    outliers = [outliers, sess(i).outliers_S]; % -- stuck up outliers sender
-    outliers = [outliers, sess(i).outliers_R]; % -- stuck up outliers receiver 
+    outliers = [outliers, sess_control_lfp.outliers_S]; % -- stuck up outliers sender
+    outliers = [outliers, sess_control_lfp.outliers_R]; % -- stuck up outliers receiver 
     
     cnt_m = 1;
-    for Ch = mod_Ch % -- for each modulator find outliers
-        sess(i).outliers_E(cnt_m).idx = find(max_E_split(Ch,:) > th_E(Ch)); % -- find outliers for this channel 
-        outliers = [outliers, sess(i).outliers_E(cnt_m).idx];    % -- stuck up outliers modulators
+    for Ch = ctrl_Ch % -- for each modulator find outliers
+        sess_control_lfp.outliers_E(cnt_m).idx = find(max_E_split(Ch,:) > th_E(Ch)); % -- find outliers for this channel 
+        outliers = [outliers, sess_control_lfp.outliers_E(cnt_m).idx];    % -- stuck up outliers modulators
         cnt_m = cnt_m + 1;
     end 
 
         
     outliers = unique(outliers)  % -- remove repeated entries in outliers 
-    sess(i).outliers_tot = outliers; % -- store the total outliers 
+    sess_control_lfp.outliers_tot = outliers; % -- store the total outliers 
+    
+    % %%%%%%%%%%% Sender and Receiver LFP %%%%%%%%%%%%%%%%%%%
+    lfp_S_clean = lfp_S;
+    lfp_R_clean = lfp_R;
     
     % -- remove outliers from sender and receiver
     lfp_S_clean(outliers,:) = [];
     lfp_R_clean(outliers,:) = [];
     
     % --- save lfp onto strucure
-    sess(i).lfp_S_clean = lfp_S_clean;
-    sess(i).lfp_R_clean = lfp_R_clean;
+    sess_control_lfp.lfp_S_clean = lfp_S_clean;
+    sess_control_lfp.lfp_R_clean = lfp_R_clean;
     
+    % %%%%%%% ALL Electrodes LFP %%%%%%%%%%%%%%%%%%%%%
+    lfp_E_clean = lfp_E;
     
     % -- remove outliers from modulators  
     cnt_m = 1;
-    for Ch = mod_Ch % -- for all the electrodes
+    for Ch = ctrl_Ch % -- for all the electrodes
         lfp_E_clean = sq(lfp_E(Ch,:,:));          % -- get lfp for only that channel
         lfp_E_clean(outliers,:) = [];       % -- remove outliers for this channel
-        sess(i).lfp_E_clean(cnt_m).lfp = lfp_E_clean;   % -- save to structure
+        sess_control_lfp.lfp_E_clean(cnt_m).lfp = lfp_E_clean;   % -- save to structure
         cnt_m = cnt_m + 1; 
     end
     
-    current_session = sess(i);
-    save(strcat(dir_Sess,'/lfp_RS_split.mat'),'current_session');
+    save(strcat(dir_Sess,'/sess_control_lfp.mat'),'sess_control_lfp');
 
     
 end
-    
-save(strcat(dir_base,'/all_sessions_split.mat'),'sess','-v7.3');
+
+
+keyboard 
+
+% save(strcat(dir_RS,'/all_sessions_split.mat'),'sess','-v7.3');
 
 
 for i=1:20

@@ -4,12 +4,13 @@
 % It splits the RS time series into 1 sec windows and remove all the windows
 % which contains artifacts (th = 4*std(lfp))
 %
+% INPUT : sess_control_info.mat
+%         structure containing all the info about the session, i.e. idx modulators, sender, etc...
+%
 % OUTPUT: 1. sess_control_lfp.mat: 
 %               Strucure of data for each session containing:
 %               a. lfp before removing artifacts
 %               b. lfp after artifacts were removed 
-%         2. Structure of data for all the sessions with the same info as
-%             the structure for each session above
 %
 %    @ Gino Del Ferraro, December 2020, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
