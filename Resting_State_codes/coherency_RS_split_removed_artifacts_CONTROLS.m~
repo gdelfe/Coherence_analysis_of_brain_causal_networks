@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code computes the Resting State coherence between the CONTROL 
 % modulators found by Shaoyu's and both the sender and the receiver
-% for the control electrodes (for as many controls as many modulators).
+% for the control electrodes (for as many controls as many
 %
 % It computes the mean and the std of such coherence, across all the
 % channels that have causal modulators
