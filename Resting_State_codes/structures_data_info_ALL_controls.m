@@ -42,7 +42,7 @@ for s=1:size(sess_info{1},1)
     MRIlabels = sess_data.MRIlabels; % -- all the available MRI labels 
     receiver_idx = sess_data.receiver_idx; % -- receiver idx 
 
-    [mod_Ch_rand,area_Ch_rand] = choose_modulator_control(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
+    [mod_Ch_rand,area_Ch_rand] = choose_ALL_control_same_Region(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
 
     sess_control = sess_data;
     sess_control.ctrl_idx = mod_Ch_rand;
