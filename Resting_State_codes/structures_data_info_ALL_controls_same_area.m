@@ -45,12 +45,12 @@ for s=1:size(sess_info{1},1)
 
     [mod_Ch_rand,area_Ch_rand] = choose_ALL_control_same_Region(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
 
-    sess_All_controls_same_Reg = sess_data;
-    sess_All_controls_same_Reg.ctrl_idx = mod_Ch_rand;
-    sess_All_controls_same_Reg.ctrl_area = area_Ch_rand(:)';
-    sess_All_controls_same_Reg 
+    sess_All_controls_same_area = sess_data;
+    sess_All_controls_same_area.ctrl_idx = mod_Ch_rand;
+    sess_All_controls_same_area.ctrl_area = area_Ch_rand(:)';
+    sess_All_controls_same_area 
     
-    save(strcat(dir_Sess,'/session_all_controls_same_reg_info.mat'),'sess_All_controls_same_Reg');
+    save(strcat(dir_Sess,'/session_all_controls_same_area_info.mat'),'sess_All_controls_same_area');
    
     
 end

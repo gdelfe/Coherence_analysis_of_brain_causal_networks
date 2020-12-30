@@ -242,7 +242,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m + 1; 
     end
     
-    save(strcat(dir_Sess,'/sess_control_lfp.mat'),'sess_control_lfp');
+    save(strcat(dir_Sess,'/sess_all_controls_same_area_lfp.mat'),'sess_control_lfp');
 
     
 end

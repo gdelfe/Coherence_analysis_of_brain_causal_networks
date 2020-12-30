@@ -33,7 +33,7 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
-name_structure_data_info = '/session_control_info.mat';
+name_structure_data_info = '/session_all_controls_same_area_info.mat';
 
 for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
@@ -63,6 +63,8 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 
     %load(strcat(dir_Sess,'/session_control_info.mat')); % --- dataG: all data info and LFP
     load(strcat(dir_Sess,name_structure_data_info)); % --- dataG: all data info and LFP
+    sess_control = sess_All_controls_same_area;
+    clear sess_All_controls_same_area;
 
     % -- load list electrodes, sender, receiver
     electrode = sess_control.RecordPair; % ---- all electrode pairs
@@ -116,41 +118,41 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt = cnt + 1;
     end
     
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %  FIGURES          %%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    % -- plot sender / receiver LFP
-    fig = figure;
-    plot(lfp_S_ns);
-    hold on
-    plot(lfp_R_ns);
-    grid on 
-    title('Lfp sender and receiver ','FontSize',11);
-    xlabel('time (sec)');
-    ylabel('Lfp');
-    legend('Sender','Receiver','FontSize',11);
-    set(gcf, 'Position',  [100, 600, 1000, 600])
-
-    fname = strcat(dir_Sess,'/lfp_Sender_Receiver.png');
-    saveas(fig,fname)
-    
-    % -- plot controls LFP
-    ctrl_Ch = sess_control.ctrl_idx; % control modulators 
-    figure;
-    for Ch = ctrl_Ch
-       plot(lfp_E_ns(Ch,:));
-       hold on 
-    end
-    title('Lfp control(s) all controls same area','FontSize',11);
-    xlabel('time (sec)');
-    ylabel('Lfp');
-    grid on
-    set(gcf, 'Position',  [100, 600, 1000, 600])
-
-    fname = strcat(dir_Sess,'/lfp_all_Controls_same_area.png');
-    saveas(fig,fname)
+% 
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     %  FIGURES          %%%%%%%%%%%%%%%%
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     
+%     % -- plot sender / receiver LFP
+%     fig = figure;
+%     plot(lfp_S_ns);
+%     hold on
+%     plot(lfp_R_ns);
+%     grid on 
+%     title('Lfp sender and receiver ','FontSize',11);
+%     xlabel('time (sec)');
+%     ylabel('Lfp');
+%     legend('Sender','Receiver','FontSize',11);
+%     set(gcf, 'Position',  [100, 600, 1000, 600])
+% 
+%     fname = strcat(dir_Sess,'/lfp_Sender_Receiver.png');
+%     saveas(fig,fname)
+%     
+%     % -- plot controls LFP
+%     ctrl_Ch = sess_control.ctrl_idx; % control modulators 
+%     figure;
+%     for Ch = ctrl_Ch
+%        plot(lfp_E_ns(Ch,:));
+%        hold on 
+%     end
+%     title('Lfp control(s) all controls same area','FontSize',11);
+%     xlabel('time (sec)');
+%     ylabel('Lfp');
+%     grid on
+%     set(gcf, 'Position',  [100, 600, 1000, 600])
+% 
+%     fname = strcat(dir_Sess,'/lfp_all_Controls_same_area.png');
+%     saveas(fig,fname)
     
     
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -173,6 +175,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     if std(lfp_R_ns,[],2) > 150  badSess(i).std_R = std(lfp_R_ns,[],2); 
         display(['Sess -- ',num2str(Sess),' Receiver -- ',num2str(Ch)]); end 
 
+    ctrl_Ch = sess_control.ctrl_idx;
     cnt_M = 1;
     for Ch = ctrl_Ch
             if std(lfp_E_ns(Ch,:,:),[],2) > 150  badSess(i).std_E(cnt_M).std = std(lfp_E_ns(Ch,:,:),[],2); 
@@ -183,6 +186,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %  FIND OUTLIERS, i.e. windows with artifacts, and remove them  %%%%%%%
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % -- outliers Sender 
     th_S = 4*std(lfp_S_ns,[],2); % -- threshold for LFP Sender 
