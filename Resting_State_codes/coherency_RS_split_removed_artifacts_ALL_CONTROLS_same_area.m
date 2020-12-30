@@ -53,9 +53,10 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
 
-    load(strcat(dir_Sess,'/sess_control_lfp.mat')); % RS LFP split into 1 sec window and artifacts removed
-    sess_control_lfp
-   
+    load(strcat(dir_Sess,'/session_all_controls_same_reg_info.mat')); % RS LFP split into 1 sec window and artifacts removed
+    sess_control_lfp = sess_All_controls_same_Reg;
+    clear sess_All_controls_same_Reg;
+    
     % -- load list electrodes, sender, receiver
 %     electrode = dataG.RecordPair; % ---- all electrode pairs
 %     receiver = dataG.receiver;  % ---- receiver pair

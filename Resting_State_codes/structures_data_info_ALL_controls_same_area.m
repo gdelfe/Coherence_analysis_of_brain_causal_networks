@@ -1,7 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code creates the structures session_control_info.mat containing all the
 % info about the data except for the LFPs for the case of the
-% the controls electrodes
+% the controls electrodes - controls are chosen in the same area as the
+% modulator's (all of the available electrodes in that area)
 %
 % INPUT:  session_data_info.mat
 % OUTPUT: session_control_info.mat in each Session folder containing a modulator 
@@ -44,12 +45,12 @@ for s=1:size(sess_info{1},1)
 
     [mod_Ch_rand,area_Ch_rand] = choose_ALL_control_same_Region(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
 
-    sess_control = sess_data;
-    sess_control.ctrl_idx = mod_Ch_rand;
-    sess_control.ctrl_area = area_Ch_rand(:)';
-    sess_control 
+    sess_All_controls_same_Reg = sess_data;
+    sess_All_controls_same_Reg.ctrl_idx = mod_Ch_rand;
+    sess_All_controls_same_Reg.ctrl_area = area_Ch_rand(:)';
+    sess_All_controls_same_Reg 
     
-    save(strcat(dir_Sess,'/session_all_controls_same_reg_info.mat'),'sess_ALL_controls_sameReg');
+    save(strcat(dir_Sess,'/session_all_controls_same_reg_info.mat'),'sess_All_controls_same_Reg');
    
     
 end
