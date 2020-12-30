@@ -119,14 +119,15 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     
     
     
-    ctrl_Ch = sess_control_lfp.ctrl_idx; % control channel indexes
+    ctrl_Ch = sess_control_lfp.ctrl_idx % control channel indexes
     mod_Ch = sess_control_lfp.mod_idx; % modulators channel indexes
     
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch),'  -- contols mod Ch: ',num2str(ctrl_Ch)])
     
+    
     % %%%%%%% ALL Electrodes LFP %%%%%%%%%%%%%%%%%%%%%
-    lfp_E = sess_control_lfp.lfp_E;
+    lfp_E_all = sess_control_lfp.lfp_E;
     
     cnt_m = 1;
     for Ch = ctrl_Ch % for all the modulators in the session
@@ -140,122 +141,125 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
         if Ch ~= sess_control_lfp.receiver_idx % if the electrode is not the receiver itself
             
             
-            % -- remove outliers from control, sender, and receiver 
-            cnt_m = 1;
-            for Ch = ctrl_Ch % -- for all the electrodes
-                
-                lfp_E = sq(lfp_E(Ch,:,:));          % -- get lfp for only that channel
-                outliers_tot = sess_control_lfp.outliers_tot(cnt_m).idx;  % -- get the M,R,S shared outliers
-                
-                % -- Sender and Receiver LFP 
-                lfp_S = sess_control_lfp.lfp_S;
-                lfp_R = sess_control_lfp.lfp_R;
-                % -- remove outliers from sender, receiver, and control
-                lfp_S(outliers_tot,:) = [];
-                lfp_R(outliers_tot,:) = [];
-                lfp_E(outliers_tot,:) = [];    
-
-                sess_control_lfp.lfp_E_clean(cnt_m).lfp = lfp_E;   % -- save to structure
-                        
-                % -- coherence for modulator-sender, modulator-receiver
-                display(['Computing modulator-sender coherence...'])
-                [c_ms,f,S_m,S_s] = coherency(lfp_E,lfp_S,[N W],fs,fk,pad,0.05,1,1);
-                
-                
-                display(['Computing modulator-receiver coherence...'])
-                [c_mr,f,S_m,S_r] = coherency(lfp_E,lfp_R,[N W],fs,fk,pad,0.05,1,1);
-                
-                
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                % ABS COHERENCE                 %%%%%
-                % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                
-                
-                % --- FIGURE --------- %%
-                % -- Coherence vs frequency --- %
-                fig = figure;
-                plot(f,abs(c_sr))
-                hold on
-                plot(f,abs(c_ms))
-                hold on
-                plot(f,abs(c_mr))
-                grid on
-                title(sprintf('Abs coherence vs frequency CONTROLS, ch = %d, causal mod',Ch),'FontSize',10);
-                legend('S-R coherence','M-S coherence','M-R coherence')
-                %         xlim([0 60])
-                set(gcf, 'Position',  [100, 600, 1000, 500])
-                
-                fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_CONTROLS_ch_%d_fk_%d.jpg',Ch,fk));
-                saveas(fig,fname);
-                
-                % -- structure assignements
-                mod(cnt_el).c_ms = c_ms ; % assign M-S coherence value for this modulator
-                mod(cnt_el).c_mr = c_mr;  % M-R coherence
-                mod(cnt_el).s_m = S_m; % Modulator spectrum
-                
-                % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                %   FIGURES     %%%%%%%%%%%%%%%%
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                
-                % --- full length with artifacts
-                lfp_S_rshape = reshape(sess_control_lfp.lfp_S',[],1)';
-                lfp_R_rshape = reshape(sess_control_lfp.lfp_R',[],1)';
-                lfp_E_rshape = reshape(sq(sess_control_lfp.lfp_E(Ch,:,:))',[],1)';
-                
-                fig = figure;
-                plot(lfp_S_rshape)
-                hold on
-                plot(lfp_R_rshape)
-                hold on
-                plot(lfp_E_rshape)
-                grid on
-                title(sprintf('full length - Controls modulator %d',Ch),'FontSize',11)
-                legend('Sender','Receiver','Modulator')
-                set(gcf, 'Position',  [100, 600, 1000, 500])
-                
-%                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.fig',Ch));
-%                 saveas(fig,fig_name);
-%                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.png',Ch));
-%                 saveas(fig,fig_name);
-                
-                % -- full length without artifacts
-                lfp_S_rshape = reshape(lfp_S',[],1)';
-                lfp_R_rshape = reshape(lfp_R',[],1)';
-                lfp_E_rshape = reshape(lfp_E',[],1)';
-                
-                fig = figure;
-                plot(lfp_S_rshape)
-                hold on
-                plot(lfp_R_rshape)
-                hold on
-                plot(lfp_E_rshape)
-                grid on
-                title('Cleaned version LFP Controls ','FontSize',11)
-                legend('Sender','Receiver','Modulator')
-                set(gcf, 'Position',  [100, 600, 1000, 500])
-                
-%                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
-%                 saveas(fig,fig_name);
-%                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
-%                 saveas(fig,fig_name);
-                
-                cnt_el = cnt_el + 1; % total modulators counter
-                cnt_m = cnt_m + 1; % counter for modulators within this session
-            end           
-        end 
+            % -- remove outliers from control, sender, and receiver
+            
+            
+            lfp_E = sq(lfp_E_all(Ch,:,:));          % -- get lfp for only that channel
+            outliers_tot = sess_control_lfp.outliers_tot(cnt_m).idx;  % -- get the M,R,S shared outliers
+            
+            % -- Sender and Receiver LFP
+            lfp_S = sess_control_lfp.lfp_S;
+            lfp_R = sess_control_lfp.lfp_R;
+            % -- remove outliers from sender, receiver, and control
+            lfp_S(outliers_tot,:) = [];
+            lfp_R(outliers_tot,:) = [];
+            lfp_E(outliers_tot,:) = [];
+            
+            sess_control_lfp.lfp_E_clean(cnt_m).lfp = lfp_E;   % -- save to structure
+            
+            % -- coherence for modulator-sender, modulator-receiver
+            display(['Computing modulator-sender coherence...'])
+            [c_ms,f,S_m,S_s] = coherency(lfp_E,lfp_S,[N W],fs,fk,pad,0.05,1,1);
+            
+            
+            display(['Computing modulator-receiver coherence...'])
+            [c_mr,f,S_m,S_r] = coherency(lfp_E,lfp_R,[N W],fs,fk,pad,0.05,1,1);
+            
+            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ABS COHERENCE                 %%%%%
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
+            
+            % --- FIGURE --------- %%
+            % -- Coherence vs frequency --- %
+            fig = figure;
+            plot(f,abs(c_sr))
+            hold on
+            plot(f,abs(c_ms))
+            hold on
+            plot(f,abs(c_mr))
+            grid on
+            title(sprintf('Abs coherence vs frequency CONTROLS, ch = %d, causal mod',Ch),'FontSize',10);
+            legend('S-R coherence','M-S coherence','M-R coherence')
+            %         xlim([0 60])
+            set(gcf, 'Position',  [100, 600, 1000, 500])
+            
+            fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_CONTROLS_ch_%d_fk_%d.jpg',Ch,fk));
+            saveas(fig,fname);
+            
+            % -- structure assignements
+            mod(cnt_el).c_ms = c_ms ; % assign M-S coherence value for this modulator
+            mod(cnt_el).c_mr = c_mr;  % M-R coherence
+            mod(cnt_el).s_m = S_m; % Modulator spectrum
+            
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %   FIGURES     %%%%%%%%%%%%%%%%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
+            % --- full length with artifacts
+            lfp_S_rshape = reshape(sess_control_lfp.lfp_S',[],1)';
+            lfp_R_rshape = reshape(sess_control_lfp.lfp_R',[],1)';
+            lfp_E_rshape = reshape(sq(sess_control_lfp.lfp_E(Ch,:,:))',[],1)';
+            
+            fig = figure;
+            plot(lfp_S_rshape)
+            hold on
+            plot(lfp_R_rshape)
+            hold on
+            plot(lfp_E_rshape)
+            grid on
+            title(sprintf('full length - Controls modulator %d',Ch),'FontSize',11)
+            legend('Sender','Receiver','Modulator')
+            set(gcf, 'Position',  [100, 600, 1000, 500])
+            
+            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.fig',Ch));
+            %                 saveas(fig,fig_name);
+            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.png',Ch));
+            %                 saveas(fig,fig_name);
+            
+            % -- full length without artifacts
+            lfp_S_rshape = reshape(lfp_S',[],1)';
+            lfp_R_rshape = reshape(lfp_R',[],1)';
+            lfp_E_rshape = reshape(lfp_E',[],1)';
+            
+            fig = figure;
+            plot(lfp_S_rshape)
+            hold on
+            plot(lfp_R_rshape)
+            hold on
+            plot(lfp_E_rshape)
+            grid on
+            title('Cleaned version LFP Controls ','FontSize',11)
+            legend('Sender','Receiver','Modulator')
+            set(gcf, 'Position',  [100, 600, 1000, 500])
+            
+            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
+            %                 saveas(fig,fig_name);
+            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
+            %                 saveas(fig,fig_name);
+            
+            cnt_el = cnt_el + 1; % total modulators counter
+            cnt_m = cnt_m + 1; % counter for modulators within this session
+            
+        end
     end
+    
+    
+    
+    
 end
 
 
 keyboard
 % Save coherence and spectrum data in structure format
-save(strcat(dir_RS,sprintf('/coh_spec_m_Controls_fk_%d_W_%d.mat',fk,W)),'mod');
-save(strcat(dir_RS,sprintf('/coh_spec_sr_Controls_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'stim');
 
 % -- load structure files
-fk = 200;
-load(strcat(dir_RS,sprintf('/coh_spec_m_Controls_fk_%d_W_%d.mat',fk,W)))
-load(strcat(dir_RS,sprintf('/coh_spec_sr_Controls_fk_%d_W_%d.mat',fk,W)))
+fk = 200; W = 5;
+load(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
+load(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
@@ -321,9 +325,9 @@ legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_RS,sprintf('/coherency_mean_Controls_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
 saveas(fig,fname)
-fname = strcat(dir_RS,sprintf('/coherency_mean_Controls_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
 saveas(fig,fname)
 
 

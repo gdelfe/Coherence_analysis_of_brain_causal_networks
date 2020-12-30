@@ -28,6 +28,8 @@ for i = 1:20 %1:size(sess_info{1},1)-1  % For each session with at least one mod
     
     cd(dir_Sess)
     !rm LFP_S-R-M*
+    !rm coherency_vs_freq_CONTROLS_ch*
+    !rm LFP_Controls_S-R-M*
     
     
 end
