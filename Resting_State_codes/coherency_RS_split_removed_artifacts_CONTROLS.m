@@ -193,7 +193,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
         % -- full length without artifacts
         lfp_S_rshape = reshape(sess_control_lfp.lfp_S_clean',[],1)';
         lfp_R_rshape = reshape(sess_control_lfp.lfp_R_clean',[],1)';
-        lfp_E_rshape = reshape(sess_control_lfp.lfp_E_clean(cnt_m).lfp',[],1)';
+        lfp_E_rshape = reshape(sq(sess_control_lfp.lfp_E(Ch,:,:))',[],1)';
         
         fig = figure;
         plot(lfp_S_rshape)
