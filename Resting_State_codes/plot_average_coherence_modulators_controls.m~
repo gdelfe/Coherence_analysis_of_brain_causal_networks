@@ -114,8 +114,9 @@ grid on
 title('Abs MR coherence MODULATORS vs CONTROLS (same brain area as modulators'') - Resting State','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
-legend('Modulators-Receivers abs coherency','Controls-Receivers abs coherency','S-R abs coherency','FontSize',10)
+legend('Modulators-Receivers  Abs coherence','Controls-Receivers  Abs coherence','S-R abs coherency','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
+grid on
 
 fname = strcat(dir_RS,sprintf('/coherency_MR_Modulators_vs_all_Controls_same_area_W_%d_fk_%d-all-Sess.png',W,fk));
 saveas(fig,fname)
@@ -136,10 +137,11 @@ grid on
 title('Abs MS coherence MODULATORS vs CONTROLS (same brain area as modulators'') - Resting State','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
-legend('M-S abs coherency','C-S abs coherency','FontSize',10)
+legend('Modulators-Senders  Abs coherency','Controls-Senders  Abs coherency','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
+grid on
 
-fname = strcat(dir_RS,sprintf('/coherency_MR_Modulators_vs_Controls_same_area_W_%d_fk_%d-all-Sess.png',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_MS_Modulators_vs__all_Controls_same_area_W_%d_fk_%d-all-Sess.png',W,fk));
 saveas(fig,fname)
 
 

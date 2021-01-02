@@ -11,7 +11,6 @@ set(0,'DefaultFigureVisible','on')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
 
-f = importdata(strcat(dir_RS,'/frequency_range_fk_200.txt'));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           MODULATORS   
@@ -88,11 +87,17 @@ err_ms_ctrl = std_cho_ms_ctrl/sqrt(M);
 err_mr_ctrl = std_cho_mr_ctrl/sqrt(M);
 err_sr_ctrl = std_cho_sr_ctrl/sqrt(S);
 
+f = linspace(1,fk,size(coh_mr,2));
 keyboard
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%           FIGURES    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% --- ELECTRODE-RECEIVER coherence -------%
+ 
 set(0,'DefaultFigureVisible','on')
 % -- FIGURE: Plot average coherence across sessions for MR, SR, MS
 fig = figure;
@@ -102,19 +107,56 @@ fig = figure;
 hold all
 
 
-shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
 shadedErrorBar(f,mean_cho_mr_ctrl,err_mr_ctrl,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Abs coherency CONTROLS of MR, CR-control - Resting State','FontSize',11);
+title('Abs MR coherence MODULATORS vs CONTROLS (same brain area as modulators'') - Resting State','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
-legend('M-R abs coherency','C-R abs coherency','S-R abs coherency','FontSize',10)
+legend('Modulators-Receivers  Abs coherence','Controls-Receivers  Abs coherence','S-R abs coherency','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
+grid on
 
-
-
-fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_MR_Modulators_vs_all_Controls_same_area_W_%d_fk_%d-all-Sess.png',W,fk));
 saveas(fig,fname)
+
+% --- ELECTRODE-SENDER coherence   -------%
+
+fig = figure;
+% hAx=axes;
+% hAx.XScale='linear'
+% hAx.YScale='log'
+hold all
+
+
+shadedErrorBar(f,mean_cho_ms,err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_ms_ctrl,err_ms_ctrl,'lineprops',{'color',[255, 51, 153]/255},'patchSaturation',0.4); hold on
+
+grid on
+title('Abs MS coherence MODULATORS vs CONTROLS (same brain area as modulators'') - Resting State','FontSize',11);
+xlabel('freq (Hz)');
+ylabel('coherence');
+legend('Modulators-Senders  Abs coherency','Controls-Senders  Abs coherency','FontSize',10)
+set(gcf, 'Position',  [100, 600, 1000, 600])
+grid on
+
+fname = strcat(dir_RS,sprintf('/coherency_MS_Modulators_vs__all_Controls_same_area_W_%d_fk_%d-all-Sess.png',W,fk));
+saveas(fig,fname)
+
+
+
+
+
+
+
+
 fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
 saveas(fig,fname)
+
+
+
+
+
+
+
