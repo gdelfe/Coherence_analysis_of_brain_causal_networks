@@ -2,7 +2,7 @@
 % This code creates the structures session_control_info.mat containing all the
 % info about the data except for the LFPs for the case of the
 % the controls electrodes - controls are chosen in the same area as the
-% modulator's (all of the available electrodes in that area)
+% modulator's (all the available electrodes in that area)
 %
 % INPUT:  session_data_info.mat
 % OUTPUT: session_control_info.mat in each Session folder containing a modulator 

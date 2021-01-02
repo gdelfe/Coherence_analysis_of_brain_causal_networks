@@ -1,8 +1,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This function picks a control electrode (index) in the same 
-% brain area as the modulator.
-% OUTPUT: indexes of the control modulators - as many as the true
-% modulators. Each one of them in the same brain area
+% brain area as the modulator (all the available electrodes)
+%
+% OUTPUT: indexes of the controls
+%         Brain region of the controls
 %
 % @ Gino Del Ferraro, December 2020, Pesaran Lab, NYU
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
