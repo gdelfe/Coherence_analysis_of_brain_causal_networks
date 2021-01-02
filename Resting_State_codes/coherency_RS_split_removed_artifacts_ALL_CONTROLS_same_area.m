@@ -36,7 +36,7 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
-
+name_struct_input = '/sess_all_controls_same_area_lfp.mat';
 
 
 cnt_sr = 1; % counter sender-receiver coherencies
@@ -52,7 +52,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
     
-    load(strcat(dir_Sess,'/sess_all_controls_same_area_lfp.mat')); % RS LFP split into 1 sec window and artifacts removed
+    load(strcat(dir_Sess,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
     
     
     % -- load list electrodes, sender, receiver
@@ -125,6 +125,10 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch),'  -- contols mod Ch: ',num2str(ctrl_Ch)])
     
+    dir_Ctrl_all = strcat(dir_Sess,'/Controls_same_area');
+    if ~exist(dir_Ctrl_all, 'dir')
+        mkdir(dir_Ctrl_all)
+    end
     
     % %%%%%%% ALL Electrodes LFP %%%%%%%%%%%%%%%%%%%%%
     lfp_E_all = sess_control_lfp.lfp_E;
@@ -142,8 +146,6 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             
             
             % -- remove outliers from control, sender, and receiver
-            
-            
             lfp_E = sq(lfp_E_all(Ch,:,:));          % -- get lfp for only that channel
             outliers_tot = sess_control_lfp.outliers_tot(cnt_m).idx;  % -- get the M,R,S shared outliers
             
@@ -185,7 +187,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             %         xlim([0 60])
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_CONTROLS_ch_%d_fk_%d.jpg',Ch,fk));
+            fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_all_CONTROLS_same_area_ch_%d_fk_%d.jpg',Ch,fk));
             saveas(fig,fname);
             
             % -- structure assignements
@@ -239,8 +241,8 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
             %                 saveas(fig,fig_name);
             
-            cnt_el = cnt_el + 1; % total modulators counter
-            cnt_m = cnt_m + 1; % counter for modulators within this session
+            cnt_el = cnt_el + 1; % total control counter
+            cnt_m = cnt_m + 1; % counter for control within this session
             
         end
     end

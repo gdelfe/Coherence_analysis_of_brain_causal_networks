@@ -35,7 +35,7 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
-name_structure_data_info = '/session_all_controls_same_reg_info.mat';
+name_struct_input = '/session_control_one_only_info.mat';
 
 for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
@@ -64,9 +64,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
 
     %load(strcat(dir_Sess,'/session_control_info.mat')); % --- dataG: all data info and LFP
-    load(strcat(dir_Sess,name_structure_data_info)); % --- dataG: all data info and LFP
-    sess_control = sess_All_controls_same_Reg;
-    clear sess_All_controls_same_Reg;
+    load(strcat(dir_Sess,name_struct_input)); % --- dataG: all data info and LFP
     
     % -- load list electrodes, sender, receiver
     electrode = sess_control.RecordPair; % ---- all electrode pairs
@@ -207,42 +205,16 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     outliers = [outliers, sess_control_lfp.outliers_S]; % -- stuck up outliers sender
     outliers = [outliers, sess_control_lfp.outliers_R]; % -- stuck up outliers receiver 
     
+    % -- modulators outliers
     cnt_m = 1;
     for Ch = ctrl_Ch % -- for each modulator find outliers
         sess_control_lfp.outliers_E(cnt_m).idx = find(max_E_split(Ch,:) > th_E(Ch)); % -- find outliers for this channel 
-        outliers = [outliers, sess_control_lfp.outliers_E(cnt_m).idx];    % -- stuck up outliers modulators
+        sess_control_lfp.outliers_tot(cnt_m).idx = [outliers, sess_control_lfp.outliers_E(cnt_m).idx];    % -- stuck up outliers of receiver, sender, and modulators
+        sess_control_lfp.outliers_tot(cnt_m).idx = unique(sess_control_lfp.outliers_tot(cnt_m).idx); % -- remove repeated entries in outliers M, S, R
         cnt_m = cnt_m + 1;
-    end 
-
-        
-    outliers = unique(outliers)  % -- remove repeated entries in outliers 
-    sess_control_lfp.outliers_tot = outliers; % -- store the total outliers 
-    
-    % %%%%%%%%%%% Sender and Receiver LFP %%%%%%%%%%%%%%%%%%%
-    lfp_S_clean = lfp_S;
-    lfp_R_clean = lfp_R;
-    
-    % -- remove outliers from sender and receiver
-    lfp_S_clean(outliers,:) = [];
-    lfp_R_clean(outliers,:) = [];
-    
-    % --- save lfp onto strucure
-    sess_control_lfp.lfp_S_clean = lfp_S_clean;
-    sess_control_lfp.lfp_R_clean = lfp_R_clean;
-    
-    % %%%%%%% ALL Electrodes LFP %%%%%%%%%%%%%%%%%%%%%
-    lfp_E_clean = lfp_E;
-    
-    % -- remove outliers from modulators  
-    cnt_m = 1;
-    for Ch = ctrl_Ch % -- for all the electrodes
-        lfp_E_clean = sq(lfp_E(Ch,:,:));          % -- get lfp for only that channel
-        lfp_E_clean(outliers,:) = [];       % -- remove outliers for this channel
-        sess_control_lfp.lfp_E_clean(cnt_m).lfp = lfp_E_clean;   % -- save to structure
-        cnt_m = cnt_m + 1; 
     end
     
-    save(strcat(dir_Sess,'/sess_all_controls_same_area_lfp.mat'),'sess_control_lfp');
+    save(strcat(dir_Sess,'/sess_controls_one_only.mat'),'sess_control_lfp');
 
     
 end

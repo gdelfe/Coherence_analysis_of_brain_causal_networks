@@ -49,7 +49,7 @@ for s=1:size(sess_info{1},1)
     sess_control.ctrl_area = area_Ch_rand;
     sess_control 
     
-    save(strcat(dir_Sess,'/session_control_info.mat'),'sess_control');
+    save(strcat(dir_Sess,'/session_control_one_only_info.mat'),'sess_control');
    
     
 end
