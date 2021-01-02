@@ -111,41 +111,42 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt = cnt + 1;
     end
     
-
+    mod_Ch = sess_data.mod_idx; % control modulators 
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %  FIGURES          %%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    % -- plot sender / receiver LFP
-    fig = figure;
-    plot(lfp_S_ns);
-    hold on
-    plot(lfp_R_ns);
-    grid on 
-    title('Lfp sender and receiver ','FontSize',11);
-    xlabel('time (sec)');
-    ylabel('Lfp');
-    legend('Sender','Receiver','FontSize',11);
-    set(gcf, 'Position',  [100, 600, 1000, 600])
-
-    fname = strcat(dir_Sess,'/lfp_Sender_Receiver.png');
-    saveas(fig,fname)
-    
-    % -- plot controls LFP
-    mod_Ch = sess_data.mod_idx; % control modulators 
-    figure;
-    for Ch = mod_Ch
-       plot(lfp_E_ns(Ch,:));
-       hold on 
-    end
-    title('Lfp control(s)','FontSize',11);
-    xlabel('time (sec)');
-    ylabel('Lfp');
-    grid on
-    set(gcf, 'Position',  [100, 600, 1000, 600])
-
-    fname = strcat(dir_Sess,'/lfp_Controls.png');
-    saveas(fig,fname)
+%     % -- plot sender / receiver LFP
+%     fig = figure;
+%     plot(lfp_S_ns);
+%     hold on
+%     plot(lfp_R_ns);
+%     grid on 
+%     title('Lfp sender and receiver ','FontSize',11);
+%     xlabel('time (sec)');
+%     ylabel('Lfp');
+%     legend('Sender','Receiver','FontSize',11);
+%     set(gcf, 'Position',  [100, 600, 1000, 600])
+% 
+%     fname = strcat(dir_Sess,'/lfp_Sender_Receiver.png');
+%     saveas(fig,fname)
+%     
+%     % -- plot controls LFP
+%     
+%     figure;
+%     for Ch = mod_Ch
+%        plot(lfp_E_ns(Ch,:));
+%        hold on 
+%     end
+%     title('Lfp control(s)','FontSize',11);
+%     xlabel('time (sec)');
+%     ylabel('Lfp');
+%     grid on
+%     set(gcf, 'Position',  [100, 600, 1000, 600])
+% 
+%     fname = strcat(dir_Sess,'/lfp_Controls.png');
+%     saveas(fig,fname)
     
     
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -198,41 +199,16 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     outliers = [outliers, sess_data_lfp.outliers_S]; % -- stuck up outliers sender
     outliers = [outliers, sess_data_lfp.outliers_R]; % -- stuck up outliers receiver 
     
+    % -- control outliers
     cnt_m = 1;
     for Ch = mod_Ch % -- for each modulator find outliers
-        sess_data_lfp.outliers_E(cnt_m).idx = find(max_E_split(Ch,:) > th_E(Ch)); % -- find outliers for this channel 
-        outliers = [outliers, sess_data_lfp.outliers_E(cnt_m).idx];    % -- stuck up outliers modulators
+        sess_data_lfp.outliers_E(cnt_m).idx = find(max_E_split(Ch,:) > th_E(Ch)); % -- find outliers for this channel
+        sess_data_lfp.outliers_tot(cnt_m).idx = [outliers, sess_data_lfp.outliers_E(cnt_m).idx];    % -- stuck up outliers of receiver, sender, and this control electrode
+        sess_data_lfp.outliers_tot(cnt_m).idx = unique(sess_data_lfp.outliers_tot(cnt_m).idx); % -- remove repeated entries in outliers C, S, R
         cnt_m = cnt_m + 1;
-    end 
-
-        
-    outliers = unique(outliers)  % -- remove repeated entries in outliers 
-    sess_data_lfp.outliers_tot = outliers; % -- store the total outliers 
-    
-    % %%%%%%%%%%% Sender and Receiver LFP %%%%%%%%%%%%%%%%%%%
-    lfp_S_clean = lfp_S;
-    lfp_R_clean = lfp_R;
-    
-    % -- remove outliers from sender and receiver
-    lfp_S_clean(outliers,:) = [];
-    lfp_R_clean(outliers,:) = [];
-    
-    % --- save lfp onto strucure
-    sess_data_lfp.lfp_S_clean = lfp_S_clean;
-    sess_data_lfp.lfp_R_clean = lfp_R_clean;
-    
-    % %%%%%%% ALL Electrodes LFP %%%%%%%%%%%%%%%%%%%%%
-    lfp_E_clean = lfp_E;
-    
-    % -- remove outliers from modulators  
-    cnt_m = 1;
-    for Ch = mod_Ch % -- for all the electrodes
-        lfp_E_clean = sq(lfp_E(Ch,:,:));          % -- get lfp for only that channel
-        lfp_E_clean(outliers,:) = [];       % -- remove outliers for this channel
-        sess_data_lfp.lfp_E_clean(cnt_m).lfp = lfp_E_clean;   % -- save to structure
-        cnt_m = cnt_m + 1; 
     end
-    
+
+    sess_data_lfp
     save(strcat(dir_Sess,'/sess_data_lfp.mat'),'sess_data_lfp');
 
     
@@ -250,6 +226,8 @@ for i=1:20
     badSess(i).std_R
     badSess(i).std_S
     badSess(i).std_E
+    sess_data_lfp(i)
+    
 end
 
   

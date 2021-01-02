@@ -258,13 +258,13 @@ end
 
 keyboard
 % Save coherence and spectrum data in structure format
-save(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_s_area_fk_%d_W_%d.mat',fk,W)),'mod');
-save(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_other_areas_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_other_areas_fk_%d_W_%d.mat',fk,W)),'stim');
 
 % -- load structure files
 fk = 200; W = 5;
-load(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
-load(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
+load(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_other_areas_fk_%d_W_%d.mat',fk,W)))
+load(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_other_areas_fk_%d_W_%d.mat',fk,W)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
@@ -319,20 +319,20 @@ shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchS
 shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Abs coherency CONTROLS of MS, SR, SR - Resting State, all Sessions','FontSize',11);
+title('Abs coherency CONTROLS (other areas): CS, SR, CR - Resting State','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 % legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
 % legend('M-S mean abs','M-R mean abs','S-R mean abs','M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10)
+legend('C-S abs coherency','C-R abs coherency','C-R abs coherency','FontSize',10)
 % legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
 % xlim([0 60])
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_other_areas_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
 saveas(fig,fname)
-fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_other_areas_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
 saveas(fig,fname)
 
 

@@ -207,7 +207,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     outliers = [outliers, sess_control_lfp.outliers_S]; % -- stuck up outliers sender
     outliers = [outliers, sess_control_lfp.outliers_R]; % -- stuck up outliers receiver 
     
-    % -- modulators outliers
+    % -- control outliers
     cnt_m = 1;
     for Ch = ctrl_Ch % -- for each modulator find outliers
         sess_control_lfp.outliers_E(cnt_m).idx = find(max_E_split(Ch,:) > th_E(Ch)); % -- find outliers for this channel 
