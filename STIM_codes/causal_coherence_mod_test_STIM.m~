@@ -211,7 +211,12 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     electrode = sess_data.RecordPair; % ---- all electrode pairs
     receiver = sess_data.receiver_pair;  % ---- receiver pair
     sender = sess_data.sender_pair; % ---- sender pair
-
+    
+    % ---- Lfp of the resting state for that specific pair of electrodes
+    lfp_E = data(electrode(:,1),:) - data(electrode(:,2),:); % all the electrodes
+    lfp_S = data(sender(1),:) - data(sender(2),:); % sender
+    lfp_R = data(receiver(1),:) - data(receiver(2),:); % receiver
+    
     
     % ---  freq parameter for the masking
     fmin = 10;
