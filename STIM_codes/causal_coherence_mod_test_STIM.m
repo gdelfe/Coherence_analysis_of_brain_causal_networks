@@ -205,7 +205,7 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
         mkdir(dir_Sess)
     end
     
-    load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+    load(strcat(dir_RS_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
     % -- load list electrodes, sender, receiver
     electrode = sess_data.RecordPair; % ---- all electrode pairs

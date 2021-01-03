@@ -42,32 +42,19 @@ end
 UsedSess = find(useSessIndx);
 
 %%%%%%%%%%%%%%%%%%%
-% - LOAD DATA --- %
+% - SET PATHS --- %
 %%%%%%%%%%%%%%%%%%%
 
-addpath('/mnt/pesaranlab/People/Gino/DL-modulators/Gino_codes')
-dir_RS = '/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State';
-dir_Stim = '/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Stim_data';
+
+addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
+dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
+dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data';
 step = 110;
 
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-% -- load structure files
-newAM = load(strcat(dir_RS,'/session_AM.mat'))
-session_AM = newAM.session_AM;
-
-newMA = load(strcat(dir_RS,'/session_MA.mat'))
-session_MA = newMA.session_MA;
-
-
-% % -- print structures on stdout
-% %format short
-% for s=1:size(sess_info{1},1)
-%     session_AM(s)
-%     session_MA(s)
-% end
 
 % -- matrices to store coherence for each mod and then compute
 % average
@@ -96,122 +83,31 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     disp(['Session ' num2str(Sess) ' out of ' num2str(length(PreStimSess)) ' ...'])
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % LOAD DATA ...                %
+    % LOAD LFP STIM ...                %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    RespPair = sessElectrode(PreStimSess{Sess}); % responding channel
-    stimName = PreStimSess{Sess}{9};
-    stimTask = PreStimSess{Sess}{7};
-    day = sessDay(PreStimSess{Sess});
-    
-    
-    % % loading Pre data
-    dataDir_Pre = sprintf('%s/AccLLR/%sStimAllSess/StimResponseSessions/',DATADIR,stimName);
-    switch stimTask
-        case 'StimSinglePulse'
-            fileName_Pre = sprintf('%sSess%03d_%s_AccLLR_Elec%03d-Elec%03d_%s_1stPulse.mat',dataDir_Pre,Sess,day,RespPair(1),RespPair(2),stimName);
-            
-        case 'StimBlockShort'
-            fileName_Pre = sprintf('%sSess%03d_%s_AccLLR_Elec%03d-Elec%03d_%s_grouped.mat',dataDir_Pre,Sess,day,RespPair(1),RespPair(2),stimName);
-    end
-    
-    tic
-    disp('Loading Pre data ...')
-    load(fileName_Pre)
-    disp('Done with Pre data loading')
-    toc
-    
-    % % parameters %%%%%%
-    fs = Data.Fs.lfp;% lfp sampling rate
-    Fs = Data.Fs.raw;% raw sampling rate
-    
-    
-    AnalParams = Data.Params.Anal;
-    AnalParams.Tapers = [0.5,2];
-    AnalParams.TestSpecDiff.fk = [10 40];
-    
-    
-    fkNames = {'\beta'};
-    Data.Params.Anal = AnalParams;
-    Data.Spec.ROC.fk = AnalParams.TestSpecDiff.fk;
-    StimTrials = Data.StimTrials(Data.goodTrials_index);
-    sys = StimTrials(1).MT;
     bn_Pre = [-1005 -5]; % ms
-    
-    
-    
-    % % extract AccLLR results
-    Results = Data.AccLLR.Results;
-    EventST = Results.EventST;
-    
-    
-    if ~isequal(sum(~isnan(EventST)),0) % if detected
-        nFreqBands = size(AnalParams.TestSpecDiff.fk,1);
-        
-        if strcmp(Data.Spec.recordConfig,'Bipolar')
-            lfp_Detected = Data.spec.lfp.bipolar.Detected;
-            lfp_notDetected = Data.spec.lfp.bipolar.notDetected;
-            
-            Lfp_Pre = [];
-            for iFreqBand = 1 : nFreqBands
-                pval = [];
-                pval_roc = [];
-                AnalParams.Spec.Test.fk = AnalParams.TestSpecDiff.fk(iFreqBand,:);
-                Fk = AnalParams.Spec.Test.fk;
-                
-                
-                %                 dlmwrite(sprintf('recorded_pairs_modulators_Sess_%d.txt',iSess),Data.RecordPair,'delimiter',',');
-                
-                %  ---- Data.Spec.ROC.sigChIndx{1}
-                % ---- find(Data.Spec.ROC.sigChIndx{1})
-                if ~isempty(Data.Spec.ROC.sigChs{iFreqBand})
-                    % load LFPs
-                    if isempty(Lfp_Pre)
-                        try
-                            disp('Loading lfp data ...')
-                            [Lfp_Pre] = trialStimPulseLfp(StimTrials, sys, [], [], 'PulseStarts', bn_Pre); % returns monopolar recording
-                        catch
-                            disp('Loading raw data ...')
-                            [Raw_Pre] = trialStimPulseRaw(StimTrials, sys, [], [], 'PulseStarts', bn_Pre); % returns monopolar recording
-                            
-                            for iCh = 1 : size(Raw_Pre,2)
-                                lfp_Pre(:,iCh,:) = mtfilter(sq(Raw_Pre(:,iCh,:)),[0.0025,400],Fs,0);
-                            end
-                            Lfp_Pre = lfp_Pre(:,:,1:Fs/fs:end);
-                            clear Raw_Pre lfp_Pre
-                        end
-                    end
-                    
-                    fprintf('\n');
-                    disp(['Start ROC on PSDs @ ' num2str(AnalParams.TestSpecDiff.fk(iFreqBand,1)) '-' num2str(AnalParams.TestSpecDiff.fk(iFreqBand,2)) ' Hz'])
-                    fprintf('\n\n');
-                    reverseStr = '';
-                    
-                end
-            end
-        end
-    end
+    Lfp_Pre = load_LFP_STIM(PreStimSess,Sess,bn_Pre,DATADIR); 
     
     % %%%%%%%%%%%%%%%%% --->>> LFP data loaded at this point 
-    
-    
+ 
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',   out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
     
     % ---- bipolar referencing, pairs of electrodes
-    dir_Sess = sprintf('/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Stim_data/Sess_%d',Sess);
-    dir_RS_Sess = sprintf('/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State/Sess_%d',Sess);
+    dir_Sess = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data/Sess_%d',Sess);
+    dir_RS_Sess = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state/Sess_%d',Sess);
     
     if ~exist(dir_Sess, 'dir')
         mkdir(dir_Sess)
     end
     
-    % -- load list electrodes, sender, receiver
-    electrode = importdata(strcat(dir_RS_Sess,sprintf('/recorded_pairs_modulators_Sess_%d.txt',Sess))); %Data.RecordPair;   % ---- all potential modulator pairs
-    receiver = importdata(strcat(dir_RS_Sess,sprintf('/receiver_Sess_%d.txt',Sess)));  % ---- receiver pair
-    sender = importdata(strcat(dir_RS_Sess,sprintf('/sender_Sess_%d.txt',Sess))); % ---- sender pair
+    load(strcat(dir_RS_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
+    % -- load list electrodes, sender, receiver
+    electrode = sess_data.RecordPair; % ---- all electrode pairs
+    receiver = sess_data.receiver_pair;  % ---- receiver pair
+    sender = sess_data.sender_pair; % ---- sender pair
     
     % ---  freq parameter for the masking
     fmin = 10;

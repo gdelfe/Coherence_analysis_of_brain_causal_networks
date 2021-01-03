@@ -42,8 +42,9 @@ end
 UsedSess = find(useSessIndx);
 
 %%%%%%%%%%%%%%%%%%%
-% - LOAD DATA --- %
+% - SET PATHS --- %
 %%%%%%%%%%%%%%%%%%%
+
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
@@ -54,20 +55,6 @@ fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session 
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-% -- load structure files
-newAM = load(strcat(dir_RS,'/session_AM.mat'))
-session_AM = newAM.session_AM;
-
-newMA = load(strcat(dir_RS,'/session_MA.mat'))
-session_MA = newMA.session_MA;
-
-
-% % -- print structures on stdout
-% %format short
-% for s=1:size(sess_info{1},1)
-%     session_AM(s)
-%     session_MA(s)
-% end
 
 % -- matrices to store coherence for each mod and then compute
 % average
@@ -86,6 +73,8 @@ S_r_M = zeros(48,t_tot,ftot); % Misses
 
 
 cnt = 1;
+list_sess = 1:19;
+list_sess(17) = []; % -- Session 17 and 20 are full of artifacts
 
 for i=1:size(sess_info{1},1)  % For all the session with a modulator
     
@@ -94,105 +83,13 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     disp(['Session ' num2str(Sess) ' out of ' num2str(length(PreStimSess)) ' ...'])
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % LOAD DATA ...                %
+    % LOAD LFP STIM ...                %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    RespPair = sessElectrode(PreStimSess{Sess}); % responding channel
-    stimName = PreStimSess{Sess}{9};
-    stimTask = PreStimSess{Sess}{7};
-    day = sessDay(PreStimSess{Sess});
-    
-    
-    % % loading Pre data
-    dataDir_Pre = sprintf('%s/AccLLR/%sStimAllSess/StimResponseSessions/',DATADIR,stimName);
-    switch stimTask
-        case 'StimSinglePulse'
-            fileName_Pre = sprintf('%sSess%03d_%s_AccLLR_Elec%03d-Elec%03d_%s_1stPulse.mat',dataDir_Pre,Sess,day,RespPair(1),RespPair(2),stimName);
-            
-        case 'StimBlockShort'
-            fileName_Pre = sprintf('%sSess%03d_%s_AccLLR_Elec%03d-Elec%03d_%s_grouped.mat',dataDir_Pre,Sess,day,RespPair(1),RespPair(2),stimName);
-    end
-    
-    tic
-    disp('Loading Pre data ...')
-    load(fileName_Pre)
-    disp('Done with Pre data loading')
-    toc
-    
-    % % parameters %%%%%%
-    fs = Data.Fs.lfp;% lfp sampling rate
-    Fs = Data.Fs.raw;% raw sampling rate
-    
-    
-    AnalParams = Data.Params.Anal;
-    AnalParams.Tapers = [0.5,2];
-    AnalParams.TestSpecDiff.fk = [10 40];
-    
-    
-    fkNames = {'\beta'};
-    Data.Params.Anal = AnalParams;
-    Data.Spec.ROC.fk = AnalParams.TestSpecDiff.fk;
-    StimTrials = Data.StimTrials(Data.goodTrials_index);
-    sys = StimTrials(1).MT;
     bn_Pre = [-1005 -5]; % ms
-    
-    
-    
-    % % extract AccLLR results
-    Results = Data.AccLLR.Results;
-    EventST = Results.EventST;
-    
-    
-    if ~isequal(sum(~isnan(EventST)),0) % if detected
-        nFreqBands = size(AnalParams.TestSpecDiff.fk,1);
-        
-        if strcmp(Data.Spec.recordConfig,'Bipolar')
-            lfp_Detected = Data.spec.lfp.bipolar.Detected;
-            lfp_notDetected = Data.spec.lfp.bipolar.notDetected;
-            
-            Lfp_Pre = [];
-            for iFreqBand = 1 : nFreqBands
-                pval = [];
-                pval_roc = [];
-                AnalParams.Spec.Test.fk = AnalParams.TestSpecDiff.fk(iFreqBand,:);
-                Fk = AnalParams.Spec.Test.fk;
-                
-                
-                %                 dlmwrite(sprintf('recorded_pairs_modulators_Sess_%d.txt',iSess),Data.RecordPair,'delimiter',',');
-                
-                %  ---- Data.Spec.ROC.sigChIndx{1}
-                % ---- find(Data.Spec.ROC.sigChIndx{1})
-                if ~isempty(Data.Spec.ROC.sigChs{iFreqBand})
-                    % load LFPs
-                    if isempty(Lfp_Pre)
-                        try
-                            disp('Loading lfp data ...')
-                            [Lfp_Pre] = trialStimPulseLfp(StimTrials, sys, [], [], 'PulseStarts', bn_Pre); % returns monopolar recording
-                        catch
-                            disp('Loading raw data ...')
-                            [Raw_Pre] = trialStimPulseRaw(StimTrials, sys, [], [], 'PulseStarts', bn_Pre); % returns monopolar recording
-                            
-                            for iCh = 1 : size(Raw_Pre,2)
-                                lfp_Pre(:,iCh,:) = mtfilter(sq(Raw_Pre(:,iCh,:)),[0.0025,400],Fs,0);
-                            end
-                            Lfp_Pre = lfp_Pre(:,:,1:Fs/fs:end);
-                            clear Raw_Pre lfp_Pre
-                        end
-                    end
-                    
-                    fprintf('\n');
-                    disp(['Start ROC on PSDs @ ' num2str(AnalParams.TestSpecDiff.fk(iFreqBand,1)) '-' num2str(AnalParams.TestSpecDiff.fk(iFreqBand,2)) ' Hz'])
-                    fprintf('\n\n');
-                    reverseStr = '';
-                    
-                end
-            end
-        end
-    end
+    Lfp_Pre = load_LFP_STIM(PreStimSess,Sess,bn_Pre,DATADIR); 
     
     % %%%%%%%%%%%%%%%%% --->>> LFP data loaded at this point 
-    
-    keyboard
+ 
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',   out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
@@ -205,18 +102,12 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
         mkdir(dir_Sess)
     end
     
-    load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+    load(strcat(dir_RS_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
     % -- load list electrodes, sender, receiver
     electrode = sess_data.RecordPair; % ---- all electrode pairs
     receiver = sess_data.receiver_pair;  % ---- receiver pair
     sender = sess_data.sender_pair; % ---- sender pair
-    
-    % ---- Lfp of the resting state for that specific pair of electrodes
-    lfp_E = data(electrode(:,1),:) - data(electrode(:,2),:); % all the electrodes
-    lfp_S = data(sender(1),:) - data(sender(2),:); % sender
-    lfp_R = data(receiver(1),:) - data(receiver(2),:); % receiver
-    
     
     % ---  freq parameter for the masking
     fmin = 10;
@@ -227,24 +118,31 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     lfp_R = sq(Lfp_Pre(:,receiver(1),:) - Lfp_Pre(:,receiver(2),:)); % receiver lfp
     lfp_S = sq(Lfp_Pre(:,sender(1),:) - Lfp_Pre(:,sender(2),:)); % sender lfp
      
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % --------- COHERENCE-GRAM --------------%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % % Coherency LFP                  %%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % ---- parameters for the coherence-gram
-    tapers = [0.7 8];
-    N = tapers(1);
     nt = 1000;
-    dn = 0.005;
     fs = 1000;
-    fk = 60;
-    nwin = single(floor((nt-N*fs)/(dn*fs)))
-    k = floor(2*N*tapers(2)-1)
+    fk = 200;
+    pad = 2;
+    N = 1;
+    W = 5;
     
-    % --- coherence
+  
+    mod_Ch = sess_data.mod_idx; % -- modulators (not controls!) index
     
-    mod_Ch = session_AM(i).mod_idx; % causal modulators channel
+    
+    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch)])
+    
+    dir_Modulators = strcat(dir_Sess,'/Modulators');
+    if ~exist(dir_Modulators, 'dir')
+        mkdir(dir_Modulators)
+    end
+    
     
     indx_list = [];
     
@@ -259,39 +157,15 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
         % -- labels Hits and Misses
         hitIndx = Data.spec.lfp.DetectedIndx{Ch}; % labels for the hits (which trial was a hit)
         missIndx = Data.spec.lfp.notDetectedIndx{Ch}; % labels for the misses (which trial was a miss)
-        
-        
-        
-        display(['Computing coherence-gram...'])
 
-        % Compute coherences and spectrums, all, hits, and misses 
-        [c_mr,tf,f,spec_m,spec_r] = tfcoh_GINO(sq(lfp_E(:,Ch,:)),lfp_R(:,:),tapers,1e3,dn,fk,2,0.05,11); % coherence modulator-receiver
-        [c_mr_H,tf,f,spec_m_H,spec_r_H] = tfcoh_GINO(sq(lfp_E(hitIndx,Ch,:)),lfp_R(hitIndx,:),tapers,1e3,dn,fk,2,0.05,11); % Hits
-        [c_mr_M,tf,f,spec_m_M,spec_r_M] = tfcoh_GINO(sq(lfp_E(missIndx,Ch,:)),lfp_R(missIndx,:),tapers,1e3,dn,fk,2,0.05,11); % Misses
-
-        
-        %     dlmwrite(strcat(dir_Sess,'/sr_coherogram.txt'),c_sr,'delimiter',' ');
-        % -- Figure: coherence spectrum
-        
-        
-        % --- FIGURE: MODULATOR-RECEIVER COHEROGRAM
-        fig_mr = figure; tvimage(abs(c_mr(:,:))); colorbar; % coherence spectrum
-        xticks = floor(linspace(1,length(tf),5));
-        xticklabels = tf(xticks);
-        xtickformat('%d')
-        yticks = 1:10:length(f);
-        yticklabels = floor(f(yticks));
-        ytickformat('%.2f')
-        set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
-        title(sprintf('M-R Coherogram, Sess = %d, ch = %d',Sess,Ch),'FontSize',12);
-        xlabel('time (sec)');
-        ylabel('freq (Hz)')
-        % ylim([0,120])
-        set(gcf, 'Position',  [100, 600, 1000, 600])
-        
-        fname = strcat(dir_Sess,sprintf('/MR_coherogram_ch_%d_N_%.2f_W_%d.jpg',Ch,tapers(1),tapers(2)));
-        saveas(fig_mr,fname);
-        
+        % -- coherence of modulator-receiver 
+        display(['Computing modulator-receiver coherence...'])
+        [c_mr,f,S_m,S_r] = coherency(lfp_E,lfp_R,[N W],fs,fk,pad,0.05,1,1);
+        % -- coherence of modulator-receiver HITS
+        [c_mr_H,f_H,S_m_H,S_r_H] = coherency(lfp_E(hitIndx,:,:),lfp_R,[N W],fs,fk,pad,0.05,1,1);
+        % -- coherence of modulator-receiver MISSES
+        [c_mr_M,f_M,S_m_M,S_r_M] = coherency(lfp_E(missIndx,:,:),lfp_R,[N W],fs,fk,pad,0.05,1,1);
+            
 
         % --- FIGURE: HITS MODULATOR-RECEIVER COHEROGRAM
         fig_mr = figure; tvimage(abs(c_mr_H(:,:))); colorbar; % coherence spectrum
