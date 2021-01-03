@@ -56,27 +56,11 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 
-% -- matrices to store coherence for each mod and then compute
-% average
-t_tot = 60;
-ftot = 122;
-coh_mr = zeros(48,t_tot,ftot); % coherence mod-receiver.# of causal mod, # time, # frequency
-coh_mr_H = zeros(48,t_tot,ftot); % Hits
-coh_mr_M = zeros(48,t_tot,ftot); % Misses
-
-S_m = zeros(48,t_tot,ftot); % spectrum modulator, # of causal mod, # time, # frequency
-S_r = zeros(48,t_tot,ftot); % spectrum receiver 
-S_m_H = zeros(48,t_tot,ftot); % Hits
-S_r_H = zeros(48,t_tot,ftot); % Misses
-S_m_M = zeros(48,t_tot,ftot); % Hits
-S_r_M = zeros(48,t_tot,ftot); % Misses
-
-
-cnt = 1;
+cnt_el = 1;
 list_sess = 1:19;
 list_sess(17) = []; % -- Session 17 and 20 are full of artifacts
 
-for i=1:size(sess_info{1},1)  % For all the session with a modulator
+for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     
     Sess = sess_info{1}(i); % Session number
     
@@ -86,7 +70,7 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     % LOAD LFP STIM ...                %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     bn_Pre = [-1005 -5]; % ms
-    Lfp_Pre = load_LFP_STIM(PreStimSess,Sess,bn_Pre,DATADIR); 
+    [Lfp_Pre, Data] = load_LFP_STIM(PreStimSess,Sess,bn_Pre,DATADIR); 
     
     % %%%%%%%%%%%%%%%%% --->>> LFP data loaded at this point 
  
@@ -118,24 +102,31 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     lfp_R = sq(Lfp_Pre(:,receiver(1),:) - Lfp_Pre(:,receiver(2),:)); % receiver lfp
     lfp_S = sq(Lfp_Pre(:,sender(1),:) - Lfp_Pre(:,sender(2),:)); % sender lfp
      
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % --------- COHERENCE-GRAM --------------%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % % Coherency LFP                  %%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % ---- parameters for the coherence-gram
-    tapers = [0.7 8];
-    N = tapers(1);
     nt = 1000;
-    dn = 0.005;
     fs = 1000;
-    fk = 60;
-    nwin = single(floor((nt-N*fs)/(dn*fs)))
-    k = floor(2*N*tapers(2)-1)
+    fk = 200;
+    pad = 2;
+    N = 1;
+    W = 5;
     
-    % --- coherence
+  
+    mod_Ch = sess_data.mod_idx; % -- modulators (not controls!) index
     
-    mod_Ch = session_AM(i).mod_idx; % causal modulators channel
+    
+    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch)])
+    
+    dir_Modulators = strcat(dir_Sess,'/Modulators');
+    if ~exist(dir_Modulators, 'dir')
+        mkdir(dir_Modulators)
+    end
+    
     
     indx_list = [];
     
@@ -143,407 +134,86 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
         
         close all
         
-        indx_list = [indx_list, cnt]; % store the cnt number --- needed for multiple plotting 
+        indx_list = [indx_list, cnt_el]; % store the cnt number --- needed for multiple plotting 
         
         dir_Ch = sprintf('/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State/Sess_%d/p_th_0.05/Ch_%d',Sess,Ch);
         
         % -- labels Hits and Misses
         hitIndx = Data.spec.lfp.DetectedIndx{Ch}; % labels for the hits (which trial was a hit)
         missIndx = Data.spec.lfp.notDetectedIndx{Ch}; % labels for the misses (which trial was a miss)
-        
-        
-        
-        display(['Computing coherence-gram...'])
 
-        % Compute coherences and spectrums, all, hits, and misses 
-        [c_mr,tf,f,spec_m,spec_r] = tfcoh_GINO(sq(lfp_E(:,Ch,:)),lfp_R(:,:),tapers,1e3,dn,fk,2,0.05,11); % coherence modulator-receiver
-        [c_mr_H,tf,f,spec_m_H,spec_r_H] = tfcoh_GINO(sq(lfp_E(hitIndx,Ch,:)),lfp_R(hitIndx,:),tapers,1e3,dn,fk,2,0.05,11); % Hits
-        [c_mr_M,tf,f,spec_m_M,spec_r_M] = tfcoh_GINO(sq(lfp_E(missIndx,Ch,:)),lfp_R(missIndx,:),tapers,1e3,dn,fk,2,0.05,11); % Misses
+        % -- coherence of modulator-receiver 
+        display(['Computing modulator-receiver coherence...'])
+        tic
+        [c_mr,f,S_m,S_r] = coherency(sq(lfp_E(:,Ch,:)),lfp_R,[N W],fs,fk,pad,0.05,1,11);
+        toc
+        % -- coherence of modulator-receiver HITS
+        [c_mr_H,f_H,S_m_H,S_r_H] = coherency(sq(lfp_E(hitIndx,Ch,:)),lfp_R(hitIndx,:),[N W],fs,fk,pad,0.05,1,11);
+        % -- coherence of modulator-receiver MISSES
+        [c_mr_M,f_M,S_m_M,S_r_M] = coherency(sq(lfp_E(missIndx,Ch,:)),lfp_R(missIndx,:),[N W],fs,fk,pad,0.05,1,11);
+            
 
+        % --- FIGURE --------- %%
+        % -- Coherence vs frequency --- %
+        fig = figure;
+        plot(f,abs(c_mr),'color',[0, 15, 26]/255)
+        hold on
+        plot(f,abs(c_mr_H),'color',[0, 153, 255]/255)
+        hold on
+        plot(f,abs(c_mr_M),'color',[255, 153, 51]/255)
+        grid on
+        title(sprintf('STIM: Abs coherence vs frequency, ch = %d, mod',Ch),'FontSize',10);
+        legend('M-R coherence','M-R coherence HITS','M-R coherence MISSES')
+        %         xlim([0 60])
+        set(gcf, 'Position',  [100, 600, 1000, 500])
         
-        %     dlmwrite(strcat(dir_Sess,'/sr_coherogram.txt'),c_sr,'delimiter',' ');
-        % -- Figure: coherence spectrum
-        
-        
-        % --- FIGURE: MODULATOR-RECEIVER COHEROGRAM
-        fig_mr = figure; tvimage(abs(c_mr(:,:))); colorbar; % coherence spectrum
-        xticks = floor(linspace(1,length(tf),5));
-        xticklabels = tf(xticks);
-        xtickformat('%d')
-        yticks = 1:10:length(f);
-        yticklabels = floor(f(yticks));
-        ytickformat('%.2f')
-        set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
-        title(sprintf('M-R Coherogram, Sess = %d, ch = %d',Sess,Ch),'FontSize',12);
-        xlabel('time (sec)');
-        ylabel('freq (Hz)')
-        % ylim([0,120])
-        set(gcf, 'Position',  [100, 600, 1000, 600])
-        
-        fname = strcat(dir_Sess,sprintf('/MR_coherogram_ch_%d_N_%.2f_W_%d.jpg',Ch,tapers(1),tapers(2)));
-        saveas(fig_mr,fname);
-        
-
-        % --- FIGURE: HITS MODULATOR-RECEIVER COHEROGRAM
-        fig_mr = figure; tvimage(abs(c_mr_H(:,:))); colorbar; % coherence spectrum
-        xticks = floor(linspace(1,length(tf),5));
-        xticklabels = tf(xticks);
-        xtickformat('%d')
-        yticks = 1:10:length(f);
-        yticklabels = floor(f(yticks));
-        ytickformat('%.2f')
-        set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
-        title(sprintf('HITS M-R Coherogram, Sess = %d, ch = %d',Sess,Ch),'FontSize',12);
-        xlabel('time (sec)');
-        ylabel('freq (Hz)')
-        % ylim([0,120])
-        set(gcf, 'Position',  [100, 600, 1000, 600])
-        
-        fname = strcat(dir_Sess,sprintf('/MR_coherogram_HITS_ch_%d_N_%.2f_W_%d.jpg',Ch,tapers(1),tapers(2)));
-        saveas(fig_mr,fname);
+        fname = strcat(dir_Modulators,sprintf('/coherency_ch_%d_N_%.2f_W_%d.jpg',Ch,N,W));
+        saveas(fig,fname);
         
         
-        % --- FIGURE: MISSES MODULATOR-RECEIVER COHEROGRAM
-        fig_mr = figure; tvimage(abs(c_mr_M(:,:))); colorbar; % coherence spectrum
-        xticks = floor(linspace(1,length(tf),5));
-        xticklabels = tf(xticks);
-        xtickformat('%d')
-        yticks = 1:10:length(f);
-        yticklabels = floor(f(yticks));
-        ytickformat('%.2f')
-        set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
-        title(sprintf('HITS M-R Coherogram, Sess = %d, ch = %d',Sess,Ch),'FontSize',12);
-        xlabel('time (sec)');
-        ylabel('freq (Hz)')
-        % ylim([0,120])
-        set(gcf, 'Position',  [100, 600, 1000, 600])
+         % --- FIGURE --------- %%
+        % -- Spectrum vs frequency --- %
+        fig = figure;
+        hAx=axes;
+        hAx.XScale='linear'
+        hAx.YScale='log'
+        plot(f,abs(S_m_H),'color',[0, 51, 204]/255)
+        hold on
+        plot(f,abs(S_r_H),'color',[0, 153, 255]/255)
+        hold on
+        plot(f,abs(S_m_M),'color',[255, 153, 51]/255)
+        grid on
+        plot(f,abs(S_r_M),'color',[255, 51, 0]/255)
+        grid on
+        title(sprintf('STIM: Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
+        legend('M Spectrum Hits','R Spectrum Hits','M Spectrum Misses','R Spectrum Misses')
+        xlim([0 60])
+        set(gcf, 'Position',  [100, 600, 1000, 500])
         
-        fname = strcat(dir_Sess,sprintf('/MR_coherogram_MISSES_ch_%d_N_%.2f_W_%d.jpg',Ch,tapers(1),tapers(2)));
-        saveas(fig_mr,fname);
+        fname = strcat(dir_Modulators,sprintf('/spectrum_ch_%d_N_%.2f_W_%d.jpg',Ch,N,W));
+        saveas(fig,fname);
         
         
+        % -- structure assignements
+        stim(cnt_el).c_mr = c_mr ; % MR coherence 
+        stim(cnt_el).s_m = S_m;  % M spectrum
+        stim(cnt_el).s_r = S_r; % R spectrum 
+       
+        stim(cnt_el).c_mr_H = c_mr_H ; % MR coherence hits
+        stim(cnt_el).s_m_H = S_m_H;  % M spectrum hits 
+        stim(cnt_el).s_r_H = S_r_H; % R spectrum hits
         
-        % -- write coherogram
-        dlmwrite(strcat(dir_Sess,sprintf('/coherogram_MR_ch_%d_N_%.2f_W_%d.txt',Ch,tapers(1),tapers(2))),c_mr,'delimiter',' ');
-        dlmwrite(strcat(dir_Sess,sprintf('/coherogram_MR_Hits_ch_%d_N_%.2f_W_%d.txt',Ch,tapers(1),tapers(2))),c_mr_H,'delimiter',' ');
-        dlmwrite(strcat(dir_Sess,sprintf('/coherogram_MR_Misses_ch_%d_N_%.2f_W_%d.txt',Ch,tapers(1),tapers(2))),c_mr_M,'delimiter',' ');
+        stim(cnt_el).c_mr_M = c_mr_M ; % MR coherence misses
+        stim(cnt_el).s_m_M = S_m_M;  % M spectrum misses 
+        stim(cnt_el).s_r_M = S_r_M; % R spectrum misses
         
-        % -- write spectrogram 
-        dlmwrite(strcat(dir_Sess,sprintf('/spectrogram_M_ch_%d_N_%.2f_W_%d.txt',Ch,tapers(1),tapers(2))),spec_m,'delimiter',' ');
-        dlmwrite(strcat(dir_Sess,sprintf('/spectrogram_M_Hits_ch_%d_N_%.2f_W_%d.txt',Ch,tapers(1),tapers(2))),spec_m_H,'delimiter',' ');
-        dlmwrite(strcat(dir_Sess,sprintf('/spectrogram_M_Misses_ch_%d_N_%.2f_W_%d.txt',Ch)),spec_m_M,'delimiter',' ');
-        
-        dlmwrite(strcat(dir_Sess,sprintf('/spectrogram_R_ch_%d_N_%.2f_W_%d.txt',Ch,tapers(1),tapers(2))),spec_r,'delimiter',' ');
-        dlmwrite(strcat(dir_Sess,sprintf('/spectrogram_R_Hits_ch_%d_N_%.2f_W_%d.txt',Ch,tapers(1),tapers(2))),spec_r_H,'delimiter',' ');
-        dlmwrite(strcat(dir_Sess,sprintf('/spectrogram_R_Misses_ch_%d_N_%.2f_W_%d.txt',Ch,tapers(1),tapers(2))),spec_r_M,'delimiter',' ');
-        
-        % -- store coherence 
-        coh_mr(cnt,:,:) = c_mr;
-        coh_mr_H(cnt,:,:) = c_mr_H;
-        coh_mr_M(cnt,:,:) = c_mr_M;
-        
-        % -- store spectrum modularor and receiver 
-        S_m(cnt,:,:) = spec_m;
-        S_m_H(cnt,:,:) = spec_m_H;
-        S_m_M(cnt,:,:) = spec_m_M;
-        
-        S_r(cnt,:,:) = spec_r;
-        S_r_H(cnt,:,:) = spec_r_H;
-        S_r_M(cnt,:,:) = spec_r_M;
-        
-        cnt = cnt + 1;
+        cnt_el = cnt_el + 1;  % -- count # of electrodes (modulators)
         
     end % --- end of all modulator channels
-    
-     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % MODULATOR - RECEIVER COHERENCE FIGURES   %
-    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    % --- FIGURE --------- %%
-    % -- Coherence vs time --- %
-    leg = cell(2*size(mod_Ch,2),1); % dynamic legend
-    fig = figure;
-    cnt_lgd = 1;
-    cnt = 1
-    for cnt_m = indx_list 
-        plot(tf,mean(abs(sq(coh_mr(cnt_m,:,10:40))),2)); hold on % mean abs
-        plot(tf,abs(mean(sq(coh_mr(cnt_m,:,10:40)),2))); % abs mean
-        leg{cnt_lgd} = sprintf('Mean Abs MR coh, ch %d',mod_Ch(cnt)) %%% change this 
-        leg{cnt_lgd + 1} = sprintf('Abs Mean MR coh, ch %d',mod_Ch(cnt))
-        cnt_lgd = cnt_lgd + 2;
-        cnt = cnt + 1;
-    end
-    legend(leg,'FontSize',10)
-    title('M-R Coherence vs time (f avg 10-40 Hz)','FontSize',10);
-    grid on
-    xlim([250 750])
-    hold off
-    set(gcf, 'Position',  [100, 600, 800, 400])
-
-    
-    fname = strcat(dir_Sess,sprintf('/coherence_vs_time_Sess_%d.jpg',Sess));
-    saveas(fig,fname);
-    
-    
-    % -- Coherence vs time HITS/MISSES Mean Abs --- %
-    leg = cell(2*size(mod_Ch,2),1); % dynamic legend
-    fig = figure;
-    cnt_lgd = 1;
-    cnt = 1;
-    for cnt_m = indx_list 
-        plot(tf,mean(abs(sq(coh_mr_H(cnt_m,:,10:40))),2)); hold on % mean abs -- HITS
-        plot(tf,mean(abs(sq(coh_mr_M(cnt_m,:,10:40))),2));         % mean abs -- MISSES
-        leg{cnt_lgd} = sprintf('HITS - Mean Abs MR coh, ch %d',mod_Ch(cnt))
-        leg{cnt_lgd + 1} = sprintf('MISSES - Mean Abs MR coh, ch %d',mod_Ch(cnt))
-        cnt_lgd = cnt_lgd + 2;
-        cnt = cnt + 1;
-    end
-    legend(leg,'FontSize',10)
-    title('HITS/MISSES M-R Mean Abs Coherence vs time (f avg 10-40 Hz)','FontSize',10);
-    grid on
-    xlim([250 750])
-    hold off
-    set(gcf, 'Position',  [100, 600, 800, 400])
-    
-    
-    fname = strcat(dir_Sess,sprintf('/coherence_vs_time_Mean_Abs_Hits_Misses_Sess_%d.jpg',Sess));
-    saveas(fig,fname);
-    
-    
-    
-    % -- Coherence vs time HITS/MISSES Abs Mean --- %
-    leg = cell(2*size(mod_Ch,2),1); % dynamic legend
-    fig = figure;
-    cnt_lgd = 1;
-    cnt = 1;
-    for cnt_m = indx_list 
-        plot(tf,abs(mean(sq(coh_mr_H(cnt_m,:,10:40)),2))); hold on % abs mean -- HITS
-        plot(tf,abs(mean(sq(coh_mr_M(cnt_m,:,10:40)),2))); % abs mean -- MISSES
-        leg{cnt_lgd} = sprintf('HITS - Abs Mean MR coh, ch %d',mod_Ch(cnt))
-        leg{cnt_lgd + 1} = sprintf('MISSES - Abs Mean MR coh, ch %d',mod_Ch(cnt))
-        cnt_lgd = cnt_lgd + 2;
-        cnt = cnt + 1;
-    end
-    legend(leg,'FontSize',10)
-    title('HITS/MISSES M-R Abs Mean Coherence vs time (f avg 10-40 Hz)','FontSize',10);
-    grid on
-    xlim([250 750])
-    hold off
-    set(gcf, 'Position',  [100, 600, 800, 400])
-    
-    
-    fname = strcat(dir_Sess,sprintf('/coherence_vs_time_Abs_Mean_Hits_Misses_Sess_%d.jpg',Sess));
-    saveas(fig,fname);
-    
-    
-    keyboard 
-    % --- FIGURE --------- %%
-    % -- Coherence vs frequency --- %
-    leg = cell(2*size(mod_Ch,2),1); % dynamic legend
-    fig = figure;
-    cnt_lgd = 1;
-    cnt = 1;
-    for cnt_m = indx_list 
-        plot(f,mean(abs(sq(coh_mr(cnt_m,:,:))),1)); hold on % mean abs
-        plot(f,abs(mean(sq(coh_mr(cnt_m,:,:)),1)));  % abs mean
-        leg{cnt_lgd} = sprintf('Mean Abs MR coh, ch %d',mod_Ch(cnt))
-        leg{cnt_lgd + 1} = sprintf('Abs Mean MR coh, ch %d',mod_Ch(cnt))
-        cnt_lgd = cnt_lgd + 2;
-        cnt = cnt + 1;
-    end
-    legend(leg,'FontSize',10)
-    title('M-R Coherence vs freq','FontSize',10);
-    grid on
-    hold off
-    set(gcf, 'Position',  [100, 600, 800, 400])
-
-    
-    fname = strcat(dir_Sess,sprintf('/coherence_vs_freq_Sess_%d.jpg',Sess));
-    saveas(fig,fname);
-    
-    
-    % --- FIGURE --------- %%
-    % -- Coherence vs frequency HITS/MISSES Mean Abs --- %
-    leg = cell(2*size(mod_Ch,2),1); % dynamic legend
-    fig = figure;
-    cnt_lgd = 1;
-    cnt = 1;
-    for cnt_m = indx_list 
-        plot(f,mean(abs(sq(coh_mr_H(cnt_m,:,:))),1)); hold on % mean abs
-        plot(f,mean(abs(sq(coh_mr_M(cnt_m,:,:))),1));  % abs mean
-        leg{cnt_lgd} = sprintf('HITS - Mean Abs MR coh, ch %d',mod_Ch(cnt))
-        leg{cnt_lgd + 1} = sprintf('MISSES - Mean Abs MR coh, ch %d',mod_Ch(cnt))
-        cnt_lgd = cnt_lgd + 2;
-        cnt = cnt + 1;
-    end
-    legend(leg,'FontSize',10)
-    title('HITS/MISSES Mean Abs M-R Coherence vs freq','FontSize',10);
-    grid on
-    hold off
-    set(gcf, 'Position',  [100, 600, 1000, 400])
-
-    
-    fname = strcat(dir_Sess,sprintf('/coherence_vs_freq_Mean_Abs_Hits_Misses_Sess_%d.jpg',Sess));
-    saveas(fig,fname);
-    
-    
-    % --- FIGURE --------- %%
-    % -- Coherence vs frequency HITS/MISSES Abs Mean --- %
-    leg = cell(2*size(mod_Ch,2),1); % dynamic legend
-    fig = figure;
-    cnt_lgd = 1;
-    cnt = 1;
-    for cnt_m = indx_list 
-        plot(f,abs(mean(sq(coh_mr_H(cnt_m,:,:)),1))); hold on %  abs mean
-        plot(f,abs(mean(sq(coh_mr_M(cnt_m,:,:)),1)));  % abs mean 
-        leg{cnt_lgd} = sprintf('HITS - Abs Abs MR coh, ch %d',mod_Ch(cnt))
-        leg{cnt_lgd + 1} = sprintf('MISSES - Abs Abs MR coh, ch %d',mod_Ch(cnt))
-        cnt_lgd = cnt_lgd + 2;
-        cnt = cnt + 1;
-    end
-    legend(leg,'FontSize',10)
-    title('HITS/MISSES Abs Mean M-R Coherence vs freq','FontSize',10);
-    grid on
-    hold off
-    set(gcf, 'Position',  [100, 600, 1000, 400])
-
-    
-    fname = strcat(dir_Sess,sprintf('/coherence_vs_freq_Abs_Mean_Hits_Misses_Sess_%d.jpg',Sess));
-    saveas(fig,fname);
-    
     
 end
 
 keyboard 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% MEAN ABS - MEAN COHERENCES vs FREQUENCY
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+save(strcat(dir_Stim,sprintf('/coh_spec_mr_fk_%d_W_%d.mat',fk,W)),'stim');
 
-% --- mean coherences across modulator (vs frequency)
-mean_cho_MA = mean(sq(mean(abs(coh_mr(:,:,:)),2)));  % mean abs
-mean_cho_H_MA = mean(sq(mean(abs(coh_mr_H(:,:,:)),2)));  % HITS mean abs
-mean_cho_M_MA = mean(sq(mean(abs(coh_mr_M(:,:,:)),2)));  % MISSES mean abs
-
-
-std_cho_MA = std(sq(mean(abs(coh_mr(:,:,:)),2)));  % mean abs
-std_cho_H_MA = std(sq(mean(abs(coh_mr_H(:,:,:)),2)));  % HITS mean abs
-std_cho_M_MA = std(sq(mean(abs(coh_mr_M(:,:,:)),2)));  % MISSES mean abs
-
-% --- Error bars
-err_MA = std_cho_MA/48;
-err_H_MA = std_cho_H_MA/48;
-err_M_MA = std_cho_M_MA/48;
-
-set(0,'DefaultLineLineWidth',2)
-
-
-fig = figure;
-% hAx=axes;
-% hAx.XScale='linear'
-% hAx.YScale='log'
-hold all
-errorbar(f,mean_cho_H_MA,err_H_MA); hold on
-errorbar(f,mean_cho_M_MA,err_H_MA); hold on
-% errorbar(f,mean_cho_ms_AM,err_ms_AM,'Color',[0.4940, 0.1840, 0.5560]); hold on
-% errorbar(f,mean_cho_mr_AM,err_mr_AM,'Color',[102/255, 153/255 0]); hold on
-% errorbar(f,mean_cho_sr_AM,err_sr_AM,'color',[26/255 198/255 1]);
-grid on
-title('STIM: Hits/Misses Mean Abs MR coh of all the caus mod','FontSize',11);
-xlabel('freq (Hz)');
-ylabel('spectrum');
-% legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
-% legend('M-S mean abs','M-R mean abs','S-R mean abs','M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-legend('HITS M-R mean abs','MISSES M-R mean abs','FontSize',10)
-% legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-set(gcf, 'Position',  [100, 600, 700, 500])
-
-fname = strcat(dir_Stim,'/mean_coherence_MR_MA_causal_modulators.png');
-saveas(fig,fname)
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ABS MEAN - MEAN COHERENCES vs FREQUENCY
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% --- mean coherences across modulator (vs frequency)
-mean_cho_AM = mean(sq(abs(mean(coh_mr(:,:,:),2))));  % mean abs
-mean_cho_H_AM = mean(sq(abs(mean(coh_mr_H(:,:,:),2))));  % HITS mean abs
-mean_cho_M_AM = mean(sq(abs(mean(coh_mr_M(:,:,:),2))));  % MISSES mean abs
-
-
-std_cho_AM = std(sq(abs(mean(coh_mr(:,:,:),2))));   % mean abs
-std_cho_H_AM = std(sq(abs(mean(coh_mr_H(:,:,:),2))));  % HITS mean abs
-std_cho_M_AM = std(sq(abs(mean(coh_mr_M(:,:,:),2))));  % MISSES mean abs
-
-% --- Error bars
-err_AM = std_cho_AM/48;
-err_H_AM = std_cho_H_AM/48;
-err_M_AM = std_cho_M_AM/48;
-
-set(0,'DefaultLineLineWidth',2)
-
-
-fig = figure;
-% hAx=axes;
-% hAx.XScale='linear'
-% hAx.YScale='log'
-hold all
-errorbar(f,mean_cho_H_MA,err_H_MA); hold on
-errorbar(f,mean_cho_M_MA,err_H_MA); hold on
-% errorbar(f,mean_cho_ms_AM,err_ms_AM,'Color',[0.4940, 0.1840, 0.5560]); hold on
-% errorbar(f,mean_cho_mr_AM,err_mr_AM,'Color',[102/255, 153/255 0]); hold on
-% errorbar(f,mean_cho_sr_AM,err_sr_AM,'color',[26/255 198/255 1]);
-grid on
-title('STIM: Hits/Misses Abs Mean MR coh of all the caus mod','FontSize',11);
-xlabel('freq (Hz)');
-ylabel('spectrum');
-% legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
-% legend('M-S mean abs','M-R mean abs','S-R mean abs','M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-legend('HITS M-R abs mean','MISSES M-R abs mean','FontSize',10)
-% legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-set(gcf, 'Position',  [100, 600, 700, 500])
-
-fname = strcat(dir_Stim,'/mean_coherence_MR_AM_causal_modulators.png');
-saveas(fig,fname)
-
-
-% --- mean coherences across modulator (vs frequency)
-mean_Sm = mean(sq(mean(S_m(:,:,:),2)));  % mean abs
-mean_Sm_H = mean(sq(mean(S_m_H(:,:,:),2)));  % HITS mean abs
-mean_Sm_M = mean(sq(mean(S_m_M(:,:,:),2)));  % MISSES mean abs
-
-
-std_Sm = std(sq(mean(S_m(:,:,:),2)));  % mean abs
-std_Sm_H = std(sq(mean(S_m_H(:,:,:),2)));  % HITS mean abs
-std_Sm_M = std(sq(mean(S_m_M(:,:,:),2)));  % MISSES mean abs
-
-% --- Error bars
-err_Sm = std_Sm/48;
-err_Sm_H = std_Sm_H/48;
-err_Sm_M = std_Sm_M/48;
-
-
-
-fig = figure;
-hAx=axes;
-hAx.XScale='linear'
-hAx.YScale='log'
-hold all
-errorbar(f,mean_Sm_H,err_Sm_H); hold on
-errorbar(f,mean_Sm_M,err_Sm_M); hold on
-% errorbar(f,mean_cho_ms_AM,err_ms_AM,'Color',[0.4940, 0.1840, 0.5560]); hold on
-% errorbar(f,mean_cho_mr_AM,err_mr_AM,'Color',[102/255, 153/255 0]); hold on
-% errorbar(f,mean_cho_sr_AM,err_sr_AM,'color',[26/255 198/255 1]);
-grid on
-title('STIM: Hits/Misses Spectrum caus mod','FontSize',11);
-xlabel('freq (Hz)');
-ylabel('spectrum');
-% legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
-% legend('M-S mean abs','M-R mean abs','S-R mean abs','M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-legend('HITS Mod Spectrum','MISSES Mod Spectrum','FontSize',10)
-% legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-set(gcf, 'Position',  [100, 600, 700, 500])
-
-fname = strcat(dir_Stim,'/mean_spectrum_causal_modulators.png');
-saveas(fig,fname)
