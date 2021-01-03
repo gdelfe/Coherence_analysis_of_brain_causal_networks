@@ -118,41 +118,42 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt = cnt + 1;
     end
     
+    ctrl_Ch = sess_control.ctrl_idx; % control modulators 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %  FIGURES          %%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    % -- plot sender / receiver LFP
-    fig = figure;
-    plot(lfp_S_ns);
-    hold on
-    plot(lfp_R_ns);
-    grid on 
-    title('Lfp sender and receiver ','FontSize',11);
-    xlabel('time (sec)');
-    ylabel('Lfp');
-    legend('Sender','Receiver','FontSize',11);
-    set(gcf, 'Position',  [100, 600, 1000, 600])
-
-    fname = strcat(dir_Sess,'/lfp_Sender_Receiver.png');
-    saveas(fig,fname)
-    
-    % -- plot controls LFP
-    ctrl_Ch = sess_control.ctrl_idx; % control modulators 
-    figure;
-    for Ch = ctrl_Ch
-       plot(lfp_E_ns(Ch,:));
-       hold on 
-    end
-    title('Lfp all control(s) same area as the modulator''s','FontSize',11);
-    xlabel('time (sec)');
-    ylabel('Lfp');
-    grid on
-    set(gcf, 'Position',  [100, 600, 1000, 600])
-
-    fname = strcat(dir_Sess,'/lfp_Controls.png');
-    saveas(fig,fname)
+%     % -- plot sender / receiver LFP
+%     fig = figure;
+%     plot(lfp_S_ns);
+%     hold on
+%     plot(lfp_R_ns);
+%     grid on 
+%     title('Lfp sender and receiver ','FontSize',11);
+%     xlabel('time (sec)');
+%     ylabel('Lfp');
+%     legend('Sender','Receiver','FontSize',11);
+%     set(gcf, 'Position',  [100, 600, 1000, 600])
+% 
+%     fname = strcat(dir_Sess,'/lfp_Sender_Receiver.png');
+%     saveas(fig,fname)
+%     
+%     % -- plot controls LFP
+%     
+%     figure;
+%     for Ch = ctrl_Ch
+%        plot(lfp_E_ns(Ch,:));
+%        hold on 
+%     end
+%     title('Lfp all control(s) same area as the modulator''s','FontSize',11);
+%     xlabel('time (sec)');
+%     ylabel('Lfp');
+%     grid on
+%     set(gcf, 'Position',  [100, 600, 1000, 600])
+% 
+%     fname = strcat(dir_Sess,'/lfp_Controls.png');
+%     saveas(fig,fname)
     
     
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -214,7 +215,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m + 1;
     end
     
-    save(strcat(dir_Sess,'/sess_controls_one_only.mat'),'sess_control_lfp');
+    save(strcat(dir_Sess,'/sess_controls_one_only_lfp.mat'),'sess_control_lfp');
 
     
 end

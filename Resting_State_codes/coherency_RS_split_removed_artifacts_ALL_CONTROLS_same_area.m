@@ -187,7 +187,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             %         xlim([0 60])
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_all_CONTROLS_same_area_ch_%d_fk_%d.jpg',Ch,fk));
+            fname = strcat(dir_Ctrl_all,sprintf('/coherency_vs_freq_all_CONTROLS_same_area_ch_%d_fk_%d.jpg',Ch,fk));
             saveas(fig,fname);
             
             % -- structure assignements
@@ -215,9 +215,9 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             legend('Sender','Receiver','Modulator')
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.fig',Ch));
+            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.fig',Ch));
             %                 saveas(fig,fig_name);
-            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.png',Ch));
+            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.png',Ch));
             %                 saveas(fig,fig_name);
             
             % -- full length without artifacts
@@ -236,9 +236,9 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             legend('Sender','Receiver','Modulator')
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
+            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
             %                 saveas(fig,fig_name);
-            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
+            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
             %                 saveas(fig,fig_name);
             
             cnt_el = cnt_el + 1; % total control counter

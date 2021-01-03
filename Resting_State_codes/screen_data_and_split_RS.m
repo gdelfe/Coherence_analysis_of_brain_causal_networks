@@ -209,7 +209,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     end
 
     sess_data_lfp
-    save(strcat(dir_Sess,'/sess_data_lfp.mat'),'sess_data_lfp');
+    save(strcat(dir_Sess,'/session_data_lfp.mat'),'sess_data_lfp');
 
     
 end
