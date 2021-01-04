@@ -27,19 +27,19 @@ data.num_send = S;
 % ----------- COHERENCE
 
 % --- mean coherences
-data.mean_cho_ms = mean(abs(coh_ms));  % modulator - sender
-data.mean_cho_mr = mean(abs(coh_mr));  % modulator - receiver
-data.mean_cho_sr = mean(abs(coh_sr));  % sender - receiver 
+data.mean_coh_ms = mean(abs(coh_ms));  % modulator - sender
+data.mean_coh_mr = mean(abs(coh_mr));  % modulator - receiver
+data.mean_coh_sr = mean(abs(coh_sr));  % sender - receiver 
 
 % --- std coherences
-data.std_cho_ms = std(abs(coh_ms));  % modulator - sender
-data.std_cho_mr = std(abs(coh_mr)); % modulator - receiver
-data.std_cho_sr = std(abs(coh_sr));  % modulator - receiver
+data.std_coh_ms = std(abs(coh_ms));  % modulator - sender
+data.std_coh_mr = std(abs(coh_mr)); % modulator - receiver
+data.std_coh_sr = std(abs(coh_sr));  % modulator - receiver
 
 % --- Error bars
-data.err_ms = data.std_cho_ms/sqrt(M);
-data.err_mr = data.std_cho_mr/sqrt(M);
-data.err_sr = data.std_cho_sr/sqrt(S);
+data.err_ms = data.std_coh_ms/sqrt(M);
+data.err_mr = data.std_coh_mr/sqrt(M);
+data.err_sr = data.std_coh_sr/sqrt(S);
 
 % ----------- SPECTRUM
 
