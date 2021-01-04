@@ -44,15 +44,15 @@ data.err_sr = data.std_coh_sr/sqrt(S);
 % ----------- SPECTRUM
 
 % --- mean spectrum
-data.mean_spec_m = mean(abs(spec_m));  % mean spectrum modulator
-data.mean_spec_s = mean(abs(spec_s));  % mean spectrum sender
-data.mean_spec_r = mean(abs(spec_r));  % mean spectrum receiver
+data.mean_spec_m = mean(spec_m);  % mean spectrum modulator
+data.mean_spec_s = mean(spec_s);  % mean spectrum sender
+data.mean_spec_r = mean(spec_r);  % mean spectrum receiver
 
 
 % --- std spectrum
-data.std_spec_m = std(abs(spec_m));  
-data.std_spec_s = std(abs(spec_s));  
-data.std_spec_r = std(abs(spec_r));  
+data.std_spec_m = std(spec_m);  
+data.std_spec_s = std(spec_s);  
+data.std_spec_r = std(spec_r);  
 
 
 % --- Error bars spectrum
