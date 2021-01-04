@@ -5,10 +5,10 @@ function [data] = mean_coh_and_spec_RS(mod,stim)
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
 stim_mat = cell2mat(struct2cell(stim)); % transform struct to mat for sender-receiver 
 
-% -- assign variables 
-coh_mr = sq(stim_mat(1,:,:))'; % 1st field, c_mr
-spec_m = sq(stim_mat(2,:,:))'; %  2nd field, spec_m
-spec_r = sq(stim_mat(3,:,:))'; %  3rd field, spec_r
+% -- assign fields to matrices
+coh_ms = sq(mod_mat(1,:,:))'; % 1st field, c_ms
+coh_mr = sq(mod_mat(2,:,:))'; %  2nd field, c_mr
+spec_m = sq(mod_mat(3,:,:))'; %  3rd field, spec_m
 
 coh_sr = sq(stim_mat(1,:,:))'; % 1st field, c_sr
 spec_s = sq(stim_mat(2,:,:))'; %  2nd field, spec_s
@@ -19,7 +19,7 @@ spec_r = sq(stim_mat(3,:,:))'; %  3rd field, spec_r
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-M = size(coh_ms,1); % -- number of electrodes
+M = size(coh_mr,1); % -- number of electrodes
 data.num_el = M;
 S = size(coh_sr,1); % -- number of senders (receivers)
 data.num_send = S;
@@ -37,9 +37,9 @@ data.std_cho_mr = std(abs(coh_mr)); % modulator - receiver
 data.std_cho_sr = std(abs(coh_sr));  % modulator - receiver
 
 % --- Error bars
-data.err_ms = std_cho_ms/sqrt(M);
-data.err_mr = std_cho_mr/sqrt(M);
-data.err_sr = std_cho_sr/sqrt(S);
+data.err_ms = data.std_cho_ms/sqrt(M);
+data.err_mr = data.std_cho_mr/sqrt(M);
+data.err_sr = data.std_cho_sr/sqrt(S);
 
 % ----------- SPECTRUM
 
