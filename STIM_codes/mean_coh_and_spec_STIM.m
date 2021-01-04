@@ -22,6 +22,8 @@ spec_r_M = sq(stim_mat(9,:,:))'; %  3rd field, spec_r Misses
 
 M = size(stim,2); % -- number of electrodes
 data.num_el = M;
+S = size(coh_sr,1); % -- number of senders (receivers)
+data.num_send = S;
 
 % ----------- COHERENCE
 
