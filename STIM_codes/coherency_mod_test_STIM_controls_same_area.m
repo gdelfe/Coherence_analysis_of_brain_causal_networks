@@ -214,7 +214,6 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     
 end
 
-keyboard 
 
 save(strcat(dir_Stim,sprintf('/coh_spec_mr_controls_same_area_fk_%d_W_%d.mat',fk,W)),'stim');
 
