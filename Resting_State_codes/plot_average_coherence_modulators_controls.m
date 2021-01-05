@@ -124,20 +124,20 @@ grid on
 fname = strcat(dir_RS,sprintf('/spectrum_RS_modulators_sender_receiver_W_%d_fk_%d.png',W,fk));
 saveas(fig,fname)
 
-% 
-% figure;
-% hAx=axes;
-% hAx.XScale='linear'
-% hAx.YScale='log'
-% hold all
-% for i=1:41
-%     
-% plot(f,abs(mod(i).s_m))
-% hold on
-% end
-% hold on 
-% shadedErrorBar(f,modulators.mean_spec_m,modulators.err_S_m,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
-% grid on
+
+figure;
+hAx=axes;
+hAx.XScale='linear'
+hAx.YScale='log'
+hold all
+for i=1:18
+    
+plot(f,abs(stim_mod(i).s_s))
+hold on
+end
+hold on 
+shadedErrorBar(f,modulators.mean_spec_s,modulators.err_S_s,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+grid on
 
 
 set(0,'DefaultFigureVisible','on')
