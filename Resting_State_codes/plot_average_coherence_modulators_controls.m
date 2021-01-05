@@ -18,17 +18,23 @@ fk = 200; W = 5;
 % %%%%%%%%% MODULATORS  %%%%%%
 load(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W))); % structure mod
 load(strcat(dir_RS,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W))); % structure stim
+stim_mod = stim;
+mod_mod = mod;
 modulators = mean_coh_and_spec_RS(mod,stim);
 
 %%%%%%%%% CONTROLS SAME AREA %%%%%%%%%%%%
 load(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)));
 load(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)));
+stim_ctrl_SA = stim;
+mod_ctrl_SA = mod;
 ctrl_SA = mean_coh_and_spec_RS(mod,stim);
 
 
 %%%%%%%%% CONTROLS OTHER AREAS %%%%%%%%%%%
 load(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_other_areas_fk_%d_W_%d.mat',fk,W)));
 load(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_other_areas_fk_%d_W_%d.mat',fk,W)));
+stim_ctrl_OA = stim;
+mod_ctrl_OA = mod;
 ctrl_OA = mean_coh_and_spec_RS(mod,stim);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -16,24 +16,29 @@ dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 fk = 200; W = 5;
 % %%%%%%%%% MODULATORS  %%%%%%
 load(strcat(dir_Stim,sprintf('/coh_spec_mr_fk_%d_W_%d.mat',fk,W)));
-mod = mean_coh_and_spec_STIM(stim);
+stim_mod = stim;
+modulators = mean_coh_and_spec_STIM(stim);
+
 
 %%%%%%%%% CONTROLS SAME AREA %%%%%%%%%%%%
 load(strcat(dir_Stim,sprintf('/coh_spec_mr_controls_same_area_fk_%d_W_%d.mat',fk,W)));
+stim_ctrl_SA = stim;
 ctrl_SA = mean_coh_and_spec_STIM(stim);
 
 %%%%%%%%% CONTROLS OTHER AREAS %%%%%%%%%%%%
+
 load(strcat(dir_Stim,sprintf('/coh_spec_mr_controls_other_areas_fk_%d_W_%d.mat',fk,W)));
+stim_ctrl_OA = stim;
 ctrl_OA = mean_coh_and_spec_STIM(stim);
 
 
-f = linspace(1,fk,size(mod.mean_coh_mr,2));
+f = linspace(1,fk,size(modulators.mean_coh_mr,2));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           FIGURES    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%% COHERENCES MODULATORS vs CONTROLS %%%%%%%%%%%%
+%%%%%%%%% COHERENCES MODULATORS-RECEIVERS vs CONTROLS-RECEIVERS %%%%%%%%%%%%
 
 set(0,'DefaultLineLineWidth',2)
 set(0,'DefaultFigureVisible','on')
@@ -41,7 +46,7 @@ set(0,'DefaultFigureVisible','on')
 fig = figure;
 hold all
 
-shadedErrorBar(f,mod.mean_coh_mr,mod.err_coh_mr,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_coh_mr,modulators.err_coh_mr,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
 shadedErrorBar(f,ctrl_SA.mean_coh_mr,ctrl_SA.err_coh_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
 shadedErrorBar(f,ctrl_OA.mean_coh_mr,ctrl_OA.err_coh_mr,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
 
@@ -62,8 +67,8 @@ saveas(fig,fname)
 fig = figure;
 hold all
 
-shadedErrorBar(f,mod.mean_coh_mr_H,mod.err_coh_mr_H,'lineprops',{'color',[0, 153, 255]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mod.mean_coh_mr_M,mod.err_coh_mr_M,'lineprops',{'color',[255, 102, 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_coh_mr_H,modulators.err_coh_mr_H,'lineprops',{'color',[0, 153, 255]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_coh_mr_M,modulators.err_coh_mr_M,'lineprops',{'color',[255, 102, 0]/255},'patchSaturation',0.4); hold on
 
 grid on
 title('STIM: Abs MR coherence MODULATORS: HITS vs MISSES ','FontSize',11);
@@ -84,8 +89,8 @@ hAx=axes;
 hAx.XScale='linear'
 hAx.YScale='log'
 hold all
-shadedErrorBar(f,mod.mean_spec_m,mod.err_S_m,'lineprops',{'color',[0, 153, 255]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mod.mean_spec_r,mod.err_S_r,'lineprops',{'color',[255, 102, 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_m,modulators.err_S_m,'lineprops',{'color',[0, 153, 255]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_r,modulators.err_S_r,'lineprops',{'color',[255, 102, 0]/255},'patchSaturation',0.4); hold on
 
 grid on
 title('STIM: Modulators vs Receivers Spectrum ','FontSize',11);
@@ -108,10 +113,10 @@ hAx=axes;
 hAx.XScale='linear'
 hAx.YScale='log'
 hold all
-shadedErrorBar(f,mod.mean_spec_m_H,mod.err_S_m_H,'lineprops',{'color',[0, 153, 255]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mod.mean_spec_m_M,mod.err_S_m_M,'lineprops',{'color',[0, 0, 153]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mod.mean_spec_r_H,mod.err_S_r_H,'lineprops',{'color',[255, 102, 0]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mod.mean_spec_r_M,mod.err_S_r_M,'lineprops',{'color',[204, 0, 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_m_H,modulators.err_S_m_H,'lineprops',{'color',[0, 153, 255]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_m_M,modulators.err_S_m_M,'lineprops',{'color',[0, 0, 153]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_r_H,modulators.err_S_r_H,'lineprops',{'color',[255, 102, 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_r_M,modulators.err_S_r_M,'lineprops',{'color',[204, 0, 0]/255},'patchSaturation',0.4); hold on
 
 grid on
 title('STIM: Modulators vs Receivers Spectrum HITS and MISSES ','FontSize',11);
@@ -134,10 +139,10 @@ hAx=axes;
 hAx.XScale='linear'
 hAx.YScale='log'
 hold all
-shadedErrorBar(f,mod.mean_spec_m,mod.err_S_m,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_m,modulators.err_S_m,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
 shadedErrorBar(f,ctrl_SA.mean_spec_r,ctrl_SA.err_S_r,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
 shadedErrorBar(f,ctrl_OA.mean_spec_m,ctrl_OA.err_S_m,'lineprops',{'color',[0, 204, 153]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mod.mean_spec_r,mod.err_S_r,'lineprops',{'color',[255, 102, 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_r,modulators.err_S_r,'lineprops',{'color',[255, 102, 0]/255},'patchSaturation',0.4); hold on
 
 grid on
 title('STIM: Modulators vs Controls vs Receivers Spectrum ','FontSize',11);
@@ -160,7 +165,7 @@ hAx=axes;
 hAx.XScale='linear'
 hAx.YScale='log'
 hold all
-shadedErrorBar(f,mod.mean_spec_m,mod.err_S_m,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_m,modulators.err_S_m,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
 shadedErrorBar(f,ctrl_SA.mean_spec_r,ctrl_SA.err_S_r,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
 shadedErrorBar(f,ctrl_OA.mean_spec_m,ctrl_OA.err_S_m,'lineprops',{'color',[0, 204, 153]/255},'patchSaturation',0.4); hold on
 
@@ -178,4 +183,17 @@ fname = strcat(dir_Stim,'/mean_spectrum_modulators_vs_controls.png');
 saveas(fig,fname)
 
 
+figure;
+hAx=axes;
+hAx.XScale='linear'
+hAx.YScale='log'
+hold all
+for i=1:41
+    
+plot(f,abs(ctrl_OA(i).s_m))
+hold on
+end
+hold on 
+shadedErrorBar(f,ctrl_OA.mean_spec_m,ctrl_OA.err_S_m,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
+grid on
 

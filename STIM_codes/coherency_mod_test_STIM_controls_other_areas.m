@@ -16,6 +16,7 @@
 clear all;
 close all
 
+set(0,'DefaultFigureVisible','off')
 set(0,'DefaultLineLineWidth',2)
 
 subjects = {'maverick','archie'};
@@ -138,7 +139,7 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
         close all
         
         
-        if Ch ~= sess_control_lfp.receiver_idx % if the electrode is not the receiver itself
+        if Ch ~= sess_control.receiver_idx % if the electrode is not the receiver itself
             
             
             indx_list = [indx_list, cnt_el]; % store the cnt number --- needed for multiple plotting

@@ -20,10 +20,8 @@ spec_r_M = sq(stim_mat(9,:,:))'; %  3rd field, spec_r Misses
 % MEAN ABS COHERENCES and SPECTRUM vs FREQUENCY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-M = size(stim,2); % -- number of electrodes
+M = size(stim,2); % -- number of electrodes (modulators, receivers)
 data.num_el = M;
-R = size(coh_sr,1); % -- number of receivers
-data.num_send = S;
 
 % ----------- COHERENCE
 
@@ -62,11 +60,11 @@ data.std_spec_r_M = std(abs(spec_r_M));  % mean spectrum receiver Misses
 
 % --- Error bars spectrum
 data.err_S_m = data.std_spec_m/sqrt(M); % -- all
-data.err_S_r = data.std_spec_r/sqrt(R);
+data.err_S_r = data.std_spec_r/sqrt(M);
 data.err_S_m_H = data.std_spec_m_H/sqrt(M); % -- Hits
-data.err_S_r_H = data.std_spec_r_H/sqrt(R);
+data.err_S_r_H = data.std_spec_r_H/sqrt(M);
 data.err_S_m_M = data.std_spec_m_M/sqrt(M); % -- misses
-data.err_S_r_M = data.std_spec_r_M/sqrt(R);
+data.err_S_r_M = data.std_spec_r_M/sqrt(M);
 
 
 
