@@ -209,12 +209,11 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
         stim(cnt_el).s_r_M = S_r_M; % R spectrum misses
         
         cnt_el = cnt_el + 1;  % -- count # of electrodes (modulators)
-        
+    
     end % --- end of all modulator channels
     
 end
 
-keyboard 
 
-save(strcat(dir_Stim,sprintf('/coh_spec_mr_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_Stim,sprintf('/coh_spec_mr_controls_same_area_fk_%d_W_%d.mat',fk,W)),'stim');
 
