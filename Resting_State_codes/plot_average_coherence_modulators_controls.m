@@ -104,33 +104,57 @@ hold all
 
 
 shadedErrorBar(f,modulators.mean_spec_m,modulators.err_S_m,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,modulators.mean_spec_s,modulators.err_S_s,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,modulators.mean_spec_r,modulators.err_S_r,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_r,modulators.err_S_r,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_s,modulators.err_S_s,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
 
 grid on
 title('RS: Modulators, Senders, Receivers spectrum','FontSize',11);
 xlabel('freq (Hz)');
-ylabel('coherence');
-legend('Modulators','Receivers','Sender','FontSize',10)
+ylabel('spectrum');
+legend('Modulators','Receiver','Sender','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-fname = strcat(dir_RS,sprintf('/coherency_MR_Modulators_vs_all_Controls_both_versions_W_%d_fk_%d-all-Sess.png',W,fk));
+fname = strcat(dir_RS,sprintf('/spectrum_RS_modulators_sender_receiver_W_%d_fk_%d.png',W,fk));
 saveas(fig,fname)
 
+% 
+% figure;
+% hAx=axes;
+% hAx.XScale='linear'
+% hAx.YScale='log'
+% hold all
+% for i=1:41
+%     
+% plot(f,abs(mod(i).s_m))
+% hold on
+% end
+% hold on 
+% shadedErrorBar(f,modulators.mean_spec_m,modulators.err_S_m,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
+% grid on
 
-figure;
+
+set(0,'DefaultFigureVisible','on')
+% -- FIGURE: Plot average coherence across sessions for MR, CR same area, CR other areas
+fig = figure;
 hAx=axes;
 hAx.XScale='linear'
 hAx.YScale='log'
 hold all
-for i=1:41
-    
-plot(f,mod(i).s_m)
-hold on
-end
+
+
+shadedErrorBar(f,modulators.mean_spec_m,modulators.err_S_m,'lineprops',{'color',[0, 153, 255]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_r,modulators.err_S_r,'lineprops',{'color',[0255, 102, 0]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,modulators.mean_spec_s,modulators.err_S_s,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+
+grid on
+title('RS: Modulators, Senders, Receivers spectrum','FontSize',11);
+xlabel('freq (Hz)');
+ylabel('spectrum');
+legend('Modulators','Receiver','Sender','FontSize',10)
+set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-
-
+fname = strcat(dir_RS,sprintf('/spectrum_RS_modulators_sender_receiver_W_%d_fk_%d.png',W,fk));
+saveas(fig,fname)
 
