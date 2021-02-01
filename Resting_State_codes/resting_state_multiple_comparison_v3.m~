@@ -373,8 +373,8 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
             
             perm = randperm(length(tf));
             perm_Hix = perm(1:length(Hix));
-            % perm_Lix = perm(length(Hix)+1:length(tf)); % I THINK THERE IS AN ERROR HERE: The number of Hix and Lix should be the same, instead for this permutation test the number of Hix is much less than the number of Lix
-            perm_Lix = perm(length(Hix)+1:length(Lix)+length(Hix)); % Corrected Jan 2021                                 
+            perm_Lix = perm(length(Hix)+1:length(tf)); % I THINK THERE IS AN ERROR HERE: The number of Hix and Lix should be the same, instead for this permutation test the number of Hix is much less than the number of Lix
+            perm_Lix = perm(length(Hix)+1:); % Corrected Jan 2021                                 
                                                        
             
             c_Hix_meanAbs = mean(abs(c_sr(perm_Hix,:)),1);
