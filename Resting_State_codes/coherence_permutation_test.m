@@ -1,10 +1,10 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code test the 
+% This code performs the permutation test for the coherence: it shuffles 
+% the trail of one of the two channels when computing the MR, SR, MS
+% coherence
 %
-
-%
-%    @ Gino Del Ferraro, November 2020, Pesaran lab, NYU
+%    @ Gino Del Ferraro, December 2020, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all; close all;
