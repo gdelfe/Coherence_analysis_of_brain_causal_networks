@@ -1,9 +1,6 @@
 
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code test the h
+% This code test the 
 %
 
 %
@@ -171,34 +168,22 @@ end
 
 keyboard
 
-dir_Perm = strcat(dir_RS,'/Permutation_test');
+dir_Perm = strcat(dir_RS,'/Permutation_test2');
 if ~exist(dir_Perm, 'dir')
     mkdir(dir_Perm)
 end
 
-save(strcat(dir_Perm,sprintf('/coh_sr_permuted_W_%d.mat',W)),'coh_sr_perm'); % -- permutation coherence sender-receiver
-save(strcat(dir_Perm,sprintf('/coh_ms_mr_permuted_W_%d.mat',W)),'coh'); % -- permutaion coherence modulator-sender, modulator-receiver 
+save(strcat(dir_Perm,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'coh'); % M-S, M-R coherence permuted
+save(strcat(dir_Perm,sprintf('/coh_sr_permuted_fk_%d_W_%d.mat',fk,W)),'coh_sr_perm'); % S-R coherence permuted 
+
+keyboard
 
 
-dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data';
-fk = 200; W = 5;
-% %%%%%%%%% MODULATORS  %%%%%%
-load(strcat(dir_Stim,sprintf('/coh_spec_mr_fk_%d_W_%d.mat',fk,W)));
-stim_mod = stim;
-modulators = mean_coh_and_spec_STIM(stim);
-
-trial = cell2mat(struct2cell(stim));
+% for j = 1:length(f)
+%     p_count = nnz(coh(cnt_el).perm(j).c_ms
+% end
 
 
-p_hist = zeros(41,length(f),iter);
-
-
-
-for j = 1:length(f)
-
-    p_ = nnz(coh(cnt_el).perm(j).c_ms
-
-end
 
 
 
