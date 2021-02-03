@@ -117,7 +117,7 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
     
     % keyboard
     
-    %% %%%%%%%%%%%%%%%%%%%%%
+    % %%%%%%%%%%%%%%%%%%%%%
     % -- Modulator Channel
     
     % Ch = 10; % Channel being analyzed
