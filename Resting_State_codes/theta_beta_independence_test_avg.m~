@@ -27,10 +27,12 @@ stim_mod = stim;
 mod_mod = mod;
 modulators = mean_coh_and_spec_RS(mod,stim);
 
+
 % %%%%%%%%% PERMUTED DATA  %%%%%%
 load(strcat(dir_Perm,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W))); % structure mod
 load(strcat(dir_Perm,sprintf('/coh_sr_permuted_fk_%d_W_%d.mat',fk,W))); % structure stim
 f = linspace(1,fk,size(coh(1).perm(1).c_mr,2)); % frequency values (range)
+
 
 % Plot to check --- permuted coherence 
 set(0,'DefaultFigureVisible','on')
@@ -49,9 +51,6 @@ legend('Permuted coherence')
 % Theta pick 7.8 Hz -> f(15)
 % Beta pick 21 Hz -> f(42)
 t_idx = 15; b_idx = 42;
-
-theta_MR = zeros(size(coh,2),iter);
-beta_MR = zeros(size(coh,2),iter);
 
 theta_MR = zeros(size(coh,2),iter);
 beta_MR = zeros(size(coh,2),iter);
