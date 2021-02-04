@@ -99,7 +99,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     plot(f,abs(permuted(100).c_sr))
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    --- MODULATORS
+    %--- MODULATORS
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     mod_Ch = sess_data_lfp.mod_idx; % -- modulators (not controls!) index
