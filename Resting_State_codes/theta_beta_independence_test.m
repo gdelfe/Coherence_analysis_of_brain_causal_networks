@@ -197,7 +197,7 @@ for i = 1:4
 end
 chi_MS
 
-
+stats.MS.ChiSquared = chi_MS; % save into structure 
 
 
 

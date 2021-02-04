@@ -1,6 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Theta/Beta chi-squared independence test                                %
+% Theta/Beta chi-squared independence test      
+% with average values in an interval rather than a single value
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -56,14 +57,13 @@ beta_MR = zeros(size(coh,2),iter);
 theta_MS = zeros(size(coh_sr,2),iter);
 beta_MS = zeros(size(coh_sr,2),iter);
 
-% select only theta frequence and beta frequence at the peaks for each
-% electrode 
+% --- select theta and beta within a range around the peaks
 % Modulators-Receivers 
 for ch = 1:size(coh,2)
     for perm = 1:iter
         
-        theta_MR(ch,perm) = coh(ch).perm(perm).c_mr(t_idx); % 7.8 Hz
-        beta_MR(ch,perm) = coh(ch).perm(perm).c_mr(b_idx);  % 21 Hz
+        theta_MR(ch,perm) = sum(abs(coh(ch).perm(perm).c_mr(13:17)))/5; % 6.8 - 8.8 Hz
+        beta_MR(ch,perm) = sum(abs(coh(ch).perm(perm).c_mr(40:44)))/5;  % 20-22 Hz
         
     end
 end
@@ -72,8 +72,8 @@ end
 for ch = 1:size(coh_sr,2)
     for perm = 1:iter
         
-        theta_MS(ch,perm) = coh_sr(ch).perm(perm).c_sr(s_idx); % 8.8 Hz
-        beta_MS(ch,perm) = coh_sr(ch).perm(perm).c_sr(b_idx);  % 21 Hz
+        theta_MS(ch,perm) = sum(abs(coh_sr(ch).perm(perm).c_sr(15:19)))/5; % 7.8 - 9.8 Hz
+        beta_MS(ch,perm) = sum(abs(coh_sr(ch).perm(perm).c_sr(40:44)))/5;  % 20 - 22 Hz
         
     end
 end
@@ -89,13 +89,13 @@ theta_NZ = 0; % counts for theta non-zero
 beta_NZ = 0; % counts for beta non-zero
 for ch = 1:size(coh,2)
     
-   stats.MR.Ch(ch).theta_MR_pval =  nnz(abs(theta_MR(ch,:)) > abs(mod(ch).c_mr(t_idx)))/iter;
-   stats.MR.Ch(ch).beta_MR_pval =  nnz(abs(beta_MR(ch,:)) > abs(mod(ch).c_mr(b_idx)))/iter;
+   stats_avg.MR.Ch(ch).theta_MR_pval =  nnz(theta_MR(ch,:) > sum(abs(mod(ch).c_mr(13:17)))/5)/iter;
+   stats_avg.MR.Ch(ch).beta_MR_pval =  nnz(beta_MR(ch,:) > sum(abs(mod(ch).c_mr(40:44)))/5)/iter;
    
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
-   theta_NZ = theta_NZ + int8(stats.MR.Ch(ch).theta_MR_pval <= pth); % if pval of the channel is smaller than pval threshold add 1
-   beta_NZ = theta_NZ + int8(stats.MR.Ch(ch).beta_MR_pval <= pth); 
+   theta_NZ = theta_NZ + int8(stats_avg.MR.Ch(ch).theta_MR_pval <= pth); % if pval of the channel is smaller than pval threshold add 1
+   beta_NZ = theta_NZ + int8(stats_avg.MR.Ch(ch).beta_MR_pval <= pth); 
    
 end
 
@@ -105,7 +105,7 @@ beta_Z = size(coh,2) - beta_NZ;
 
 Obs = double([theta_NZ, theta_Z; beta_NZ, beta_Z]); 
 
-stats.MR.Obs = Obs; % save into structure 
+stats_avg.MR.Obs = Obs; % save into structure 
 
 N = sum(sum(Obs)) % Sample size
 E_theta_NZ = sum(Obs(1,:)) * sum(Obs(:,1))/N
@@ -115,9 +115,9 @@ E_beta_Z = sum(Obs(2,:)) * sum(Obs(:,2))/N
 
 Exp = [E_theta_NZ,E_theta_Z; E_beta_NZ,E_beta_Z];
 
-stats.MR.Exp = Exp; % save into structure 
+stats_avg.MR.Exp = Exp; % save into structure 
 
-ch = 41;
+ch = 1;
 fig = figure;
 histogram(abs(theta_MR(ch,:)),20,'Normalization','probability','FaceAlpha',.6); grid on
 hold on; histogram(abs(beta_MR(ch,:)),20,'Normalization','probability','FaceAlpha',.6); grid on
@@ -136,25 +136,25 @@ for i = 1:4
 end
 chi_MR
 
-stats.MR.ChiSquared = chi_MR; % save into structure 
+stats_avg.MR.ChiSquared = chi_MR; % save into structure 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % THETA AND BETA TEST OF INDEPENDENCE --- MODULATORS-SENDERS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % pvalue calculation for each electrodes 
-pth = 0.05
+pth = 0.05;
 theta_NZ = 0; % counts for theta non-zero
 beta_NZ = 0; % counts for beta non-zero
 for ch = 1:size(coh_sr,2)
     
-   stats.MS.Ch(ch).theta_pval =  nnz(abs(theta_MS(ch,:)) > abs(stim(ch).c_sr(s_idx)))/iter
-   stats.MS.Ch(ch).beta_pval =  nnz(abs(beta_MS(ch,:)) > abs(stim(ch).c_sr(b_idx)))/iter
+   stats_avg.MS.Ch(ch).theta_pval =  nnz(abs(theta_MS(ch,:)) > sum(abs(stim(ch).c_sr(15:19)))/5)/iter
+   stats_avg.MS.Ch(ch).beta_pval =  nnz(abs(beta_MS(ch,:)) > sum(abs(stim(ch).c_sr(40:44)))/5)/iter
    
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
-   theta_NZ = theta_NZ + int8(stats.MS.Ch(ch).theta_pval <= pth); % if pval of the channel is smaller than pval threshold add 1
-   beta_NZ = theta_NZ + int8(stats.MS.Ch(ch).beta_pval <= pth); 
+   theta_NZ = theta_NZ + int8(stats_avg.MS.Ch(ch).theta_pval <= pth); % if pval of the channel is smaller than pval threshold add 1
+   beta_NZ = theta_NZ + int8(stats_avg.MS.Ch(ch).beta_pval <= pth); 
    
 end
 
@@ -164,7 +164,7 @@ beta_Z = size(coh_sr,2) - beta_NZ;
 
 Obs = double([theta_NZ, theta_Z; beta_NZ, beta_Z]); 
 
-stats.MS.Obs = Obs; % save into structure 
+stats_avg.MS.Obs = Obs; % save into structure 
 
 
 N = sum(sum(Obs)) % Sample size
@@ -175,7 +175,7 @@ E_beta_Z = sum(Obs(2,:)) * sum(Obs(:,2))/N
 
 Exp = [E_theta_NZ,E_theta_Z; E_beta_NZ,E_beta_Z];
 
-stats.MS.Exp = Exp; % save into structure 
+stats_avg.MS.Exp = Exp; % save into structure 
 
 ch = 2;
 fig = figure;
@@ -186,7 +186,7 @@ title('p-val distribution','FontSize',12)
 
 
 O = reshape(Obs,[1,4]);
-E = reshape(Exp,[1,4]);0.0
+E = reshape(Exp,[1,4]);
 % Compute Chi-Squared 
 chi_MS = 0;
 for i = 1:4
@@ -197,6 +197,7 @@ end
 chi_MS
 
 
+stats_avg.MS.ChiSquared = chi_MS; % save into structure 
 
 
 
