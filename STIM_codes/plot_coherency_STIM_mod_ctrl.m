@@ -12,7 +12,6 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data';
 
 
-
 fk = 200; W = 5;
 % %%%%%%%%% MODULATORS  %%%%%%
 load(strcat(dir_Stim,sprintf('/coh_spec_mr_fk_%d_W_%d.mat',fk,W)));

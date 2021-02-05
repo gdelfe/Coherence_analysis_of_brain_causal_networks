@@ -7,6 +7,10 @@
 % channels that have causal modulators and plots this coherence for the
 % hits and the misses separately
 %
+% IMPORTANT: It uses a reduced number of trails rather than the whole
+% available 110, in order to match the available trails in the RS. Number
+% of trails used is 98 out of 110
+%
 % INPUT: file with session modulator info
 %        .mat file with structure AM and MA information
 %
@@ -60,6 +64,15 @@ cnt_el = 1;
 list_sess = 1:19;
 list_sess(17) = []; % -- Session 17 and 20 are full of artifacts
 
+
+
+% selected trials: out of the available 110 trials in the STIM, we remove 52 of them randomly,
+% because the RS has 52 outliers_tot, i.e. artifacs. In order to compare
+% STIM and RS we chose the same number of trails. RS has originally 150
+% trials: 150 - 52 (artifacts) = 98 (good trials)
+perm = randperm(110);
+trials = perm(1:98); 
+
 for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     
     Sess = sess_info{1}(i); % Session number
@@ -97,11 +110,15 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     fmin = 10;
     fmax = 40;
     
-    %% %%%%%% Assign LFP %%%%%%
+    % %%%%%% Assign LFP %%%%%%
     lfp_E = sq(Lfp_Pre(:,electrode(:,1),:) - Lfp_Pre(:,electrode(:,2),:)); % modulator lfp
     lfp_R = sq(Lfp_Pre(:,receiver(1),:) - Lfp_Pre(:,receiver(2),:)); % receiver lfp
     lfp_S = sq(Lfp_Pre(:,sender(1),:) - Lfp_Pre(:,sender(2),:)); % sender lfp
-   
+    
+    % %%%% Reduce the number of trails in order to match the Resting State
+    lfp_E = lfp_E(trials,:,:);
+    lfp_R = lfp_R(trials,:);
+    lfp_S = lfp_S(trials,:);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % % Coherency LFP                  %%%%%%%%%%%%%
@@ -121,7 +138,7 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch)])
     
-    dir_Modulators = strcat(dir_Sess,'/Modulators');
+    dir_Modulators = strcat(dir_Sess,'/Modulators_n_trials_as_RS');
     if ~exist(dir_Modulators, 'dir')
         mkdir(dir_Modulators)
     end
@@ -147,10 +164,14 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             tic
             [c_mr,f,S_m,S_r] = coherency(sq(lfp_E(:,Ch,:)),lfp_R,[N W],fs,fk,pad,0.05,1,11);
             toc
+            % NOTE: since we are including only 98 trails out of 110, we
+            % have to pick hits and misses within those 98
             % -- coherence of modulator-receiver HITS
-            [c_mr_H,f_H,S_m_H,S_r_H] = coherency(sq(lfp_E(hitIndx,Ch,:)),lfp_R(hitIndx,:),[N W],fs,fk,pad,0.05,1,11);
+            [C,tr_hits,i_hits] = intersect(trials,hitIndx); % -- get the trials that are both hitIndx and in trials 
+            [c_mr_H,f_H,S_m_H,S_r_H] = coherency(sq(lfp_E(tr_hits,Ch,:)),lfp_R(tr_hits,:),[N W],fs,fk,pad,0.05,1,11);
             % -- coherence of modulator-receiver MISSES
-            [c_mr_M,f_M,S_m_M,S_r_M] = coherency(sq(lfp_E(missIndx,Ch,:)),lfp_R(missIndx,:),[N W],fs,fk,pad,0.05,1,11);
+            [C,tr_miss,i_miss] = intersect(trials,missIndx); % -- get the trials that are both missIndx and in trials 
+            [c_mr_M,f_M,S_m_M,S_r_M] = coherency(sq(lfp_E(tr_miss,Ch,:)),lfp_R(tr_miss,:),[N W],fs,fk,pad,0.05,1,11);
             
             
             % --- FIGURE --------- %%
@@ -170,9 +191,19 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             fname = strcat(dir_Modulators,sprintf('/coherency_ch_%d_N_%.2f_W_%d.jpg',Ch,N,W));
             saveas(fig,fname);
             
-              
             
+            % --- CALCULATION OF THE SPECTRUM USING DMTSPEC --- %%%%%%%%
+            % -- ALL
+            dmt_S_r = dmtspec(lfp_R,[1 3],fs,fk, pad, 0.05, 1);
+            dmt_S_m = dmtspec(sq(lfp_E(:,Ch,:)),[1 3],fs,fk, pad, 0.05, 1);
+            % -- HITS
+            dmt_S_r_H = dmtspec(lfp_R(tr_hits,:),[1 3],fs,fk, pad, 0.05, 1);
+            dmt_S_m_H = dmtspec(sq(lfp_E(tr_hits,Ch,:)),[1 3],fs,fk, pad, 0.05, 1);
+            % -- MISSES 
+            dmt_S_r_M = dmtspec(lfp_R(tr_miss,:),[1 3],fs,fk, pad, 0.05, 1);
+            dmt_S_m_M = dmtspec(sq(lfp_E(tr_miss,Ch,:)),[1 3],fs,fk, pad, 0.05, 1);
             
+           
             % --- FIGURE --------- %%
             % -- Spectrum vs frequency --- %
             fig = figure;
@@ -196,18 +227,48 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             saveas(fig,fname);
             
             
+             % --- FIGURE --------- %%
+            % -- DMT Spectrum vs frequency --- %
+            fig = figure;
+            hAx=axes;
+            hAx.XScale='linear'
+            hAx.YScale='log'
+            plot(f,abs(dmt_S_m_H),'color',[0, 51, 204]/255)
+            hold on
+            plot(f,abs(dmt_S_r_H),'color',[0, 153, 255]/255)
+            hold on
+            plot(f,abs(dmt_S_m_M),'color',[255, 153, 51]/255)
+            grid on
+            plot(f,abs(dmt_S_r_M),'color',[255, 51, 0]/255)
+            grid on
+            title(sprintf('STIM: Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
+            legend('M Spectrum Hits','R Spectrum Hits','M Spectrum Misses','R Spectrum Misses')
+            xlim([0 60])
+            set(gcf, 'Position',  [100, 600, 1000, 500])
+            
+            fname = strcat(dir_Modulators,sprintf('/spectrum_dmt_ch_%d_N_%.2f_W_%d.jpg',Ch,N,W));
+            saveas(fig,fname);
+            
+            
+            
             % -- structure assignements
             stim(cnt_el).c_mr = c_mr ; % MR coherence
             stim(cnt_el).s_m = S_m;  % M spectrum
             stim(cnt_el).s_r = S_r; % R spectrum
+            stim(cnt_el).dmt_s_m = dmt_S_m;  % M dmt spectrum
+            stim(cnt_el).dmt_s_r = dmt_S_r; % R dmt spectrum
             
             stim(cnt_el).c_mr_H = c_mr_H ; % MR coherence hits
             stim(cnt_el).s_m_H = S_m_H;  % M spectrum hits
             stim(cnt_el).s_r_H = S_r_H; % R spectrum hits
+             stim(cnt_el).dmt_s_m_H = dmt_S_m_H;  % M dmt spectrum
+            stim(cnt_el).dmt_s_r_H = dmt_S_r_H; % R dmt spectrum
             
             stim(cnt_el).c_mr_M = c_mr_M ; % MR coherence misses
             stim(cnt_el).s_m_M = S_m_M;  % M spectrum misses
             stim(cnt_el).s_r_M = S_r_M; % R spectrum misses
+            stim(cnt_el).dmt_s_m_M = dmt_S_m_M;  % M dmt spectrum misses
+            stim(cnt_el).dmt_s_r_M = dmt_S_r_M; % R dmt spectrum misses
             
             cnt_el = cnt_el + 1;  % -- count # of electrodes (modulators)
             
@@ -218,5 +279,5 @@ end
 
 keyboard
 
-save(strcat(dir_Stim,sprintf('/coh_spec_mr_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_Stim,sprintf('/coh_spec_mr_sameRStrails_fk_%d_W_%d.mat',fk,W)),'stim');
 
