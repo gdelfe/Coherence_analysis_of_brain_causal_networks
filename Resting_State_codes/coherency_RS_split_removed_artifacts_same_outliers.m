@@ -29,7 +29,10 @@ set(0,'DefaultFigureVisible','on')
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
-step = 110;
+dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data';
+
+fk = 200;
+W = 5;
 
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
@@ -38,6 +41,7 @@ fclose(fid);
 set(0,'DefaultLineLineWidth',2)
 
 name_struct_input = '/sess_data_lfp.mat';
+load(strcat(dir_Stim,sprintf('/coh_spec_mr_sameRStrails_fk_%d_W_%d.mat',fk,W)));
 
 
 cnt_sr = 1; % counter sender-receiver coherencies
@@ -72,7 +76,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch)])
     
-    dir_Modulators = strcat(dir_Sess,'/Modulators');
+    dir_Modulators = strcat(dir_Sess,'/Modulators_same_trials_RS_STIM');
     if ~exist(dir_Modulators, 'dir')
         mkdir(dir_Modulators)
     end
@@ -91,40 +95,37 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
         
         if Ch ~= sess_data_lfp.receiver_idx % if the electrode is not the receiver itself
             
+            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Select same number of trials for RS and STIM
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
             % -- remove outliers from modulator and receiver
             outliers_tot = [sess_data_lfp.outliers_E(cnt_m).idx, sess_data_lfp.outliers_R];  % -- get the M,R,S shared outliers
             outliers_tot = unique(outliers_tot);
             
             %%%% CHECK HERE: stim needs to be loaded
             n_trials_STIM = stim(cnt_el).n_trials_RS_STIM; % tot numbero of trials STIM
-            n_trials_RS = (150 - outliers_tot); % tot numb trials RS
-            
-            
-            
-            
+            n_trials_RS = (150 - size(outliers_tot,2)); % tot numb trials RS
             
             % --- Select STIM trials to match the number of RS trial for idential statistics
             n_trials = min(n_trials_RS,n_trials_STIM) % select the min numb of trial between RS and STIM 
-                                      
-            trials = 1:n_trials; % get STIM trials: as many as RS'
+            % remove outliers from RS, in order not to include them 
+            RS_trials = 1:150;
+            RS_trials(outliers_tot)=[];
+            
+            trials = RS_trials(1:n_trials); % 
             
             % -- Modulator and Receiver LFP
             lfp_E = sq(lfp_E_all(Ch,:,:));          % -- get lfp for only that channel
             lfp_R = sess_data_lfp.lfp_R;
             
-            % -- remove outliers from sender, receiver, and control
-            lfp_R(outliers_tot,:) = [];
-            lfp_E(outliers_tot,:) = [];
+            % include only the trails without artifacts and as many as in STIM
+            lfp_E = lfp_E(trials,:);
+            lfp_R = lfp_R(trials,:);
             
             
-            
-            
-            
-            
-            
-            
-            
-            sess_data_lfp.lfp_E_clean(cnt_m).lfp = lfp_E;   % -- save to structure
+            sess_data_lfp.lfp_E_clean(cnt_m).lfp = lfp_E;   % -- save lfp_E to structure
             
             % -- coherence for modulator-receiver            
             display(['Computing modulator-receiver coherence...'])
@@ -151,25 +152,31 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             saveas(fig,fname);
             
             % -- structure assignements
-            mod(cnt_el).c_mr = c_mr;  % M-R coherence
-            mod(cnt_el).s_m = S_m; % Modulator spectrum
+            modulator(cnt_el).c_mr = c_mr;  % M-R coherence
+            modulator(cnt_el).s_m = S_m; % Modulator spectrum
           
             
             cnt_el = cnt_el + 1; % total modulators counter                     
         end
+        sess_data_lfp.lfp_R_clean.lfp = lfp_R;   % -- save lfp_E to structure
         cnt_m = cnt_m + 1; % counter for modulators within this session
 
     end
 end
 
-
+dir_coherence = strcat(dir_RS,'/Coherence_STIM_RS_same_trials');
+if ~exist(dir_coherence, 'dir')
+    mkdir(dir_coherence)
+end
+    
+    
 keyboard
 % Save coherence and spectrum data in structure format
-save(strcat(dir_RS,sprintf('/coh_spec_MR_only_for_STIM_comparison_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_coherence,sprintf('/coh_spec_MR_only_for_STIM_comparison_fk_%d_W_%d.mat',fk,W)),'mod');
 
 % -- load structure files
 fk = 200;
-load(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)))
+load(strcat(dir_coherence,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
