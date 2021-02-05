@@ -91,22 +91,18 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
         
         if Ch ~= sess_data_lfp.receiver_idx % if the electrode is not the receiver itself
             
-            % -- remove outliers from modulator and receiver
+            % -- remove outliers from modulator, sender, and receiver
             outliers_tot = [sess_data_lfp.outliers_E(cnt_m).idx, sess_data_lfp.outliers_R];  % -- get the M,R,S shared outliers
             outliers_tot = unique(outliers_tot);
             
-            %%%% CHECK HERE: stim needs to be loaded
-            n_trials_STIM = stim(cnt_el).n_trials_RS_STIM; % tot numbero of trials STIM
-            n_trials_RS = (150 - outliers_tot); % tot numb trials RS
             
-            
-            
-            
-            
+            n_trials_STIM = stim(cnt_el).n_trials_RS_STIM;
+
             % --- Select STIM trials to match the number of RS trial for idential statistics
-            n_trials = min(n_trials_RS,n_trials_STIM) % select the min numb of trial between RS and STIM 
+            n_trials = min(n_trials_RS,size(lfp_R,1)) % select the min numb of trial between RS and STIM 
                                       
-            trials = 1:n_trials; % get STIM trials: as many as RS'
+            perm = randperm(size(lfp_R,1)); % Randomly permute the STIM trials to sample homogeneously
+            trials = perm(1:n_trials); % get STIM trials: as many as RS'
             
             % -- Modulator and Receiver LFP
             lfp_E = sq(lfp_E_all(Ch,:,:));          % -- get lfp for only that channel
@@ -115,14 +111,6 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             % -- remove outliers from sender, receiver, and control
             lfp_R(outliers_tot,:) = [];
             lfp_E(outliers_tot,:) = [];
-            
-            
-            
-            
-            
-            
-            
-            
             
             sess_data_lfp.lfp_E_clean(cnt_m).lfp = lfp_E;   % -- save to structure
             

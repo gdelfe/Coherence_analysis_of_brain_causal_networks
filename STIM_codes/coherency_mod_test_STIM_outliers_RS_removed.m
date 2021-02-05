@@ -21,7 +21,7 @@
 
 clear all;
 close all
-set(0,'DefaultFigureVisible','on')
+set(0,'DefaultFigureVisible','off')
 set(0,'DefaultLineLineWidth',2)
 
 subjects = {'maverick','archie'};
@@ -259,7 +259,6 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             
             fname = strcat(dir_Modulators,sprintf('/spectrum_dmt_ch_%d_N_%.2f_W_%d.jpg',Ch,N,W));
             saveas(fig,fname);
-            
             
             
             % -- structure assignements
