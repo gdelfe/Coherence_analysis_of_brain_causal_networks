@@ -1,5 +1,5 @@
 
-%% TO BE FINISHED......
+% TO BE FINISHED......
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code computes the STIM coherence between the causal modulators found by
@@ -61,7 +61,8 @@ fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session 
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-
+tot_trials_RS = 150; % number of total trial in the Resting state
+n_trials_STIM = 110; % number of total trial in the STIM 
 cnt_el = 1;
 list_sess = 1:19;
 list_sess(17) = []; % -- Session 17 and 20 are full of artifacts
@@ -97,15 +98,8 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     
     % Resting state directory 
     dir_RS_Sess = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state/Sess_%d',Sess);
-    load(strcat(dir_RS_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
-    
-    
-    
-    
-    
-    perm = randperm(110);
-    trials = perm(1:98);
-   
+    load(strcat(dir_RS_Sess,'/sess_data_lfp.mat')); % RS LFP data split into 1 sec window and artifacts annotated 
+       
     % -- load list electrodes, sender, receiver
     electrode = sess_data.RecordPair; % ---- all electrode pairs
     receiver = sess_data.receiver_pair;  % ---- receiver pair
@@ -120,10 +114,6 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     lfp_R = sq(Lfp_Pre(:,receiver(1),:) - Lfp_Pre(:,receiver(2),:)); % receiver lfp
     lfp_S = sq(Lfp_Pre(:,sender(1),:) - Lfp_Pre(:,sender(2),:)); % sender lfp
     
-    % %%%% Reduce the number of trails in order to match the Resting State
-    lfp_E = lfp_E(trials,:,:);
-    lfp_R = lfp_R(trials,:);
-    lfp_S = lfp_S(trials,:);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % % Coherency LFP                  %%%%%%%%%%%%%
@@ -156,12 +146,28 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
         close all
         
         if Ch ~= sess_data.receiver_idx % if the electrode is not the receiver itself
-            
+                        
+            indx_list = [indx_list, cnt_el]; % store the cnt number --- needed for multiple plotting
             
             outliers_RS = size(sess_data_lfp.outliers_tot(cnt_m).idx,2); % number of artifacts in RS LFP
+            n_trials_RS = (tot_trial_RS - outliers_RS);   % # of trials without artifacts RS 
             
-            indx_list = [indx_list, cnt_el]; % store the cnt number --- needed for multiple plotting
-                        
+            % --- Select STIM trials to match the number of RS trial for idential statistics
+            if n_trials_RS < size(lfp_R,1) % if RS has less trial than STIM
+                perm = randperm(n_trials_STIM); % Randomly permute the stim trials to sample homogeneously                
+                trials = perm(1:n_trials_RS); % get STIM trials: as many as RS' 
+            else
+                trials = 1:n_trials_STIM; % get all the STIM trials
+            end 
+            display(['-- Mod ',num2str(Ch),' -- N trials: ',num2str(size(trials,2))])
+            
+            % %%%% Reduce the number of trails in order to match the Resting State
+            lfp_E = lfp_E(trials,:,:);
+            lfp_R = lfp_R(trials,:);
+            lfp_S = lfp_S(trials,:);
+            
+            
+           
             % -- labels Hits and Misses
             hitIndx = Data.spec.lfp.DetectedIndx{Ch}; % labels for the hits (which trial was a hit)
             missIndx = Data.spec.lfp.notDetectedIndx{Ch}; % labels for the misses (which trial was a miss)
@@ -171,8 +177,8 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             tic
             [c_mr,f,S_m,S_r] = coherency(sq(lfp_E(:,Ch,:)),lfp_R,[N W],fs,fk,pad,0.05,1,11);
             toc
-            % NOTE: since we are including only 98 trails out of 110, we
-            % have to pick hits and misses within those 98
+            % NOTE: since we are including only a fraction of the whole
+            % trials. Hits and Miss trails need to be taken among these set
             % -- coherence of modulator-receiver HITS
             [C,tr_hits,i_hits] = intersect(trials,hitIndx); % -- get the trials that are both hitIndx and in trials 
             [c_mr_H,f_H,S_m_H,S_r_H] = coherency(sq(lfp_E(tr_hits,Ch,:)),lfp_R(tr_hits,:),[N W],fs,fk,pad,0.05,1,11);
@@ -284,8 +290,6 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     end % --- end of all modulator channels
     
 end
-
-keyboard
 
 save(strcat(dir_Stim,sprintf('/coh_spec_mr_sameRStrails_fk_%d_W_%d.mat',fk,W)),'stim');
 

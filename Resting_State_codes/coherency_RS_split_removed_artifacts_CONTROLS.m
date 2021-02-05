@@ -243,7 +243,6 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             cnt_el = cnt_el + 1; % total control counter   
         end
         cnt_m = cnt_m + 1; % counter for control within this session
-
     end
 end
 
