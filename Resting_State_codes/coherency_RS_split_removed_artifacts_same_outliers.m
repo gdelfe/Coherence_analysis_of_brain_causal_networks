@@ -1,13 +1,14 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code computes the Resting State coherence between the
-% modulators found by Shaoyu's and both the sender and the receiver
+% modulators found by Shaoyu's and the receiver only, for comparison with
+% the STIM analogous
 %
 % It computes the mean and the std of such coherence, across all the
 % channels that have causal modulators
 %
-% In contrast to other codes that employes the coherence-gram to estimate
-% the coherence vs frequency, this code employes directly coherency.m
+% NOTE: The n_trials of the lfp in the RS are chosen equal to the n_trials
+% available in the STIM exp in order to have analogous statistics
 %
 % INPUT: sess_data_lfp.mat
 %        structure containing all modulator infos + RS LFP split
@@ -15,7 +16,7 @@
 % OUTPUT: txt files with the values of the coherence MR, MS, SR and
 % corresponding figures
 %
-%    @ Gino Del Ferraro, November 2020, Pesaran lab, NYU
+%    @ Gino Del Ferraro, January 2021, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all; close all;
@@ -57,11 +58,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     %     % ---  time parameter
     tot_time = 150001;
     
-    outliers_SR = [sess_data_lfp.outliers_S, sess_data_lfp.outliers_R];
-    outliers_SR = unique(outliers_SR)  % -- remove repeated entries in outliers
-    
-    % %%%%%%%%%%% Sender and Receiver LFP %%%%%%%%%%%%%%%%%%%
-    lfp_S = sess_data_lfp.lfp_S;
+  
     lfp_R = sess_data_lfp.lfp_R;
     
     

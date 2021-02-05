@@ -150,15 +150,14 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             indx_list = [indx_list, cnt_el]; % store the cnt number --- needed for multiple plotting
             
             outliers_RS = size(sess_data_lfp.outliers_tot(cnt_m).idx,2); % number of artifacts in RS LFP
-            n_trials_RS = (tot_trial_RS - outliers_RS);   % # of trials without artifacts RS 
+            n_trials_RS = (tot_trials_RS - outliers_RS);   % # of trials without artifacts RS 
             
             % --- Select STIM trials to match the number of RS trial for idential statistics
-            if n_trials_RS < size(lfp_R,1) % if RS has less trial than STIM
-                perm = randperm(n_trials_STIM); % Randomly permute the stim trials to sample homogeneously                
-                trials = perm(1:n_trials_RS); % get STIM trials: as many as RS' 
-            else
-                trials = 1:n_trials_STIM; % get all the STIM trials
-            end 
+            n_trials = min(n_trials_RS,size(lfp_R,1)) % select the min numb of trial between RS and STIM 
+                                      
+            perm = randperm(size(lfp_R,1)); % Randomly permute the STIM trials to sample homogeneously
+            trials = perm(1:n_trials); % get STIM trials: as many as RS'
+
             display(['-- Mod ',num2str(Ch),' -- N trials: ',num2str(size(trials,2))])
             
             % %%%% Reduce the number of trails in order to match the Resting State
@@ -166,8 +165,7 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             lfp_R = lfp_R(trials,:);
             lfp_S = lfp_S(trials,:);
             
-            
-           
+                       
             % -- labels Hits and Misses
             hitIndx = Data.spec.lfp.DetectedIndx{Ch}; % labels for the hits (which trial was a hit)
             missIndx = Data.spec.lfp.notDetectedIndx{Ch}; % labels for the misses (which trial was a miss)
@@ -282,6 +280,8 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             stim(cnt_el).s_r_M = S_r_M; % R spectrum misses
             stim(cnt_el).dmt_s_m_M = dmt_S_m_M;  % M dmt spectrum misses
             stim(cnt_el).dmt_s_r_M = dmt_S_r_M; % R dmt spectrum misses
+            
+            stim(cnt_el).n_trials_RS_STIM = size(trials,2);
             
             cnt_el = cnt_el + 1;  % -- count # of electrodes (modulators)
             

@@ -6,9 +6,12 @@
 % channels that have causal modulators and plots this coherence for the
 % hits and the misses separately
 %
-% IMPORTANT: It uses a reduced number of trails rather than the whole
-% available 110, in order to match the available trails in the RS. Number
-% of trails used is 98 out of 110
+% IMPORTANT: For each channel it uses a variable number of trials in order
+% to have always STIM and RS with the same amount of trial for equal
+% statistics. It achieves so by checking which between STIM and RS has less
+% trials and choses that as number of trials for both 
+% Random permutation of trial is applied when sampling in order to sample
+% homogeneously 
 %
 % INPUT: file with session modulator info
 %        .mat file with structure AM and MA information
@@ -147,11 +150,17 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             indx_list = [indx_list, cnt_el]; % store the cnt number --- needed for multiple plotting
             
             outliers_RS = size(sess_data_lfp.outliers_tot(cnt_m).idx,2); % number of artifacts in RS LFP
-            n_trials_RS = (tot_trial_RS - outliers_RS);   % # of trials without artifacts RS 
+            n_trials_RS = (tot_trials_RS - outliers_RS);   % # of trials without artifacts RS 
             
             % --- Select STIM trials to match the number of RS trial for idential statistics
             if n_trials_RS < size(lfp_R,1) % if RS has less trial than STIM
-                perm = randperm(n_trials_STIM); % Randomly permute the stim trials to sample homogeneously                
+               n_trials = n_trials_RS;
+            elseif n_trials_RS > size(lfp_R,1) % if STIM has less trial than RS
+               n_trials = size(lfp_R,1)
+            end 
+                
+                
+         perm = randperm(n_trials_STIM); % Randomly permute the stim trials to sample homogeneously                
                 trials = perm(1:n_trials_RS); % get STIM trials: as many as RS' 
             else
                 trials = 1:n_trials_STIM; % get all the STIM trials
@@ -279,6 +288,8 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             stim(cnt_el).s_r_M = S_r_M; % R spectrum misses
             stim(cnt_el).dmt_s_m_M = dmt_S_m_M;  % M dmt spectrum misses
             stim(cnt_el).dmt_s_r_M = dmt_S_r_M; % R dmt spectrum misses
+            
+            stim(cnt_el).n_trials_RS_STIM = size(trials,2);
             
             cnt_el = cnt_el + 1;  % -- count # of electrodes (modulators)
             
