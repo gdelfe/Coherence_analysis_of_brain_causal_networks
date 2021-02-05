@@ -152,8 +152,8 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             saveas(fig,fname);
             
             % -- structure assignements
-            modulator(cnt_el).c_mr = c_mr;  % M-R coherence
-            modulator(cnt_el).s_m = S_m; % Modulator spectrum
+            resting(cnt_el).c_mr = c_mr;  % M-R coherence
+            resting(cnt_el).s_m = S_m; % Modulator spectrum
           
             
             cnt_el = cnt_el + 1; % total modulators counter                     
@@ -164,19 +164,29 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     end
 end
 
-dir_coherence = strcat(dir_RS,'/Coherence_STIM_RS_same_trials');
-if ~exist(dir_coherence, 'dir')
-    mkdir(dir_coherence)
+dir_coh_RS = strcat(dir_RS,'/Coherence_STIM_RS_same_trials');
+if ~exist(dir_coh_RS, 'dir')
+    mkdir(dir_coh_RS)
 end
     
     
 keyboard
 % Save coherence and spectrum data in structure format
-save(strcat(dir_coherence,sprintf('/coh_spec_MR_only_for_STIM_comparison_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_coh_RS,sprintf('/coh_spec_MR_only_for_STIM_comparison_fk_%d_W_%d.mat',fk,W)),'resting');
+
+
+
+
+
+
+
+
+
+
 
 % -- load structure files
 fk = 200;
-load(strcat(dir_coherence,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)))
+load(strcat(dir_coh_RS,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
