@@ -205,14 +205,14 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             
             % --- CALCULATION OF THE SPECTRUM USING DMTSPEC --- %%%%%%%%
             % -- ALL
-            dmt_S_r = dmtspec(lfp_R,[1 3],fs,fk, pad, 0.05, 1);
-            dmt_S_m = dmtspec(sq(lfp_E(:,Ch,:)),[1 3],fs,fk, pad, 0.05, 1);
+            dmt_S_r = double(dmtspec(lfp_R,[1 3],fs,fk, pad, 0.05, 1));
+            dmt_S_m = double(dmtspec(sq(lfp_E(:,Ch,:)),[1 3],fs,fk, pad, 0.05, 1));
             % -- HITS
-            dmt_S_r_H = dmtspec(lfp_R(tr_hits,:),[1 3],fs,fk, pad, 0.05, 1);
-            dmt_S_m_H = dmtspec(sq(lfp_E(tr_hits,Ch,:)),[1 3],fs,fk, pad, 0.05, 1);
+            dmt_S_r_H = double(dmtspec(lfp_R(tr_hits,:),[1 3],fs,fk, pad, 0.05, 1));
+            dmt_S_m_H = double(dmtspec(sq(lfp_E(tr_hits,Ch,:)),[1 3],fs,fk, pad, 0.05, 1));
             % -- MISSES 
-            dmt_S_r_M = dmtspec(lfp_R(tr_miss,:),[1 3],fs,fk, pad, 0.05, 1);
-            dmt_S_m_M = dmtspec(sq(lfp_E(tr_miss,Ch,:)),[1 3],fs,fk, pad, 0.05, 1);
+            dmt_S_r_M = double(dmtspec(lfp_R(tr_miss,:),[1 3],fs,fk, pad, 0.05, 1));
+            dmt_S_m_M = double(dmtspec(sq(lfp_E(tr_miss,Ch,:)),[1 3],fs,fk, pad, 0.05, 1));
             
            
             % --- FIGURE --------- %%

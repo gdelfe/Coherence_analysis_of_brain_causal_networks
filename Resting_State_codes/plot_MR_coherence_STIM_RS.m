@@ -13,13 +13,13 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Res
 dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
 dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data';
 dir_coh_RS = strcat(dir_RS,'/Coherence_STIM_RS_same_trials');
+fk = 200; W = 5;
 
 % %%%%%%%%% MODULATORS  STIM %%%%%%
 load(strcat(dir_Stim,sprintf('/coh_spec_mr_sameRStrails_fk_%d_W_%d.mat',fk,W))); % name structure: stim 
 % %%%%%%%%% MODULATORS  RS %%%%%%
-save(strcat(dir_coh_RS,sprintf('/coh_spec_MR_only_for_STIM_comparison_fk_%d_W_%d.mat',fk,W))); % name structure: resting
+load(strcat(dir_coh_RS,sprintf('/coh_spec_MR_only_for_STIM_comparison_fk_%d_W_%d.mat',fk,W))); % name structure: resting
 
-fk = 200; W = 5;
 f = linspace(1,fk,size(modulators.mean_coh_ms,2)); % frequency values (range)
 
 
