@@ -154,10 +154,12 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             % -- structure assignements
             resting(cnt_el).c_mr = c_mr;  % M-R coherence
             resting(cnt_el).s_m = S_m; % Modulator spectrum
+            resting(cnt_el).s_r = S_r; % Modulator spectrum -- I save for each session the receiver for each modulator. This is not needed and it is extra data repeated, but it is convenient for the structure shape
           
             
             cnt_el = cnt_el + 1; % total modulators counter                     
         end
+        
         sess_data_lfp.lfp_R_clean.lfp = lfp_R;   % -- save lfp_E to structure
         cnt_m = cnt_m + 1; % counter for modulators within this session
 
@@ -169,10 +171,10 @@ if ~exist(dir_coh_RS, 'dir')
     mkdir(dir_coh_RS)
 end
     
+save(strcat(dir_coh_RS,sprintf('/coh_spec_MR_only_for_STIM_comparison_fk_%d_W_%d.mat',fk,W)),'resting');
     
 keyboard
 % Save coherence and spectrum data in structure format
-save(strcat(dir_coh_RS,sprintf('/coh_spec_MR_only_for_STIM_comparison_fk_%d_W_%d.mat',fk,W)),'resting');
 
 
 
