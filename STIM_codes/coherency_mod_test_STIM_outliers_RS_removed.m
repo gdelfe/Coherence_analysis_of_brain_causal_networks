@@ -1,6 +1,3 @@
-
-% TO BE FINISHED......
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code computes the STIM coherence between the causal modulators found by
 % Shaoyu's and the receiver
@@ -9,9 +6,12 @@
 % channels that have causal modulators and plots this coherence for the
 % hits and the misses separately
 %
-% IMPORTANT: It uses a reduced number of trails rather than the whole
-% available 110, in order to match the available trails in the RS. Number
-% of trails used is 98 out of 110
+% IMPORTANT: For each channel it uses a variable number of trials in order
+% to have always STIM and RS with the same amount of trial for equal
+% statistics. It achieves so by checking which between STIM and RS has less
+% trials and choses that as number of trials for both 
+% Random permutation of trial is applied when sampling in order to sample
+% homogeneously 
 %
 % INPUT: file with session modulator info
 %        .mat file with structure AM and MA information

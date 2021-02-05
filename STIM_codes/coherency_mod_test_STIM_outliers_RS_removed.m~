@@ -1,6 +1,3 @@
-
-% TO BE FINISHED......
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code computes the STIM coherence between the causal modulators found by
 % Shaoyu's and the receiver
@@ -159,6 +156,7 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             else
                 trials = 1:n_trials_STIM; % get all the STIM trials
             end 
+            display(['-- Mod ',num2str(Ch),' -- N trials: ',num2str(size(trials,2))])
             
             % %%%% Reduce the number of trails in order to match the Resting State
             lfp_E = lfp_E(trials,:,:);
@@ -177,7 +175,8 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             [c_mr,f,S_m,S_r] = coherency(sq(lfp_E(:,Ch,:)),lfp_R,[N W],fs,fk,pad,0.05,1,11);
             toc
             % NOTE: since we are including only a fraction of the whole
-            % trials. Hits and Miss trails need to 
+            % trials. Hits and Miss trails need to be taken among these set
+            % -- coherence of modulator-receiver HITS
             [C,tr_hits,i_hits] = intersect(trials,hitIndx); % -- get the trials that are both hitIndx and in trials 
             [c_mr_H,f_H,S_m_H,S_r_H] = coherency(sq(lfp_E(tr_hits,Ch,:)),lfp_R(tr_hits,:),[N W],fs,fk,pad,0.05,1,11);
             % -- coherence of modulator-receiver MISSES
@@ -288,8 +287,6 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     end % --- end of all modulator channels
     
 end
-
-keyboard
 
 save(strcat(dir_Stim,sprintf('/coh_spec_mr_sameRStrails_fk_%d_W_%d.mat',fk,W)),'stim');
 
