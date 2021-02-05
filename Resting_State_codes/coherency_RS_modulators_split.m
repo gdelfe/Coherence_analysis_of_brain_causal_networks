@@ -1,6 +1,6 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code computes the Resting State coherence between the causal 
+% This code computes the Resting State coherence between the causal
 % modulators found by Shaoyu's and both the sender and the receiver
 %
 % It computes the mean and the std of such coherence, across all the
@@ -10,7 +10,7 @@
 % the coherence vs frequency, this code employes directly coherency.m
 %
 % INPUT: file with session modulator info
-%        .mat file with structure AM and MA information 
+%        .mat file with structure AM and MA information
 %
 % OUTPUT: txt files with the values of the coherence MR, MS, SR and
 % corresponding figures
@@ -49,9 +49,9 @@ for s=1:size(sess_info{1},1)
 end
 
 
-cnt_m = 1; % counter for the modulator-receiver/sender coherencies 
-cnt_sr = 1; % counter sender-receiver coherencies 
-cnt_el = 0; % counter for how many modulators excluding the receivers modulators 
+cnt_m = 1; % counter for the modulator-receiver/sender coherencies
+cnt_sr = 1; % counter sender-receiver coherencies
+cnt_el = 0; % counter for how many modulators excluding the receivers modulators
 
 for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
@@ -104,16 +104,16 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     % create matrices to store the split data: trial x time
     lfp_S = zeros(floor(tot_time/FS),1000);
     lfp_R = zeros(floor(tot_time/FS),1000);
-    lfp_E = zeros(size(lfp_E_ns,1),floor(tot_time/FS),1000); % channel x trial x time 
+    lfp_E = zeros(size(lfp_E_ns,1),floor(tot_time/FS),1000); % channel x trial x time
     
-
-        % -- sanity check LFP
+    
+    % -- sanity check LFP
     figure;
     plot(data(sender(2),:))
     
     hold on
     plot(lfp_R_ns)
-    hold on 
+    hold on
     plot(lfp_E_ns(6,:,:))
     legend('sender','receiver','electrode')
     
@@ -123,12 +123,12 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     plot(lfp_S_ns)
     hold on
     plot(lfp_R_ns)
-    hold on 
+    hold on
     plot(lfp_E_ns(6,:,:))
     legend('sender','receiver','electrode')
     
     % split the Lenghty RS time series into 1000 ms windows
-    % format: channel x win_indx xtime. For R and S size_channel = 1  
+    % format: channel x win_indx xtime. For R and S size_channel = 1
     delta = 1000;
     cnt = 1;
     for j = 0:delta:(tot_time - delta)
@@ -152,30 +152,30 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     N = 1;
     W = 5;
     % --- coherence
-
+    
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % % Coherency SPLIT                %%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     display(['Computing sender-receiver coherence...'])
-    % -- coherence calculation via coherency()                
-    [c_sr,f,S_s,S_r] = coherency(lfp_S,lfp_R,[N W],fs,fk,pad,0.05,1,1);   
-
-
-%     [c_sr_ns,f_ns,S_s_ns,S_r_ns] = coherency(lfp_S_ns,lfp_R_ns,[floor(tot_time/1000 W],fs,fk,pad,0.05,1,1);   
-% 
-%     figure;
-%     plot(f,abs(c_sr));
-%     hold on
-%     plot(f_ns,abs(c_sr_ns));
+    % -- coherence calculation via coherency()
+    [c_sr,f,S_s,S_r] = coherency(lfp_S,lfp_R,[N W],fs,fk,pad,0.05,1,1);
     
     
-    % -- store coherence values sender-receiver and spectrums 
+    %     [c_sr_ns,f_ns,S_s_ns,S_r_ns] = coherency(lfp_S_ns,lfp_R_ns,[floor(tot_time/1000 W],fs,fk,pad,0.05,1,1);
+    %
+    %     figure;
+    %     plot(f,abs(c_sr));
+    %     hold on
+    %     plot(f_ns,abs(c_sr_ns));
+    
+    
+    % -- store coherence values sender-receiver and spectrums
     stim(cnt_sr).c_sr = c_sr; % assign S-R coherence value
-    stim(cnt_sr).s_s = S_s; % assign sender spectrum 
-    stim(cnt_sr).s_r = S_r; % receiver spectrum 
-    cnt_sr = cnt_sr + 1;    % sender/receiver counter 
+    stim(cnt_sr).s_s = S_s; % assign sender spectrum
+    stim(cnt_sr).s_r = S_r; % receiver spectrum
+    cnt_sr = cnt_sr + 1;    % sender/receiver counter
     
     
     
@@ -188,55 +188,55 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     for Ch = mod_Ch % for all the modulators in the session
         
-        close all 
+        close all
         
         if electrode(Ch) ~= receiver(1) % if the electrode is not the receiver itself
-        cnt_el = cnt_el +1;
-               
-        % -- coherence for modulator-sender, modulator-receiver 
-        display(['Computing modulator-sender coherence...'])
-        [c_ms,f,S_m,S_s] = coherency(sq(lfp_E(Ch,:,:)),lfp_S,[N W],fs,fk,pad,0.05,1,1);
-       
+            cnt_el = cnt_el +1;
+            
+            % -- coherence for modulator-sender, modulator-receiver
+            display(['Computing modulator-sender coherence...'])
+            [c_ms,f,S_m,S_s] = coherency(sq(lfp_E(Ch,:,:)),lfp_S,[N W],fs,fk,pad,0.05,1,1);
+            
+            
+            display(['Computing modulator-receiver coherence...'])
+            [c_mr,f,S_m,S_r] = coherency(sq(lfp_E(Ch,:,:)),lfp_R,[N W],fs,fk,pad,0.05,1,1);
+            
+            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ABS COHERENCE                 %%%%%
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
+            
+            % --- FIGURE --------- %%
+            % -- Coherence vs frequency --- %
+            fig = figure;
+            plot(f,abs(c_sr))
+            hold on
+            plot(f,abs(c_ms))
+            hold on
+            plot(f,abs(c_mr))
+            grid on
+            title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
+            legend('S-R coherence','M-S coherence','M-R coherence')
+            %         xlim([0 60])
+            set(gcf, 'Position',  [100, 600, 1000, 500])
+            
+            fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
+            saveas(fig,fname);
+            
+            % -- structure assignements
+            mod(cnt_m).c_ms = c_ms ; % assign M-S coherence value for this modulator
+            mod(cnt_m).c_mr = c_mr;  % M-R coherence
+            mod(cnt_m).s_m = S_m; % Modulator spectrum
+            
+            cnt_m = cnt_m + 1; % modulators counter
+            
+        end
         
-        display(['Computing modulator-receiver coherence...'])
-        [c_mr,f,S_m,S_r] = coherency(sq(lfp_E(Ch,:,:)),lfp_R,[N W],fs,fk,pad,0.05,1,1);
-        
- 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % ABS COHERENCE                 %%%%%
-        % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        
-        % --- FIGURE --------- %%
-        % -- Coherence vs frequency --- %
-        fig = figure;
-        plot(f,abs(c_sr))
-        hold on
-        plot(f,abs(c_ms))
-        hold on
-        plot(f,abs(c_mr))
-        grid on
-        title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
-        legend('S-R coherence','M-S coherence','M-R coherence')
-%         xlim([0 60])
-        set(gcf, 'Position',  [100, 600, 1000, 500])
-    
-        fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
-        saveas(fig,fname);
-        
-        % -- structure assignements 
-        mod(cnt_m).c_ms = c_ms ; % assign M-S coherence value for this modulator
-        mod(cnt_m).c_mr = c_mr;  % M-R coherence 
-        mod(cnt_m).s_m = S_m; % Modulator spectrum
-       
-        cnt_m = cnt_m + 1; % modulators counter 
-        
-    end
-    
     end
 end
 
-keyboard 
+keyboard
 
 % Save coherence and spectrum data in structure format
 save(strcat(dir_base,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
@@ -249,10 +249,10 @@ load(strcat(dir_base,sprintf('/coh_spec_sr_fk_%d.mat',fk)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
-stim_mat = cell2mat(struct2cell(stim)); % transform struct to mat for sender-receiver 
+stim_mat = cell2mat(struct2cell(stim)); % transform struct to mat for sender-receiver
 
 
-% -- assign fields to matrices 
+% -- assign fields to matrices
 coh_ms = sq(mod_mat(1,:,:))'; % 1st field, c_ms
 coh_mr = sq(mod_mat(2,:,:))'; %  2nd field, c_mr
 spec_m = sq(mod_mat(3,:,:))'; %  3rd field, spec_m
@@ -266,7 +266,7 @@ spec_r = sq(stim_mat(3,:,:))'; %  3rd field, spec_r
 % --- mean coherences
 mean_cho_ms = mean(abs(coh_ms));  % modulator - sender
 mean_cho_mr = mean(abs(coh_mr));  % modulator - receiver
-mean_cho_sr = mean(abs(coh_sr));  % sender - receiver 
+mean_cho_sr = mean(abs(coh_sr));  % sender - receiver
 
 % --- std coherences
 std_cho_ms = std(abs(coh_ms));  % modulator - sender

@@ -1,4 +1,6 @@
 
+%% TO BE FINISHED......
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code computes the STIM coherence between the causal modulators found by
 % Shaoyu's and the receiver
@@ -65,14 +67,6 @@ list_sess = 1:19;
 list_sess(17) = []; % -- Session 17 and 20 are full of artifacts
 
 
-
-% selected trials: out of the available 110 trials in the STIM, we remove 52 of them randomly,
-% because the RS has 52 outliers_tot, i.e. artifacs. In order to compare
-% STIM and RS we chose the same number of trails. RS has originally 150
-% trials: 150 - 52 (artifacts) = 98 (good trials)
-perm = randperm(110);
-trials = perm(1:98); 
-
 for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     
     Sess = sess_info{1}(i); % Session number
@@ -101,6 +95,17 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     
     load(strcat(dir_RS_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
+    % Resting state directory 
+    dir_RS_Sess = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state/Sess_%d',Sess);
+    load(strcat(dir_RS_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+    
+    
+    
+    
+    
+    perm = randperm(110);
+    trials = perm(1:98);
+   
     % -- load list electrodes, sender, receiver
     electrode = sess_data.RecordPair; % ---- all electrode pairs
     receiver = sess_data.receiver_pair;  % ---- receiver pair
@@ -145,13 +150,15 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     
     
     indx_list = [];
-    
+    cnt_m = 1;
     for Ch = mod_Ch % for all the modulators in the session
         
         close all
         
         if Ch ~= sess_data.receiver_idx % if the electrode is not the receiver itself
             
+            
+            outliers_RS = size(sess_data_lfp.outliers_tot(cnt_m).idx,2); % number of artifacts in RS LFP
             
             indx_list = [indx_list, cnt_el]; % store the cnt number --- needed for multiple plotting
                         
@@ -273,6 +280,7 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             cnt_el = cnt_el + 1;  % -- count # of electrodes (modulators)
             
         end
+        cnt_m = cnt_m + 1;
     end % --- end of all modulator channels
     
 end

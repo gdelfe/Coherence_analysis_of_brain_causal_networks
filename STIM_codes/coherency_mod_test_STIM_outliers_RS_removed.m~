@@ -1,4 +1,6 @@
 
+%% TO BE FINISHED......
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code computes the STIM coherence between the causal modulators found by
 % Shaoyu's and the receiver
@@ -101,6 +103,11 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     
     load(strcat(dir_RS_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
+    % Resting state directory 
+    dir_RS_Sess = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state/Sess_%d',Sess);\
+    load(strcat(dir_RS_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+    
+   
     % -- load list electrodes, sender, receiver
     electrode = sess_data.RecordPair; % ---- all electrode pairs
     receiver = sess_data.receiver_pair;  % ---- receiver pair
@@ -167,11 +174,11 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             % NOTE: since we are including only 98 trails out of 110, we
             % have to pick hits and misses within those 98
             % -- coherence of modulator-receiver HITS
-            hitIndx = intersect(trials,hitIndx) % -- get the trials that are both hitIndx and in trails 
-            [c_mr_H,f_H,S_m_H,S_r_H] = coherency(sq(lfp_E(hitIndx,Ch,:)),lfp_R(hitIndx,:),[N W],fs,fk,pad,0.05,1,11);
+            [C,tr_hits,i_hits] = intersect(trials,hitIndx); % -- get the trials that are both hitIndx and in trials 
+            [c_mr_H,f_H,S_m_H,S_r_H] = coherency(sq(lfp_E(tr_hits,Ch,:)),lfp_R(tr_hits,:),[N W],fs,fk,pad,0.05,1,11);
             % -- coherence of modulator-receiver MISSES
-            missIndx = intersect(trials,missIndx) % -- get the trials that are both missIndx and in trails 
-            [c_mr_M,f_M,S_m_M,S_r_M] = coherency(sq(lfp_E(missIndx,Ch,:)),lfp_R(missIndx,:),[N W],fs,fk,pad,0.05,1,11);
+            [C,tr_miss,i_miss] = intersect(trials,missIndx); % -- get the trials that are both missIndx and in trials 
+            [c_mr_M,f_M,S_m_M,S_r_M] = coherency(sq(lfp_E(tr_miss,Ch,:)),lfp_R(tr_miss,:),[N W],fs,fk,pad,0.05,1,11);
             
             
             % --- FIGURE --------- %%
@@ -197,11 +204,11 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             dmt_S_r = dmtspec(lfp_R,[1 3],fs,fk, pad, 0.05, 1);
             dmt_S_m = dmtspec(sq(lfp_E(:,Ch,:)),[1 3],fs,fk, pad, 0.05, 1);
             % -- HITS
-            dmt_S_r_H = dmtspec(lfp_R(hitIndx,:),[1 3],fs,fk, pad, 0.05, 1);
-            dmt_S_m_H = dmtspec(sq(lfp_E(hitIndx,Ch,:)),[1 3],fs,fk, pad, 0.05, 1);
+            dmt_S_r_H = dmtspec(lfp_R(tr_hits,:),[1 3],fs,fk, pad, 0.05, 1);
+            dmt_S_m_H = dmtspec(sq(lfp_E(tr_hits,Ch,:)),[1 3],fs,fk, pad, 0.05, 1);
             % -- MISSES 
-            dmt_S_r_M = dmtspec(lfp_R(missIndx,:),[1 3],fs,fk, pad, 0.05, 1);
-            dmt_S_m_M = dmtspec(sq(lfp_E(missIndx,Ch,:)),[1 3],fs,fk, pad, 0.05, 1);
+            dmt_S_r_M = dmtspec(lfp_R(tr_miss,:),[1 3],fs,fk, pad, 0.05, 1);
+            dmt_S_m_M = dmtspec(sq(lfp_E(tr_miss,Ch,:)),[1 3],fs,fk, pad, 0.05, 1);
             
            
             % --- FIGURE --------- %%

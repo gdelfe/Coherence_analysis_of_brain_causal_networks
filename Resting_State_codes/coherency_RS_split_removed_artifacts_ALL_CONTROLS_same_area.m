@@ -241,10 +241,10 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
             %                 saveas(fig,fig_name);
             
-            cnt_el = cnt_el + 1; % total control counter
-            cnt_m = cnt_m + 1; % counter for control within this session
-            
+            cnt_el = cnt_el + 1; % total control counter            
         end
+        cnt_m = cnt_m + 1; % counter for control within this session
+
     end    
     
 end
