@@ -41,7 +41,7 @@ fclose(fid);
 set(0,'DefaultLineLineWidth',2)
 
 name_struct_input = '/sess_data_lfp.mat';
-load(strcat(dir_Stim,sprintf('/coh_spec_mr_sameRStrails_fk_%d_W_%d.mat',fk,W)));
+load(strcat(dir_Stim,sprintf('/coh_spec_mr_sameRStrails_fk_%d_W_%d.mat',fk,W))); % STIM file coherence with same RS trials 
 
 
 cnt_sr = 1; % counter sender-receiver coherencies
