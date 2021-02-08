@@ -95,7 +95,7 @@ for ch = 1:size(coh,2)
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
    theta_NZ = theta_NZ + int8(stats_avg.MR.Ch(ch).theta_MR_pval <= pth); % if pval of the channel is smaller than pval threshold add 1
-   beta_NZ = theta_NZ + int8(stats_avg.MR.Ch(ch).beta_MR_pval <= pth); 
+   beta_NZ = beta_NZ + int8(stats_avg.MR.Ch(ch).beta_MR_pval <= pth); 
    
 end
 
@@ -154,7 +154,7 @@ for ch = 1:size(coh_sr,2)
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
    theta_NZ = theta_NZ + int8(stats_avg.MS.Ch(ch).theta_pval <= pth); % if pval of the channel is smaller than pval threshold add 1
-   beta_NZ = theta_NZ + int8(stats_avg.MS.Ch(ch).beta_pval <= pth); 
+   beta_NZ = beta_NZ + int8(stats_avg.MS.Ch(ch).beta_pval <= pth); 
    
 end
 
