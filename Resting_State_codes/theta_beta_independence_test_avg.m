@@ -103,17 +103,17 @@ end
 theta_Z = size(coh,2) - theta_NZ;
 beta_Z = size(coh,2) - beta_NZ;
 
-Obs = double([theta_NZ, theta_Z; beta_NZ, beta_Z]); 
+Obs = double([theta_NZ, theta_Z; beta_NZ, beta_Z])
 
 stats_avg.MR.Obs = Obs; % save into structure 
 
 N = sum(sum(Obs)) % Sample size
-E_theta_NZ = sum(Obs(1,:)) * sum(Obs(:,1))/N
-E_theta_Z = sum(Obs(1,:)) * sum(Obs(:,2))/N
-E_beta_NZ = sum(Obs(2,:)) * sum(Obs(:,1))/N
-E_beta_Z = sum(Obs(2,:)) * sum(Obs(:,2))/N
+E_theta_NZ = sum(Obs(1,:)) * sum(Obs(:,1))/N;
+E_theta_Z = sum(Obs(1,:)) * sum(Obs(:,2))/N;
+E_beta_NZ = sum(Obs(2,:)) * sum(Obs(:,1))/N;
+E_beta_Z = sum(Obs(2,:)) * sum(Obs(:,2))/N;
 
-Exp = [E_theta_NZ,E_theta_Z; E_beta_NZ,E_beta_Z];
+Exp = [E_theta_NZ,E_theta_Z; E_beta_NZ,E_beta_Z]
 
 stats_avg.MR.Exp = Exp; % save into structure 
 
@@ -126,11 +126,12 @@ title('p-val distribution','FontSize',12)
 
 
 O = reshape(Obs,[1,4]);
-E = reshape(Exp,[1,4]);0.0
+E = reshape(Exp,[1,4]);
+
 % Compute Chi-Squared 
 chi_MR = 0;
 for i = 1:4
-    power((O(i) - E(i)),2)/E(i)
+    power((O(i) - E(i)),2)/E(i);
     chi_MR = chi_MR + power((O(i) - E(i)),2)/E(i);
     
 end
@@ -148,8 +149,8 @@ theta_NZ = 0; % counts for theta non-zero
 beta_NZ = 0; % counts for beta non-zero
 for ch = 1:size(coh_sr,2)
     
-   stats_avg.MS.Ch(ch).theta_pval =  nnz(abs(theta_MS(ch,:)) > sum(abs(stim(ch).c_sr(15:19)))/5)/iter
-   stats_avg.MS.Ch(ch).beta_pval =  nnz(abs(beta_MS(ch,:)) > sum(abs(stim(ch).c_sr(40:44)))/5)/iter
+   stats_avg.MS.Ch(ch).theta_pval =  nnz(abs(theta_MS(ch,:)) > sum(abs(stim(ch).c_sr(15:19)))/5)/iter;
+   stats_avg.MS.Ch(ch).beta_pval =  nnz(abs(beta_MS(ch,:)) > sum(abs(stim(ch).c_sr(40:44)))/5)/iter;
    
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
@@ -162,18 +163,18 @@ end
 theta_Z = size(coh_sr,2) - theta_NZ;
 beta_Z = size(coh_sr,2) - beta_NZ;
 
-Obs = double([theta_NZ, theta_Z; beta_NZ, beta_Z]); 
+Obs = double([theta_NZ, theta_Z; beta_NZ, beta_Z])
 
 stats_avg.MS.Obs = Obs; % save into structure 
 
 
 N = sum(sum(Obs)) % Sample size
-E_theta_NZ = sum(Obs(1,:)) * sum(Obs(:,1))/N
-E_theta_Z = sum(Obs(1,:)) * sum(Obs(:,2))/N
-E_beta_NZ = sum(Obs(2,:)) * sum(Obs(:,1))/N
-E_beta_Z = sum(Obs(2,:)) * sum(Obs(:,2))/N
+E_theta_NZ = sum(Obs(1,:)) * sum(Obs(:,1))/N;
+E_theta_Z = sum(Obs(1,:)) * sum(Obs(:,2))/N;
+E_beta_NZ = sum(Obs(2,:)) * sum(Obs(:,1))/N;
+E_beta_Z = sum(Obs(2,:)) * sum(Obs(:,2))/N;
 
-Exp = [E_theta_NZ,E_theta_Z; E_beta_NZ,E_beta_Z];
+Exp = [E_theta_NZ,E_theta_Z; E_beta_NZ,E_beta_Z]
 
 stats_avg.MS.Exp = Exp; % save into structure 
 
@@ -190,7 +191,7 @@ E = reshape(Exp,[1,4]);
 % Compute Chi-Squared 
 chi_MS = 0;
 for i = 1:4
-    power((O(i) - E(i)),2)/E(i)
+    power((O(i) - E(i)),2)/E(i);
     chi_MS = chi_MS + power((O(i) - E(i)),2)/E(i);
     
 end
