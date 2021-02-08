@@ -163,11 +163,11 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     
 end
 
- 
+stim_perm = stim; 
 dir_Perm = strcat(dir_Stim,'/Permutation_test');
 if ~exist(dir_Perm, 'dir')
     mkdir(dir_Perm)
 end
 
-save(strcat(dir_Perm,sprintf('/coh_spec_mr_permuted_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_Perm,sprintf('/coh_spec_mr_permuted_fk_%d_W_%d.mat',fk,W)),'stim_perm');
 
