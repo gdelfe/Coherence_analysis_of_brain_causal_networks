@@ -271,7 +271,7 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
             stim(cnt_el).c_mr_H = c_mr_H ; % MR coherence hits
             stim(cnt_el).s_m_H = S_m_H;  % M spectrum hits
             stim(cnt_el).s_r_H = S_r_H; % R spectrum hits
-             stim(cnt_el).dmt_s_m_H = dmt_S_m_H;  % M dmt spectrum
+            stim(cnt_el).dmt_s_m_H = dmt_S_m_H;  % M dmt spectrum
             stim(cnt_el).dmt_s_r_H = dmt_S_r_H; % R dmt spectrum
             
             stim(cnt_el).c_mr_M = c_mr_M ; % MR coherence misses

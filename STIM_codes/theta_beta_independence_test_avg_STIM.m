@@ -1,6 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                  %
+% STIM: Theta/Beta chi-squared independence test      
+% with average values in an interval rather than a single value
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % THETA PICK: 7.8 Hz, BETA PICK: 21 Hz
@@ -56,8 +57,8 @@ beta_MR = zeros(size(coh,2),iter);
 for ch = 1:size(coh,2)
     for perm = 1:iter
         
-        theta_MR(ch,perm) = coh(ch).perm(perm).c_mr(t_idx); % 7.8 Hz
-        beta_MR(ch,perm) = coh(ch).perm(perm).c_mr(b_idx);  % 21 Hz
+        theta_MR(ch,perm) = sum(abs(coh(ch).perm(perm).c_mr(12:16)))/5; % 6.3 - 8.3 Hz
+        beta_MR(ch,perm) = sum(abs(coh(ch).perm(perm).c_mr(42:46)))/5;  % 20.9 -22.9 Hz
         
     end
 end
@@ -73,35 +74,37 @@ theta_NZ = 0; % counts for theta non-zero
 beta_NZ = 0; % counts for beta non-zero
 for ch = 1:size(coh,2)
     
-   stats.MR.Ch(ch).theta_MR_pval =  nnz(abs(theta_MR(ch,:)) > abs(stim(ch).c_mr(t_idx)))/iter;
-   stats.MR.Ch(ch).beta_MR_pval =  nnz(abs(beta_MR(ch,:)) > abs(stim(ch).c_mr(b_idx)))/iter;
+   
+   stats_avg.MR.Ch(ch).theta_MR_pval =  nnz(theta_MR(ch,:) > sum(abs(stim(ch).c_mr(13:17)))/5)/iter;
+   stats_avg.MR.Ch(ch).beta_MR_pval =  nnz(beta_MR(ch,:) > sum(abs(stim(ch).c_mr(40:44)))/5)/iter;
    
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
-   theta_NZ = theta_NZ + int8(stats.MR.Ch(ch).theta_MR_pval <= pth); % if pval of the channel is smaller than pval threshold add 1
-   beta_NZ = theta_NZ + int8(stats.MR.Ch(ch).beta_MR_pval <= pth); 
+   theta_NZ = theta_NZ + int8(stats_avg.MR.Ch(ch).theta_MR_pval <= pth); % if pval of the channel is smaller than pval threshold add 1
+   beta_NZ = beta_NZ + int8(stats_avg.MR.Ch(ch).beta_MR_pval <= pth); 
    
 end
+
 
 % counts of theta being significantly zero and beta being significantly zero
 theta_Z = size(coh,2) - theta_NZ;
 beta_Z = size(coh,2) - beta_NZ;
 
-Obs = double([theta_NZ, theta_Z; beta_NZ, beta_Z]); 
+Obs = double([theta_NZ, theta_Z; beta_NZ, beta_Z])
 
 stats.MR.Obs = Obs; % save into structure 
 
 N = sum(sum(Obs)) % Sample size
-E_theta_NZ = sum(Obs(1,:)) * sum(Obs(:,1))/N
-E_theta_Z = sum(Obs(1,:)) * sum(Obs(:,2))/N
-E_beta_NZ = sum(Obs(2,:)) * sum(Obs(:,1))/N
-E_beta_Z = sum(Obs(2,:)) * sum(Obs(:,2))/N
+E_theta_NZ = sum(Obs(1,:)) * sum(Obs(:,1))/N;
+E_theta_Z = sum(Obs(1,:)) * sum(Obs(:,2))/N;
+E_beta_NZ = sum(Obs(2,:)) * sum(Obs(:,1))/N;
+E_beta_Z = sum(Obs(2,:)) * sum(Obs(:,2))/N;
 
-Exp = [E_theta_NZ,E_theta_Z; E_beta_NZ,E_beta_Z];
+Exp = [E_theta_NZ,E_theta_Z; E_beta_NZ,E_beta_Z]
 
 stats.MR.Exp = Exp; % save into structure 
 
-ch = 41;
+ch = 2;
 fig = figure;
 histogram(abs(theta_MR(ch,:)),20,'Normalization','probability','FaceAlpha',.6); grid on
 hold on; histogram(abs(beta_MR(ch,:)),20,'Normalization','probability','FaceAlpha',.6); grid on
@@ -110,11 +113,11 @@ title('p-val distribution','FontSize',12)
 
 
 O = reshape(Obs,[1,4]);
-E = reshape(Exp,[1,4]);0.0
+E = reshape(Exp,[1,4]);
 % Compute Chi-Squared 
 chi_MR = 0;
 for i = 1:4
-    power((O(i) - E(i)),2)/E(i)
+    power((O(i) - E(i)),2)/E(i);
     chi_MR = chi_MR + power((O(i) - E(i)),2)/E(i);
     
 end
