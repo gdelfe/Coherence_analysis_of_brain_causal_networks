@@ -167,7 +167,7 @@ end
 
 keyboard
 
-dir_Perm = strcat(dir_RS,'/Permutation_test2');
+dir_Perm = strcat(dir_RS,'/Permutation_test');
 if ~exist(dir_Perm, 'dir')
     mkdir(dir_Perm)
 end
