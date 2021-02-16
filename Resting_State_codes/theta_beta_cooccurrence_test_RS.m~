@@ -23,11 +23,14 @@ fk = 200; W = 5; iter = 1000;
 % %%%%%%%%% MODULATORS  %%%%%%
 load(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W))); % structure mod
 load(strcat(dir_RS,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W))); % structure stim
+stim_mod = stim;
+mod_mod = mod;
+clear stim 
 modulators = mean_coh_and_spec_RS(mod,stim);
 
 % %%%%%%%%% PERMUTED DATA  %%%%%%
-load(strcat(dir_Perm,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W))); % structure coh
-load(strcat(dir_Perm,sprintf('/coh_sr_permuted_fk_%d_W_%d.mat',fk,W))); % structure coh_sr
+load(strcat(dir_Perm,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W))); % structure mod
+load(strcat(dir_Perm,sprintf('/coh_sr_permuted_fk_%d_W_%d.mat',fk,W))); % structure stim
 f = linspace(1,fk,size(coh(1).perm(1).c_mr,2)); % frequency values (range)
 
 % Plot to check --- permuted coherence 
@@ -151,7 +154,7 @@ theta_Y_beta_N = 0; % counts for theta yes beta no
 theta_N_beta_Y = 0; % counts for theta no beta yes
 theta_N_beta_N = 0; % counts for theta no beta no
 
-for ch = 1:size(coh_sr,2)
+for ch = 1:size(coh,2)
     
    stats.MS.Ch(ch).theta_MS_pval =  nnz(abs(theta_MS(ch,:)) > abs(mod(ch).c_ms(t_idx)))/iter;
    stats.MS.Ch(ch).beta_MS_pval =  nnz(abs(beta_MS(ch,:)) > abs(mod(ch).c_ms(b_idx)))/iter;
@@ -179,7 +182,7 @@ Exp = [E_theta_Y_beta_Y,E_theta_N_beta_Y; E_theta_Y_beta_N,E_theta_N_beta_N]
 
 stats.MS.Exp = Exp; % save into structure 
 
-ch = 11;
+ch = 41;
 fig = figure;
 histogram(abs(theta_MS(ch,:)),20,'Normalization','probability','FaceAlpha',.6); grid on
 hold on; histogram(abs(beta_MS(ch,:)),20,'Normalization','probability','FaceAlpha',.6); grid on
