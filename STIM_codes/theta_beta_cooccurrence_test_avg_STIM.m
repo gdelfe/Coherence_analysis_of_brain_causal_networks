@@ -70,24 +70,6 @@ end
 
 % pvalue calculation for each electrodes 
 pth = 0.05;
-theta_NZ = 0; % counts for theta non-zero
-beta_NZ = 0; % counts for beta non-zero
-for ch = 1:size(coh,2)
-    
-   
-   stats_avg.MR.Ch(ch).theta_MR_pval =  nnz(theta_MR(ch,:) > sum(abs(stim(ch).c_mr(12:16)))/5)/iter;
-   stats_avg.MR.Ch(ch).beta_MR_pval =  nnz(beta_MR(ch,:) > sum(abs(stim(ch).c_mr(42:48)))/5)/iter;
-   
-   % How many times theta and beta are significantly larger than zero (with
-   % pval threshold = 0.05)
-   theta_NZ = theta_NZ + int8(stats_avg.MR.Ch(ch).theta_MR_pval <= pth); % if pval of the channel is smaller than pval threshold add 1
-   beta_NZ = beta_NZ + int8(stats_avg.MR.Ch(ch).beta_MR_pval <= pth); 
-   
-end
-
-
-% pvalue calculation for each electrodes 
-pth = 0.05;
 theta_Y_beta_Y = 0; % counts for theta yes beta yes
 theta_Y_beta_N = 0; % counts for theta yes beta no
 theta_N_beta_Y = 0; % counts for theta no beta yes
@@ -95,8 +77,8 @@ theta_N_beta_N = 0; % counts for theta no beta no
 
 for ch = 1:size(coh,2)
     
-   stats_avg.MR.Ch(ch).theta_MR_pval =  nnz(theta_MR(ch,:) > sum(abs(stim(ch).c_mr(13:17)))/5)/iter;
-   stats_avg.MR.Ch(ch).beta_MR_pval =  nnz(beta_MR(ch,:) > sum(abs(mod(ch).c_mr(40:44)))/5)/iter;
+   stats_avg.MR.Ch(ch).theta_MR_pval =  nnz(theta_MR(ch,:) > sum(abs(stim(ch).c_mr(12:16)))/5)/iter;
+   stats_avg.MR.Ch(ch).beta_MR_pval =  nnz(beta_MR(ch,:) > sum(abs(stim(ch).c_mr(42:46)))/5)/iter;
    
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
@@ -109,26 +91,17 @@ end
 
 
 
-
-
-
-
-
-% counts of theta being significantly zero and beta being significantly zero
-theta_Z = size(coh,2) - theta_NZ;
-beta_Z = size(coh,2) - beta_NZ;
-
-Obs = double([theta_NZ, theta_Z; beta_NZ, beta_Z])
+Obs = double([theta_Y_beta_Y, theta_N_beta_Y; theta_Y_beta_N, theta_N_beta_N])
 
 stats.MR.Obs = Obs; % save into structure 
 
 N = sum(sum(Obs)) % Sample size
-E_theta_NZ = sum(Obs(1,:)) * sum(Obs(:,1))/N;
-E_theta_Z = sum(Obs(1,:)) * sum(Obs(:,2))/N;
-E_beta_NZ = sum(Obs(2,:)) * sum(Obs(:,1))/N;
-E_beta_Z = sum(Obs(2,:)) * sum(Obs(:,2))/N;
+E_theta_Y_beta_Y = sum(Obs(1,:)) * sum(Obs(:,1))/N;
+E_theta_N_beta_Y = sum(Obs(1,:)) * sum(Obs(:,2))/N;
+E_theta_Y_beta_N = sum(Obs(2,:)) * sum(Obs(:,1))/N;
+E_theta_N_beta_N = sum(Obs(2,:)) * sum(Obs(:,2))/N;
 
-Exp = [E_theta_NZ,E_theta_Z; E_beta_NZ,E_beta_Z]
+Exp = [E_theta_Y_beta_Y,E_theta_N_beta_Y; E_theta_Y_beta_N,E_theta_N_beta_N]
 
 stats.MR.Exp = Exp; % save into structure 
 
