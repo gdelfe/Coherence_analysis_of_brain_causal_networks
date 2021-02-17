@@ -76,7 +76,7 @@ for ch = 1:size(coh,2)
     
    
    stats_avg.MR.Ch(ch).theta_MR_pval =  nnz(theta_MR(ch,:) > sum(abs(stim(ch).c_mr(12:16)))/5)/iter;
-   stats_avg.MR.Ch(ch).beta_MR_pval =  nnz(beta_MR(ch,:) > sum(abs(stim(ch).c_mr(42:46)))/5)/iter;
+   stats_avg.MR.Ch(ch).beta_MR_pval =  nnz(beta_MR(ch,:) > sum(abs(stim(ch).c_mr(42:48)))/5)/iter;
    
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
@@ -84,6 +84,34 @@ for ch = 1:size(coh,2)
    beta_NZ = beta_NZ + int8(stats_avg.MR.Ch(ch).beta_MR_pval <= pth); 
    
 end
+
+
+% pvalue calculation for each electrodes 
+pth = 0.05;
+theta_Y_beta_Y = 0; % counts for theta yes beta yes
+theta_Y_beta_N = 0; % counts for theta yes beta no
+theta_N_beta_Y = 0; % counts for theta no beta yes
+theta_N_beta_N = 0; % counts for theta no beta no
+
+for ch = 1:size(coh,2)
+    
+   stats_avg.MR.Ch(ch).theta_MR_pval =  nnz(theta_MR(ch,:) > sum(abs(stim(ch).c_mr(13:17)))/5)/iter;
+   stats_avg.MR.Ch(ch).beta_MR_pval =  nnz(beta_MR(ch,:) > sum(abs(mod(ch).c_mr(40:44)))/5)/iter;
+   
+   % How many times theta and beta are significantly larger than zero (with
+   % pval threshold = 0.05)
+   theta_Y_beta_Y = theta_Y_beta_Y + int8(stats_avg.MR.Ch(ch).theta_MR_pval <= pth & stats_avg.MR.Ch(ch).beta_MR_pval <= pth); % theta Y and beta Y: if both pvalues are smaller than threshold
+   theta_Y_beta_N = theta_Y_beta_N + int8(stats_avg.MR.Ch(ch).theta_MR_pval <= pth & stats_avg.MR.Ch(ch).beta_MR_pval > pth); % theta Y beta N
+   theta_N_beta_Y = theta_N_beta_Y + int8(stats_avg.MR.Ch(ch).theta_MR_pval > pth & stats_avg.MR.Ch(ch).beta_MR_pval <= pth); % theta N beta Y
+   theta_N_beta_N = theta_N_beta_N + int8(stats_avg.MR.Ch(ch).theta_MR_pval > pth & stats_avg.MR.Ch(ch).beta_MR_pval > pth);  % theta N beta N 
+   
+end
+
+
+
+
+
+
 
 
 % counts of theta being significantly zero and beta being significantly zero
