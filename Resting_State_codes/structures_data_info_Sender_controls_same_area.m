@@ -1,3 +1,4 @@
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code creates the structures session_Receiver_controls_same_area_info 
 % containing all the info about the data except for the LFPs for the case of the
@@ -36,20 +37,20 @@ for s=1:size(sess_info{1},1)
     
     Sess = sess_info{1}(s); % Session number
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
-    load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info an
+    load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+    
     RecordPairMRIlabels = sess_data.RecordPairMRIlabels; % -- MRI labels of the recorder pars 
     MRIlabels = sess_data.MRIlabels; % -- all the available MRI labels 
-    receiver_idx = sess_data.receiver_idx; % -- receiver idx 
-    mod_Ch = sess_data.mod_idx; % -- modulator(s)' index
-    
-    [rec_Ch,area_Ch_rand] = choose_Receiver_control_same_Region(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
+    send_area = sess_data.sender_area; % -- receiver idx 
 
-    sess_Rec_ctrl_same_area = sess_data;
-    sess_Rec_ctrl_same_area.rec_ctrl_idx = rec_Ch;
-    sess_Rec_ctrl_same_area.rec_ctrl_area = area_Ch_rand(:)';
-    sess_Rec_ctrl_same_area 
+    send_ctrl = MRIlabels.(send_area).ElecIndx;  % -- get the indexes of the electrodes in the same brain region as the sender
     
-    save(strcat(dir_Sess,'/session_Receiver_controls_same_area_info.mat'),'sess_Rec_ctrl_same_area');
+    sess_Send_ctrl_same_area = sess_data;
+    sess_Send_ctrl_same_area.send_ctrl_idx = send_ctrl;
+    sess_Send_ctrl_same_area.send_ctrl_area = send_area;
+    sess_Send_ctrl_same_area 
+    
+    save(strcat(dir_Sess,'/session_Sender_controls_same_area_info.mat'),'sess_Send_ctrl_same_area');
    
     
 end
