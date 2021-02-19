@@ -42,8 +42,11 @@ for s=1:size(sess_info{1},1)
     RecordPairMRIlabels = sess_data.RecordPairMRIlabels; % -- MRI labels of the recorder pars 
     MRIlabels = sess_data.MRIlabels; % -- all the available MRI labels 
     send_area = sess_data.sender_area; % -- receiver idx 
-
+    mod_Ch = sess_data.mod_idx;  % --- modulators indexes 
+    
+    
     send_ctrl = MRIlabels.(send_area).ElecIndx;  % -- get the indexes of the electrodes in the same brain region as the sender
+    send_ctrl = setdiff(send_ctrl,mod_Ch); % --- remove the index of the modulators, in case there is any in the same brain area
     
     sess_Send_ctrl_same_area = sess_data;
     sess_Send_ctrl_same_area.send_ctrl_idx = send_ctrl;
