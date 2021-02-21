@@ -2,7 +2,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This function picks a control electrode (index) in the all the brain 
-% regions which are neither the modulator(s)' nor the receiver's
+% regions which are neither the modulator(s)' nor the senders's
 %
 % OUTPUT: indexes of the controls 
 %         brain areas of the controls 

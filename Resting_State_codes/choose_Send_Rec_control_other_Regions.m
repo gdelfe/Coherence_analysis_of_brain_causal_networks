@@ -8,14 +8,14 @@
 % @ Gino Del Ferraro, December 2020, Pesaran Lab, NYU
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [mod_Ch_rand,ControlsReg] = choose_Receiver_control_other_Regions(RecordPairMRIlabels,MRIlabels,send_area,receiver_idx,mod_Ch,Sess)
+function [mod_Ch_rand,ControlsReg] = choose_Send_Rec_control_other_Regions(RecordPairMRIlabels,MRIlabels,send_area, receiver_idx,mod_Ch,Sess)
     
     mod_Ch_rand = []; % -- list to store the control electrodes
     ModBrainReg = {}; % -- list to store the control electrodes' brain areas 
     
     ModBrainReg = RecordPairMRIlabels(mod_Ch,1);  % -- get all the brain regions for the modulator(s)
     ReceiverReg = RecordPairMRIlabels(receiver_idx,1); % -- receiver brain region 
-    ModBrainReg = [ModBrainReg; ReceiverReg; send_area]; % -- add receiver and sender region to modulators', in order to exclude it for the controls' regions
+    ModBrainReg = [ModBrainReg; ReceiverReg; send_area]; % -- add receiver region to modulators', in order to exclude it for the controls' regions
     ModBrainReg = unique(ModBrainReg);  % -- remove duplicates
     
     AllBrainReg = unique(RecordPairMRIlabels(:,1)); % -- all recorded regions for this session 
@@ -23,8 +23,8 @@ function [mod_Ch_rand,ControlsReg] = choose_Receiver_control_other_Regions(Recor
     
     L = length(ControlsReg);
     if L == 0
-        display('Session ',num2str(Sess),'no available control regions');
-    end
+        display('Session ',num2str(Sess),'no available control areas');
+    end 
     
     for reg = 1:L % -- for all the modulator(s) brain regions
         

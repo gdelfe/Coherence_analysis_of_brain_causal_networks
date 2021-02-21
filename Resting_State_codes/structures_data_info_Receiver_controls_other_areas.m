@@ -44,7 +44,8 @@ for s=1:size(sess_info{1},1)
     receiver_idx = sess_data.receiver_idx; % -- receiver idx 
     send_area = sess_data.sender_area; 
 
-    [mod_Ch_rand,area_Ch_rand] = choose_Receiver_control_other_Regions(RecordPairMRIlabels,MRIlabels,send_area,receiver_idx,mod_Ch,Sess);
+    % -- same function both for the sender and the receiver's controls all other areas
+    [mod_Ch_rand,area_Ch_rand] = choose_Send_Rec_control_other_Regions(RecordPairMRIlabels,MRIlabels,send_area,receiver_idx,mod_Ch,Sess);
 
     sess_Rec_ctrl_other_areas = sess_data;
     sess_Rec_ctrl_other_areas.ctrl_idx = mod_Ch_rand;
