@@ -8,7 +8,7 @@
 % @ Gino Del Ferraro, December 2020, Pesaran Lab, NYU
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [mod_Ch_rand,ControlsReg] = choose_ALL_control_other_Regions(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch)
+function [mod_Ch_rand,ControlsReg] = choose_Receiver_control_other_Regions(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch)
     
     mod_Ch_rand = []; % -- list to store the control electrodes
     ModBrainReg = {}; % -- list to store the control electrodes' brain areas 

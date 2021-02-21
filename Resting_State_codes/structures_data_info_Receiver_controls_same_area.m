@@ -28,6 +28,11 @@ fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
 
+dir_Receiver = strcat(dir_RS,'/Receiver_controls_same_area');
+if ~exist(dir_Receiver, 'dir')
+    mkdir(dir_Receiver)
+end
+
 % -- load structure files
 
 % -- print structures on stdout
@@ -49,7 +54,7 @@ for s=1:size(sess_info{1},1)
     sess_Rec_ctrl_same_area.rec_ctrl_area = area_Ch_rand(:)';
     sess_Rec_ctrl_same_area 
     
-    save(strcat(dir_Sess,'/session_Receiver_controls_same_area_info.mat'),'sess_Rec_ctrl_same_area');
+    save(strcat(dir_Receiver,'/session_Receiver_controls_same_area_info.mat'),'sess_Rec_ctrl_same_area');
    
     
 end
