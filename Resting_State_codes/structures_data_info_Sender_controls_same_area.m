@@ -29,6 +29,7 @@ fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
 
+
 % -- load structure files
 
 % -- print structures on stdout
@@ -53,7 +54,12 @@ for s=1:size(sess_info{1},1)
     sess_Send_ctrl_same_area.send_ctrl_area = send_area;
     sess_Send_ctrl_same_area 
     
-    save(strcat(dir_Sess,'/session_Sender_controls_same_area_info.mat'),'sess_Send_ctrl_same_area');
+    dir_Sender = strcat(dir_Sess,'/Sender_controls_same_area');
+    if ~exist(dir_Sender, 'dir')
+        mkdir(dir_Sender)
+    end
+    
+    save(strcat(dir_Sender,'/session_Sender_controls_same_area_info.mat'),'sess_Send_ctrl_same_area');
    
     
 end
