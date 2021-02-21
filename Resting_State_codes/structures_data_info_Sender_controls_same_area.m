@@ -42,7 +42,7 @@ for s=1:size(sess_info{1},1)
     
     RecordPairMRIlabels = sess_data.RecordPairMRIlabels; % -- MRI labels of the recorder pars 
     MRIlabels = sess_data.MRIlabels; % -- all the available MRI labels 
-    send_area = sess_data.sender_area; % -- receiver idx 
+    send_area = sess_data.sender_area; % -- sender's brain area 
     mod_Ch = sess_data.mod_idx;  % --- modulators indexes 
     
     

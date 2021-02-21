@@ -1,8 +1,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code creates the structures session_control_info.mat containing all the
 % info about the data except for the LFPs for the case of the
-% the controls electrodes - controls are for the REVEIVER and are chosen in all the brain areas
-% except the receiver's area itself 
+% the controls electrodes - controls are for the RECEIVER and are chosen in all the brain areas
+% except the receiver's area itself and the modulators'
 %
 % INPUT:  session_data_info.mat
 % OUTPUT: session_All_control_other_areas_info.mat in each Session folder containing a modulator 
@@ -39,14 +39,12 @@ for s=1:size(sess_info{1},1)
     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
     mod_Ch = sess_data.mod_idx;
-    RecordPairMRIlabels = sess_data.RecordPairMRIlabels; % -- MRI labels of the recorder pars 
+    RecordPairMRIlabels = sess_data.RecordPairMRIlabels; % -- MRI labels of the recorder pairs 
     MRIlabels = sess_data.MRIlabels; % -- all the available MRI labels 
     receiver_idx = sess_data.receiver_idx; % -- receiver idx 
+    send_area = sess_data.sender_area; 
 
-    % -- NOTE: For the receivers controls, you can use the same function as
-    % the modulators' controls, since you want to esclude also the
-    % modulatorsbra
-    [mod_Ch_rand,area_Ch_rand] = choose_ALL_control_other_Regions(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
+    [mod_Ch_rand,area_Ch_rand] = choose_Receiver_control_other_Regions(RecordPairMRIlabels,MRIlabels,send_area,receiver_idx,mod_Ch,Sess);
 
     sess_Rec_ctrl_other_areas = sess_data;
     sess_Rec_ctrl_other_areas.ctrl_idx = mod_Ch_rand;
