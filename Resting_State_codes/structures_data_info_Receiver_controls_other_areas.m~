@@ -45,7 +45,7 @@ for s=1:size(sess_info{1},1)
 
     % -- NOTE: For the receivers controls, you can use the same function as
     % the modulators' controls, since you want to esclude also the
-    % modulators' brain regions from the "controls other areas"
+    % modulatorsbra
     [mod_Ch_rand,area_Ch_rand] = choose_ALL_control_other_Regions(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
 
     sess_Rec_ctrl_other_areas = sess_data;
