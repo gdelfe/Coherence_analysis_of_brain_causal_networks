@@ -27,9 +27,7 @@ for i = 1:20 %1:size(sess_info{1},1)-1  % For each session with at least one mod
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
     
     cd(dir_Sess)
-   
-    !mv sess_controls_one_only.mat session_controls_one_only.mat
-    !rm sess_control_lfp.mat
-    
+
+    !rm session_Receiver_controls_other_areas_info.mat
     
 end

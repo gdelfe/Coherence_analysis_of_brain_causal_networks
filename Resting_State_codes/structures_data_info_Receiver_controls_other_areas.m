@@ -58,7 +58,7 @@ for s=1:size(sess_info{1},1)
     end
     
     
-    save(strcat(dir_Sess,'/session_Receiver_controls_other_areas_info.mat'),'sess_Rec_ctrl_other_areas');
+    save(strcat(dir_Receiver,'/session_Receiver_controls_other_areas_info.mat'),'sess_Rec_ctrl_other_areas');
    
     
 end

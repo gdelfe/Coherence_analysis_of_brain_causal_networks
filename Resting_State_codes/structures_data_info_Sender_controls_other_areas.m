@@ -48,7 +48,7 @@ for s=1:size(sess_info{1},1)
     % -- NOTE: For the receivers controls, you can use the same function as
     % the modulators' controls, since you want to esclude also the
     % modulators' brain regions from the "controls other areas"
-    [mod_Ch_rand,area_Ch_rand] = choose_Sender_control_other_Regions(RecordPairMRIlabels,MRIlabels,send_area,receiver_idx,mod_Ch);
+    [mod_Ch_rand,area_Ch_rand] = choose_Send_Rec_control_other_Regions(RecordPairMRIlabels,MRIlabels,send_area,receiver_idx,mod_Ch,Sess);
 
     sess_Send_ctrl_other_areas = sess_data;
     sess_Send_ctrl_other_areas.ctrl_idx = mod_Ch_rand;
@@ -61,7 +61,7 @@ for s=1:size(sess_info{1},1)
     end
     
     
-    save(strcat(dir_Sess,'/session_Sender_controls_other_areas_info.mat'),'sess_Send_ctrl_other_areas');
+    save(strcat(dir_Sender,'/session_Sender_controls_other_areas_info.mat'),'sess_Send_ctrl_other_areas');
    
     
 end
