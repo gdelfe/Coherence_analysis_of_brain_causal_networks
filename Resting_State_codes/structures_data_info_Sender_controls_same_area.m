@@ -50,8 +50,8 @@ for s=1:size(sess_info{1},1)
     send_ctrl = setdiff(send_ctrl,mod_Ch); % --- remove the index of the modulators, in case there is any in the same brain area
     
     sess_Send_ctrl_same_area = sess_data;
-    sess_Send_ctrl_same_area.send_ctrl_idx = send_ctrl;
-    sess_Send_ctrl_same_area.send_ctrl_area = send_area;
+    sess_Send_ctrl_same_area.ctrl_idx = send_ctrl;
+    sess_Send_ctrl_same_area.ctrl_area = send_area;
     sess_Send_ctrl_same_area 
     
     dir_Sender = strcat(dir_Sess,'/Sender_controls_same_area');

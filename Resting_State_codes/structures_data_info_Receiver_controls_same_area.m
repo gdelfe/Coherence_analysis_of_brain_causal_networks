@@ -45,8 +45,8 @@ for s=1:size(sess_info{1},1)
     [rec_Ch,area_Ch_rand] = choose_Receiver_control_same_Region(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
 
     sess_Rec_ctrl_same_area = sess_data;
-    sess_Rec_ctrl_same_area.rec_ctrl_idx = rec_Ch;
-    sess_Rec_ctrl_same_area.rec_ctrl_area = area_Ch_rand(:)';
+    sess_Rec_ctrl_same_area.ctrl_idx = rec_Ch;
+    sess_Rec_ctrl_same_area.ctrl_area = area_Ch_rand(:)';
     sess_Rec_ctrl_same_area 
     
     dir_Receiver = strcat(dir_Sess,'/Receiver_controls_same_area');

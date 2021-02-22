@@ -1,10 +1,11 @@
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code loads the entire RS time series for the CONTROLS and check for artifacts in the lfp 
 % It splits the RS time series into 1 sec windows and remove all the windows
 % which contains artifacts (th = 4*std(lfp))
 %
-% Controls are for the receiver and sender but they are still stored in the
+% Controls are for the Sender but they are still stored in the
 % lfp_E variable
 %
 % INPUT : sess_control_info.mat
@@ -36,7 +37,7 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
-name_structure_data_info = '/session_Receiver_controls_other_areas_info.mat';
+name_structure_data_info = '/session_Sender_controls_other_areas_info.mat';
 
 for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
@@ -58,14 +59,14 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Receiver = strcat(dir_RS,sprintf('/Sess_%d/Receiver_controls_other_areas',Sess));
+    dir_Sender = strcat(dir_RS,sprintf('/Sess_%d/Sender_controls_other_areas',Sess));
     
     
 
     %load(strcat(dir_Sess,'/session_control_info.mat')); % --- dataG: all data info and LFP
-    load(strcat(dir_Receiver,name_structure_data_info)); % --- dataG: all data info and LFP
-    sess_control = sess_Rec_ctrl_other_areas;
-    clear sess_Rec_ctrl_other_areas;
+    load(strcat(dir_Sender,name_structure_data_info)); % --- dataG: all data info and LFP
+    sess_control = sess_Send_ctrl_other_areas;
+    clear sess_Send_ctrl_other_areas;
 
     % -- load list electrodes, sender, receiver
     electrode = sess_control.RecordPair; % ---- all electrode pairs
@@ -140,18 +141,20 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 %     saveas(fig,fname)
 %     
     % -- plot controls LFP
-    ctrl_Ch = sess_control.ctrl_idx; % control modulators 
-    figure;
-    Ch = 
-    for Ch = ctrl_Ch
-       plot(lfp_E_ns(Ch,:));
-       hold on 
-    end
-    title('Lfp control(s) all controls same area','FontSize',11);
-    xlabel('time (sec)');
-    ylabel('Lfp');
-    grid on
-    set(gcf, 'Position',  [100, 600, 1000, 600])
+%     
+%     ctrl_Ch = sess_control.ctrl_idx; % control modulators 
+%     figure;
+%     ctrl_Ch = 51;
+%     for Ch = ctrl_Ch
+%        plot(lfp_E_ns(Ch,:));
+%        hold on 
+%     end
+%     title('Lfp control(s) all controls same area','FontSize',11);
+%     xlabel('time (sec)');
+%     ylabel('Lfp');
+%     grid on
+%     set(gcf, 'Position',  [100, 600, 1000, 600])
+%     
 % 
 %     fname = strcat(dir_Sess,'/lfp_all_Controls_same_area.png');
 %     saveas(fig,fname)
@@ -218,7 +221,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m + 1;
     end
     
-    save(strcat(dir_Receiver,'/sess_Rec_ctrl_other_areas_lfp.mat'),'sess_control_lfp');
+    save(strcat(dir_Sender,'/sess_Send_ctrl_other_areas_lfp.mat'),'sess_control_lfp');
 
     
 end

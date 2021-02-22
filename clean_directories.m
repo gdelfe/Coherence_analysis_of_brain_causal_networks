@@ -28,6 +28,7 @@ for i = 1:20 %1:size(sess_info{1},1)-1  % For each session with at least one mod
     
     cd(dir_Sess)
 
-    !rm session_Receiver_controls_other_areas_info.mat
+    !rm session_Receiver_controls_same_area*
+    !rm session_Sender_controls_same_area*
     
 end
