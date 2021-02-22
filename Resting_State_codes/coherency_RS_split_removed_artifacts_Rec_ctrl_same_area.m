@@ -36,7 +36,7 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
-name_struct_input = '/sess_Rec_ctrl_same_area_lfp.mat';
+name_struct_input = '/sess_Rec_ctrl_other_areas_lfp.mat';
 
 
 cnt_sr = 1; % counter sender-receiver_ctrl coherencies
@@ -49,7 +49,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     close all
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Receiver = strcat(dir_RS,sprintf('/Sess_%d/Receiver_controls_same_area',Sess));
+    dir_Receiver = strcat(dir_RS,sprintf('/Sess_%d/Receiver_controls_other_areas',Sess));
     
     load(strcat(dir_Receiver,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
     
@@ -128,7 +128,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             %         xlim([0 60])
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            fname = strcat(dir_Receiver,sprintf('/coherency_SR_Rec_ctrl_same_area_ch_%d_fk_%d.jpg',Ch,fk));
+            fname = strcat(dir_Receiver,sprintf('/coherency_SR_Rec_ctrl_other_areas_ch_%d_fk_%d.jpg',Ch,fk));
             saveas(fig,fname);
             
         end
@@ -144,7 +144,7 @@ if ~exist(dir_R_ctrl, 'dir')
     mkdir(dir_R_ctrl)
 end
 % Save coherence and spectrum data in structure format
-save(strcat(dir_R_ctrl,sprintf('/coh_spec_SR_Rec_ctrl_same_area_fk_%d_W_%d.mat',fk,W)),'stim_ctrl');
+save(strcat(dir_R_ctrl,sprintf('/coh_spec_SR_Rec_ctrl_other_areas_fk_%d_W_%d.mat',fk,W)),'stim_ctrl');
 
 
 
