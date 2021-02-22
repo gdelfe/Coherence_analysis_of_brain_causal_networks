@@ -15,10 +15,6 @@ clear all; close all;
 % set(0,'DefaultFigureVisible','off')
 set(0,'DefaultFigureVisible','on')
 
-%%%%%%%%%%%%%%%%%%%
-% - LOAD DATA --- %
-%%%%%%%%%%%%%%%%%%%
-
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
 

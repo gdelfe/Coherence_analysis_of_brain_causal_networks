@@ -1,0 +1,226 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This code computes the Resting State coherence between the CONTROL
+% modulators found by Shaoyu's and both the sender and the receiver
+% for the control electrodes (for all the non-modulators electrodes)
+%
+% It computes the mean and the std of such coherence, across all the
+% channels that have causal modulators
+%
+% In contrast to other codes that employes the coherence-gram to estimate
+% the coherence vs frequency, this code employes directly coherency.m
+%
+% INPUT: sess_control_lfp.mat
+%        structure containing all controls and modulator infos + RS LFP split
+%
+% OUTPUT: txt files with the values of the coherence MR, MS, SR and
+% corresponding figures
+%
+%    @ Gino Del Ferraro, November 2020, Pesaran lab, NYU
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+clear all; close all;
+
+% set(0,'DefaultFigureVisible','off')
+set(0,'DefaultFigureVisible','on')
+%%%%%%%%%%%%%%%%%%%
+% - LOAD DATA --- %
+%%%%%%%%%%%%%%%%%%%
+
+addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
+dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
+step = 110;
+
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
+fclose(fid);
+
+set(0,'DefaultLineLineWidth',2)
+name_struct_input = '/sess_Rec_ctrl_same_area_lfp.mat';
+
+
+cnt_sr = 1; % counter sender-receiver coherencies
+cnt_el = 1; % counter for how many modulators excluding the receivers modulators
+list_sess = 1:19;
+list_sess(17) = []; % -- Session 17 and 20 are full of artifacts
+
+for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least one modulator
+    
+    
+    close all
+    Sess = sess_info{1}(i); % Session number
+    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
+    dir_Receiver = strcat(dir_RS,sprintf('/Sess_%d/Receiver_controls_same_area',Sess));
+    
+    load(strcat(dir_Receiver,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
+    
+    % ---  time parameter
+    tot_time = 150001;
+      % ---- parameters for the coherence-gram
+    nt = tot_time;
+    fs = 1000;
+    fk = 200;
+    pad = 2;
+    N = 1;
+    W = 5;
+    % --- coherence
+
+    ctrl_Ch = sess_control_lfp.ctrl_idx % control channel indexes for the receiver controls 
+    
+    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(ctrl_Ch),'  -- contols mod Ch: ',num2str(ctrl_Ch)])
+    
+    
+    % %%%%%%% ALL Electrodes LFP (Receiver controls) %%%%%%%%%%%%%%%%%%%%%
+    lfp_R_all = sess_control_lfp.lfp_E;
+    
+    cnt_m = 1;
+    for Ch = ctrl_Ch % for all the receiver controls
+        
+        close all
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % --- COHERENCE - Sender/ Control Receiver -- %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        if Ch ~= sess_control_lfp.receiver_idx % if the electrode is not the receiver itself
+            
+            
+            % -- LFPs
+            lfp_R = sq(lfp_R_all(Ch,:,:));          % -- get lfp for only that channel -- control receiver
+            lfp_S = sess_control_lfp.lfp_S;     % -- sender LFP 
+            
+            % -- outliers 
+            outliers_R = sess_control_lfp.outliers_E(cnt_m).idx;  % -- control receiver outliers 
+            outliers_S = sess_control_lfp.outliers_S;  % -- sender outliers
+            outliers_SR = [outliers_R, outliers_S]; % 
+            
+            % -- remove outliers from LFPs
+            lfp_R(outliers_SR,:) = [];
+            lfp_S(outliers_SR,:) = [];
+           
+            
+            sess_control_lfp.lfp_R_clean(cnt_m).lfp = lfp_R;   % -- save to structure
+            
+            
+            display(['Computing Sender - Control Receiver coherence...'])
+            % -- coherence calculation via coherency()
+            [c_sr,f,S_s,S_r] = coherency(lfp_S,lfp_R,[N W],fs,fk,pad,0.05,1,1);
+                       
+            
+            % -- store coherence values sender-receiver and spectrums
+            stim_ctrl(cnt_sr).c_sr = c_sr; % assign S-R coherence value
+            stim_ctrl(cnt_sr).s_s = S_s; % assign sender spectrum
+            stim_ctrl(cnt_sr).s_r = S_r; % receiver spectrum
+            cnt_sr = cnt_sr + 1;    % sender/receiver counter
+            
+            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ABS COHERENCE                 %%%%%
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
+            
+            % --- FIGURE --------- %%
+            % -- Coherence vs frequency --- %
+            fig = figure;
+            plot(f,abs(c_sr))
+            grid on
+            title(sprintf('Abs coherence vs frequency Sender - Receiver ctrl, rec ch = %d,',Ch),'FontSize',10);
+            legend('S-R coherence','M-S coherence','M-R coherence')
+            %         xlim([0 60])
+            set(gcf, 'Position',  [100, 600, 1000, 500])
+            
+            fname = strcat(dir_Ctrl_all,sprintf('/coherency_SR_Rec_ctrl_same_area_ch_%d_fk_%d.jpg',Ch,fk));
+            saveas(fig,fname);
+            
+            
+            cnt_el = cnt_el + 1; % total control counter            
+        end
+        cnt_m = cnt_m + 1; % counter for control within this session
+
+    end    
+    
+end
+
+
+
+
+keyboard
+% Save coherence and spectrum data in structure format
+save(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'stim');
+
+% -- load structure files
+fk = 200; W = 5;
+load(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
+load(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
+
+% -- structures to matrices
+mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
+stim_mat = cell2mat(struct2cell(stim_ctrl)); % transform struct to mat for sender-receiver
+
+
+% -- assign fields to matrices
+coh_ms = sq(mod_mat(1,:,:))'; % 1st field, c_ms
+coh_mr = sq(mod_mat(2,:,:))'; %  2nd field, c_mr
+spec_m = sq(mod_mat(3,:,:))'; %  3rd field, spec_m
+
+coh_sr = sq(stim_mat(1,:,:))'; % 1st field, c_sr
+spec_s = sq(stim_mat(2,:,:))'; %  2nd field, spec_s
+spec_r = sq(stim_mat(3,:,:))'; %  3rd field, spec_r
+
+
+
+% --- mean coherences
+mean_cho_ms = mean(abs(coh_ms));  % modulator - sender
+mean_cho_mr = mean(abs(coh_mr));  % modulator - receiver
+mean_cho_sr = mean(abs(coh_sr));  % sender - receiver
+
+% --- std coherences
+std_cho_ms = std(abs(coh_ms));  % modulator - sender
+std_cho_mr = std(abs(coh_mr)); % modulator - receiver
+std_cho_sr = std(abs(coh_sr));  % modulator - receiver
+
+% --- Error bars
+M = size(coh_ms,1);
+S = size(coh_sr,1);
+err_ms = std_cho_ms/sqrt(M);
+err_mr = std_cho_mr/sqrt(M);
+err_sr = std_cho_sr/sqrt(S);
+
+
+
+set(0,'DefaultFigureVisible','on')
+% -- FIGURE: Plot average coherence across sessions for MR, SR, MS
+fig = figure;
+% hAx=axes;
+% hAx.XScale='linear'
+% hAx.YScale='log'
+hold all
+
+% shadedErrorBar(f,mean_cho_ms,err_ms,'lineProps','b','patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[255, 83, 26]/255},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[230, 184 , 0]/255},'patchSaturation',0.4); hold on
+
+
+shadedErrorBar(f,mean_cho_ms,err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
+
+grid on
+title('Abs coherency CONTROLS of MS, SR, SR - Resting State, all Sessions','FontSize',11);
+xlabel('freq (Hz)');
+ylabel('coherence');
+% legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
+% legend('M-S mean abs','M-R mean abs','S-R mean abs','M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
+legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10)
+% legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
+% xlim([0 60])
+set(gcf, 'Position',  [100, 600, 1000, 600])
+
+
+fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
+saveas(fig,fname)
+fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
+saveas(fig,fname)
+
+
