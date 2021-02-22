@@ -12,8 +12,8 @@
 
 clear all; close all;
 
-% set(0,'DefaultFigureVisible','off')
-set(0,'DefaultFigureVisible','on')
+set(0,'DefaultFigureVisible','off')
+% set(0,'DefaultFigureVisible','on')
 
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
