@@ -92,7 +92,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
         sess_control_lfp.lfp_S_clean(cnt_m).lfp = lfp_S;   % -- save to structure
         
         
-        display(['Computing Sender - Control Receiver coherence...'])
+        display(['Computing Sender control - Control coherence...'])
         % -- coherence calculation via coherency()
         [c_sr,f,S_s,S_r] = coherency(lfp_S,lfp_R,[N W],fs,fk,pad,0.05,1,1);
         
