@@ -92,7 +92,6 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     cnt_sr = cnt_sr + 1;
     
     
-    
     figure;
     plot(f,abs(permuted(10).c_sr));
     hold on
