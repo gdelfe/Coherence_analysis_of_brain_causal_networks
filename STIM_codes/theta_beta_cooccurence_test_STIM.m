@@ -45,7 +45,7 @@ grid on
 
 % Theta pick 7.3 Hz -> f(14)
 % Beta pick 21.9 Hz -> f(44)
-t_idx = 14; b_idx = 44;
+t_m = 14; b_m = 44;
 
 theta_MR = zeros(size(coh,2),iter);
 beta_MR = zeros(size(coh,2),iter);
@@ -56,34 +56,11 @@ beta_MR = zeros(size(coh,2),iter);
 for ch = 1:size(coh,2)
     for perm = 1:iter
         
-        theta_MR(ch,perm) = coh(ch).perm(perm).c_mr(t_idx); % 7.8 Hz
-        beta_MR(ch,perm) = coh(ch).perm(perm).c_mr(b_idx);  % 21 Hz
+        theta_MR(ch,perm) = coh(ch).perm(perm).c_mr(t_m); % 7.8 Hz
+        beta_MR(ch,perm) = coh(ch).perm(perm).c_mr(b_m);  % 21 Hz
         
     end
 end
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% THETA AND BETA TEST OF INDEPENDENCE --- MODULATORS-RECEIVERS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% pvalue calculation for each electrodes 
-pth = 0.05;
-theta_NZ = 0; % counts for theta non-zero
-beta_NZ = 0; % counts for beta non-zero
-for ch = 1:size(coh,2)
-    
-   stats.MR.Ch(ch).theta_MR_pval =  nnz(abs(theta_MR(ch,:)) > abs(stim(ch).c_mr(t_idx)))/iter;
-   stats.MR.Ch(ch).beta_MR_pval =  nnz(abs(beta_MR(ch,:)) > abs(stim(ch).c_mr(b_idx)))/iter;
-   
-   % How many times theta and beta are significantly larger than zero (with
-   % pval threshold = 0.05)
-   theta_NZ = theta_NZ + int8(stats.MR.Ch(ch).theta_MR_pval <= pth); % if pval of the channel is smaller than pval threshold add 1
-   beta_NZ = beta_NZ + int8(stats.MR.Ch(ch).beta_MR_pval <= pth); 
-   
-end
-
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -97,10 +74,11 @@ theta_Y_beta_N = 0; % counts for theta yes beta no
 theta_N_beta_Y = 0; % counts for theta no beta yes
 theta_N_beta_N = 0; % counts for theta no beta no
 
+
 for ch = 1:size(coh,2)
     
-   stats.MR.Ch(ch).theta_MR_pval =  nnz(abs(theta_MR(ch,:)) > abs(stim(ch).c_mr(t_idx)))/iter;
-   stats.MR.Ch(ch).beta_MR_pval =  nnz(abs(beta_MR(ch,:)) > abs(stim(ch).c_mr(b_idx)))/iter;
+   stats.MR.Ch(ch).theta_MR_pval =  nnz(abs(theta_MR(ch,:)) > abs(stim(ch).c_mr(t_m)))/iter;
+   stats.MR.Ch(ch).beta_MR_pval =  nnz(abs(beta_MR(ch,:)) > abs(stim(ch).c_mr(b_m)))/iter;
    
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
@@ -110,7 +88,6 @@ for ch = 1:size(coh,2)
    theta_N_beta_N = theta_N_beta_N + int8(stats.MR.Ch(ch).theta_MR_pval > pth & stats.MR.Ch(ch).beta_MR_pval > pth);  % theta N beta N 
    
 end
-
 
 
 Obs = double([theta_Y_beta_Y, theta_N_beta_Y; theta_Y_beta_N, theta_N_beta_N])
