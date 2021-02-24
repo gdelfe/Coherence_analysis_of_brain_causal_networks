@@ -47,7 +47,7 @@ legend('Permuted coherence')
 % MR peaks: Theta peaks 7.8 Hz -> f(15); Beta pick 21 Hz -> f(42)
 % MS peaks: Theta peaks 7.8 Hz -> f(15); Beta pick 21 Hz -> f(42)
 % SR peaks: Theta peaks 8.3 Hz -> f(16); Beta pick 20.5 Hz -> f(41)
-t_m = 15; b_m = 42; t_sr = 17; b_sr = 41;
+t_m = 15; b = 42; s_idx = 17;
 
 % -- modulators-receivers
 theta_MR = zeros(size(coh,2),iter);
@@ -65,8 +65,8 @@ beta_SR = zeros(size(coh_sr,2),iter);
 for ch = 1:size(coh,2)
     for perm = 1:iter
         
-        theta_MR(ch,perm) = coh(ch).perm(perm).c_mr(t_m); % 7.8 Hz
-        beta_MR(ch,perm) = coh(ch).perm(perm).c_mr(b_m);  % 21 Hz
+        theta_MR(ch,perm) = coh(ch).perm(perm).c_mr(t_idx); % 7.8 Hz
+        beta_MR(ch,perm) = coh(ch).perm(perm).c_mr(b_idx);  % 21 Hz
         
     end
 end
@@ -76,8 +76,8 @@ end
 for ch = 1:size(coh,2)
     for perm = 1:iter
         
-        theta_MS(ch,perm) = coh(ch).perm(perm).c_ms(t_m); % 8.8 Hz
-        beta_MS(ch,perm) = coh(ch).perm(perm).c_ms(b_m);  % 21 Hz
+        theta_MS(ch,perm) = coh(ch).perm(perm).c_ms(s_idx); % 8.8 Hz
+        beta_MS(ch,perm) = coh(ch).perm(perm).c_ms(b_idx);  % 21 Hz
         
     end
 end
@@ -86,8 +86,8 @@ end
 for ch = 1:size(coh_sr,2)
     for perm = 1:iter
         
-        theta_SR(ch,perm) = coh_sr(ch).perm(perm).c_sr(t_sr); % 8.8 Hz
-        beta_SR(ch,perm) = coh_sr(ch).perm(perm).c_sr(b_sr);  % 21 Hz
+        theta_SR(ch,perm) = coh_sr(ch).perm(perm).c_sr(s_idx); % 8.8 Hz
+        beta_SR(ch,perm) = coh_sr(ch).perm(perm).c_sr(b_idx);  % 21 Hz
         
     end
 end
@@ -106,8 +106,8 @@ theta_N_beta_N = 0; % counts for theta no beta no
 
 for ch = 1:size(coh,2)
     
-   stats.MR.Ch(ch).theta_MR_pval =  nnz(abs(theta_MR(ch,:)) > abs(mod(ch).c_mr(t_m)))/iter;
-   stats.MR.Ch(ch).beta_MR_pval =  nnz(abs(beta_MR(ch,:)) > abs(mod(ch).c_mr(b_m)))/iter;
+   stats.MR.Ch(ch).theta_MR_pval =  nnz(abs(theta_MR(ch,:)) > abs(mod(ch).c_mr(t_idx)))/iter;
+   stats.MR.Ch(ch).beta_MR_pval =  nnz(abs(beta_MR(ch,:)) > abs(mod(ch).c_mr(b_idx)))/iter;
    
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
@@ -168,8 +168,8 @@ theta_N_beta_N = 0; % counts for theta no beta no
 
 for ch = 1:size(coh,2)
     
-   stats.MS.Ch(ch).theta_MS_pval =  nnz(abs(theta_MS(ch,:)) > abs(mod(ch).c_ms(t_m)))/iter;
-   stats.MS.Ch(ch).beta_MS_pval =  nnz(abs(beta_MS(ch,:)) > abs(mod(ch).c_ms(b_m)))/iter;
+   stats.MS.Ch(ch).theta_MS_pval =  nnz(abs(theta_MS(ch,:)) > abs(mod(ch).c_ms(t_idx)))/iter;
+   stats.MS.Ch(ch).beta_MS_pval =  nnz(abs(beta_MS(ch,:)) > abs(mod(ch).c_ms(b_idx)))/iter;
    
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
@@ -229,8 +229,8 @@ theta_N_beta_N = 0; % counts for theta no beta no
 
 for ch = 1:size(coh_sr,2)
     
-   stats.SR.Ch(ch).theta_SR_pval =  nnz(abs(theta_SR(ch,:)) > abs(stim(ch).c_sr(t_m)))/iter;
-   stats.SR.Ch(ch).beta_SR_pval =  nnz(abs(beta_SR(ch,:)) > abs(stim(ch).c_sr(b_m)))/iter;
+   stats.SR.Ch(ch).theta_SR_pval =  nnz(abs(theta_SR(ch,:)) > abs(stim(ch).c_sr(t_idx)))/iter;
+   stats.SR.Ch(ch).beta_SR_pval =  nnz(abs(beta_SR(ch,:)) > abs(stim(ch).c_sr(b_idx)))/iter;
    
    % How many times theta and beta are significantly larger than zero (with
    % pval threshold = 0.05)
