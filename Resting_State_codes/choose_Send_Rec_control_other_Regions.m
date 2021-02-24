@@ -15,7 +15,7 @@ function [mod_Ch_rand,ControlsReg] = choose_Send_Rec_control_other_Regions(Recor
     
     ModBrainReg = RecordPairMRIlabels(mod_Ch,1);  % -- get all the brain regions for the modulator(s)
     ReceiverReg = RecordPairMRIlabels(receiver_idx,1); % -- receiver brain region 
-    ModBrainReg = [ModBrainReg; ReceiverReg; send_area]; % -- add receiver region to modulators', in order to exclude it for the controls' regions
+    ModBrainReg = [ModBrainReg; ReceiverReg; send_area]; % -- add receiver and sender region to modulators', in order to exclude it for the controls' regions
     ModBrainReg = unique(ModBrainReg);  % -- remove duplicates
     
     AllBrainReg = unique(RecordPairMRIlabels(:,1)); % -- all recorded regions for this session 

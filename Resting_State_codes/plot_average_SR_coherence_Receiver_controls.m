@@ -58,6 +58,8 @@ legend('Sender-Receivers','Sender same area-Receivers','Sender other areas-Recei
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-fname = strcat(dir_Sender,sprintf('/coherency_SR_Sender_vs_Receiver_ctrl_W_%d_fk_%d-all-Sess.png',W,fk));
+fname = strcat(dir_Sender,sprintf('/coherency_SR_Sender_vs_Receiver_ctrl_W_%d_fk_%d.png',W,fk));
+saveas(fig,fname)
+fname = strcat(dir_Sender,sprintf('/coherency_SR_Sender_vs_Receiver_ctrl_W_%d_fk_%d.fig',W,fk));
 saveas(fig,fname)
 

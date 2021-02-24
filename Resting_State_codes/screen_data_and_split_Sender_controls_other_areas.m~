@@ -203,10 +203,11 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     max_R_split = max(abs(lfp_R),[],2);  % -- max of LFP for each time window
     sess_control_lfp.outliers_R = find(max_R_split > th_R)';
 
-    
-    % -- outliers for the control electrodes 
+  
+    % -- outliers all electrodes  
     th_E = 4*std(lfp_E_ns,[],2); % -- threshold for LFP all electrodes 
     max_E_split = max(abs(lfp_E),[],3);  % -- max of LFP for each time window, for each channel
+    
     
     % -- sender controls "all other areas" outliers
     cnt_m = 1;

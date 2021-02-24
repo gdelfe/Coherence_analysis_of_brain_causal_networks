@@ -207,16 +207,10 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     th_E = 4*std(lfp_E_ns,[],2); % -- threshold for LFP all electrodes 
     max_E_split = max(abs(lfp_E),[],3);  % -- max of LFP for each time window, for each channel
     
-    outliers = [];
-    outliers = [outliers, sess_control_lfp.outliers_S]; % -- stuck up outliers sender
-    outliers = [outliers, sess_control_lfp.outliers_R]; % -- stuck up outliers receiver 
-    
-    % -- modulators outliers
+    % -- receiver controls "all other areas" outliers
     cnt_m = 1;
     for Ch = ctrl_Ch % -- for each modulator find outliers
         sess_control_lfp.outliers_E(cnt_m).idx = find(max_E_split(Ch,:) > th_E(Ch)); % -- find outliers for this channel 
-        sess_control_lfp.outliers_tot(cnt_m).idx = [outliers, sess_control_lfp.outliers_E(cnt_m).idx];    % -- stuck up outliers of receiver, sender, and modulators
-        sess_control_lfp.outliers_tot(cnt_m).idx = unique(sess_control_lfp.outliers_tot(cnt_m).idx); % -- remove repeated entries in outliers M, S, R
         cnt_m = cnt_m + 1;
     end
     
