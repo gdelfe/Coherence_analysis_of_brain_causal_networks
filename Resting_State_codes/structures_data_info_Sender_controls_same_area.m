@@ -1,9 +1,9 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code creates the structures session_Receiver_controls_same_area_info 
+% This code creates the structures session_Sender_controls_same_area_info 
 % containing all the info about the data except for the LFPs for the case of the
-% the Receiver controls electrodes chosen in the same brain area as the
-% receiver 
+% the Sender controls electrodes chosen in the same brain area as the
+% Sender 
 %
 % INPUT:  session_data_info.mat
 % OUTPUT: session_Receiver_controls_same_area_info in each Session 
