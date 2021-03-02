@@ -101,6 +101,11 @@ for i = list_sess % size(sess_info{1},1)  % For all the session with a modulator
     lfp_E = sq(Lfp_Pre(:,electrode(:,1),:) - Lfp_Pre(:,electrode(:,2),:)); % modulator lfp
     lfp_R = sq(Lfp_Pre(:,receiver(1),:) - Lfp_Pre(:,receiver(2),:)); % receiver lfp
     lfp_S = sq(Lfp_Pre(:,sender(1),:) - Lfp_Pre(:,sender(2),:)); % sender lfp
+    
+        %% %%%%%% Assign LFP %%%%%%
+    raw_E = sq(Raw_Pre(:,electrode(:,1),:) - Lfp_Raw(:,electrode(:,2),:)); % modulator lfp
+    raw_R = sq(Raw_Pre(:,receiver(1),:) - Lfp_Raw(:,receiver(2),:)); % receiver lfp
+    raw_S = sq(Raw_Pre(:,sender(1),:) - Lfp_Raw(:,sender(2),:)); % sender lfp
    
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

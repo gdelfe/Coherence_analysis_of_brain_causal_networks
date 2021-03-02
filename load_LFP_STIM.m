@@ -1,4 +1,4 @@
-function [Lfp_Pre, Raw_Pre, Data] = load_LFP_STIM(PreStimSess,Sess,bn_Pre,DATADIR)
+function [Lfp_Pre, Data] = load_LFP_STIM(PreStimSess,Sess,bn_Pre,DATADIR)
 
     RespPair = sessElectrode(PreStimSess{Sess}); % responding channel
     stimName = PreStimSess{Sess}{9};
