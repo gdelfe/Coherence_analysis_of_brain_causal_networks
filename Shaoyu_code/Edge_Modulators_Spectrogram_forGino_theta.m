@@ -1,6 +1,7 @@
 % This routine calculates the RMS of the Pre and Probe pulse signals
 %
 % Written by Shaoyu Qiao, March 26, 2019
+
 clear all;
 close all
 
@@ -29,7 +30,7 @@ for iSubject = 1% : length(subjects)
     
     UsedSess = find(useSessIndx);
     
-    for iSess = 15%UsedSess
+    for iSess = UsedSess
         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess dir_Stim
         
         disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
@@ -57,7 +58,7 @@ for iSubject = 1% : length(subjects)
         disp('Done with Pre data loading')
         toc
         
-        dataB = Data;
+%         dataB = Data;
 %         clear Data
 %         dataT.Spec = rmfield(dataT.Spec,'ROC'); % --remove ROC field 
 %         
@@ -201,8 +202,8 @@ for iSubject = 1% : length(subjects)
 
                             [auc,se,S1,S2,roc_Thresh,maxYoudenIndex] = calcRocSpecDiff_HistAUC(X1,X2,AnalParams);                        
                             
-                            Data.Spec.ROC_Theta.auc{iFreqBand}(iCh) = auc;
-                            Data.Spec.ROC_Theta.se{iFreqBand}(iCh) = se;                            
+                            Data.Spec.ROC.auc{iFreqBand}(iCh) = auc;
+                            Data.Spec.ROC.se{iFreqBand}(iCh) = se;                            
                             
                         end
                     end
