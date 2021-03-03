@@ -65,9 +65,9 @@ for iSess = UsedSess % For all the sessions
     disp('Done with Pre data loading')
     toc
     
-    elect_dir = sprintf('/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State/Sess_%d',iSess);
-    if ~exist(elect_dir, 'dir')
-        mkdir(elect_dir)
+    dir_Sess = strcat(dir_RS, sprintf('/Sess_%d',iSess));
+    if ~exist(dir_Sess, 'dir')
+        mkdir(dir_Sess)
     end
     
     receiver =  Data.StimResPairs;  % ---- receiver pair
@@ -75,10 +75,10 @@ for iSess = UsedSess % For all the sessions
     
     receiver_label = find(Data.RecordPair == receiver(1));
     
-    dlmwrite(strcat(elect_dir,sprintf('/receiver_Sess_%d.txt',iSess)),receiver); % write receiver pair
-    dlmwrite(strcat(elect_dir,sprintf('/receiver_label_Sess_%d.txt',iSess)),receiver_label); % write receiver pair
-    dlmwrite(strcat(elect_dir,sprintf('/sender_Sess_%d.txt',iSess)),sender); % write sender pair
-    dlmwrite(strcat(elect_dir,sprintf('/recorded_pairs_modulators_Sess_%d.txt',iSess)),Data.RecordPair);   % ---- all recorded pair
+    dlmwrite(strcat(dir_Sess,sprintf('/receiver_Sess_%d.txt',iSess)),receiver); % write receiver pair
+    dlmwrite(strcat(dir_Sess,sprintf('/receiver_label_Sess_%d.txt',iSess)),receiver_label); % write receiver pair
+    dlmwrite(strcat(dir_Sess,sprintf('/sender_Sess_%d.txt',iSess)),sender); % write sender pair
+    dlmwrite(strcat(dir_Sess,sprintf('/recorded_pairs_modulators_Sess_%d.txt',iSess)),Data.RecordPair);   % ---- all recorded pair
     
     modulator_idx = find(Data.Spec.ROC.sigChIndx{1}); % modulator index 
 
@@ -98,11 +98,11 @@ for iSess = UsedSess % For all the sessions
         Sess_modulator{Sess_cnt,3} = RS_session; % corresponding RS session to this stim session
         Sess_cnt = Sess_cnt + 1;
         
-        dlmwrite(strcat(elect_dir,'/Modulators_idx.txt'),modulator_idx'); % write the idx of the modulator(s)
+        dlmwrite(strcat(dir_Sess,'/Modulators_idx.txt'),modulator_idx'); % write the idx of the modulator(s)
 
     else
-        dlmwrite(strcat(elect_dir,'/Modulators_idx.txt'),modulator_idx'); % write empty file
-        dlmwrite(strcat(elect_dir,'/NO_Modulator.txt'),modulator_idx'); % write a file to warn there is no modulator
+        dlmwrite(strcat(dir_Sess,'/Modulators_idx.txt'),modulator_idx'); % write empty file
+        dlmwrite(strcat(dir_Sess,'/NO_Modulator.txt'),modulator_idx'); % write a file to warn there is no modulator
     end
     
     
