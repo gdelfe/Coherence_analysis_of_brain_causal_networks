@@ -57,28 +57,28 @@ for iSubject = 1% : length(subjects)
         disp('Done with Pre data loading')
         toc
         
-        dataB = Data;
-%         clear Data
-%         dataT.Spec = rmfield(dataT.Spec,'ROC'); % --remove ROC field 
-%         
-%         
-        %% identifying beta modulators %%%%%%
-        fs = Data.Fs.lfp;% lfp sampling rate
-        Fs = Data.Fs.raw;% raw sampling rate
+        dataT = Data;
+        clear Data
+        dataT.Spec = rmfield(dataT.Spec,'ROC'); % --remove ROC field 
         
-        AnalParams = Data.Params.Anal;
+        
+        %% identifying beta modulators %%%%%%
+        fs = dataT.Fs.lfp;% lfp sampling rate
+        Fs = dataT.Fs.raw;% raw sampling rate
+        
+        AnalParams = dataT.Params.Anal;
         AnalParams.Tapers = [0.5,2];
         AnalParams.TestSpecDiff.fk = [4 8]; 
         
         fkNames = {'\beta'};
-        Data.Params.Anal = AnalParams;
-        Data.Spec.ROC.fk = AnalParams.TestSpecDiff.fk;
-        StimTrials = Data.StimTrials(Data.goodTrials_index);
+        dataT.Params.Anal = AnalParams;
+        dataT.Spec.ROC.fk = AnalParams.TestSpecDiff.fk;
+        StimTrials = dataT.StimTrials(dataT.goodTrials_index);
         sys = StimTrials(1).MT;
         bn_Pre = [-1000 -5]; % ms
         
         %% extract AccLLR results
-        Results = Data.AccLLR.Results;
+        Results = dataT.AccLLR.Results;
         EventST = Results.EventST;
         
         TargCh = Results.Ch;
@@ -102,9 +102,9 @@ for iSubject = 1% : length(subjects)
         if ~isequal(sum(~isnan(EventST)),0) % if detected
             nFreqBands = size(AnalParams.TestSpecDiff.fk,1);
             
-            if strcmp(Data.Spec.recordConfig,'Bipolar')
-                lfp_Detected = Data.spec.lfp.bipolar.Detected;
-                lfp_notDetected = Data.spec.lfp.bipolar.notDetected;
+            if strcmp(dataT.Spec.recordConfig,'Bipolar')
+                lfp_Detected = dataT.spec.lfp.bipolar.Detected;
+                lfp_notDetected = dataT.spec.lfp.bipolar.notDetected;
                 
                 Lfp_Pre = [];
                 for iFreqBand = 1 : nFreqBands

@@ -188,6 +188,10 @@ for iSubject = 1% : length(subjects)
                             subplot(2,7,2)
                             [auc,se,S1,S2,roc_Thresh,maxYoudenIndex] = calcRocSpecDiff_HistAUC(X1,X2,AnalParams);
                             
+                            
+                            
+                            
+                            
                             S_all = [];
                             
                             S_all(hitIndx) = S1;
@@ -324,7 +328,7 @@ for iSubject = 1% : length(subjects)
                             missIndx = Data.spec.lfp.notDetectedIndx{iCh};
                             ModulatorPair = Data.RecordPair(iCh,:);
                             ModulatorLFP_Pre = sq(Lfp_Pre(:,ModulatorPair(1),:) - Lfp_Pre(:,ModulatorPair(2),:));
-                            
+                            h
                             tapers = [0.5 5];
                             fk = 60;
                             pad = Data.Params.Anal.pad; % pad = 2
