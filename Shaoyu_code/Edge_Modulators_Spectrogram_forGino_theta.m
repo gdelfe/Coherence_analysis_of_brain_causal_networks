@@ -1,6 +1,10 @@
 % This routine calculates the RMS of the Pre and Probe pulse signals
 %
-% Written by Shaoyu Qiao, March 26, 2019
+% Written by Shaoyu Qiao and Gino Del Ferraro, March, 2021
+% 
+% This code finds the theta modulator in the STIM experiment across all
+% sessions using Shaoyu's method (frequency band in a given range to predict hits and misses)
+% 
 
 clear all;
 close all
