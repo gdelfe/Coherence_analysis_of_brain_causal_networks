@@ -51,7 +51,7 @@ for s=1:9
     sess_All_controls_same_area.ctrl_area = area_Ch_rand(:)';
     sess_All_controls_same_area 
     
-    dir_Ctrl = strcat(dir_Sess,'/Controls_same_area');
+    dir_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area',Sess));
     if ~exist(dir_Ctrl, 'dir')
         mkdir(dir_Ctrl)
     end

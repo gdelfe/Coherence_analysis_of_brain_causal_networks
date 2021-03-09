@@ -71,8 +71,9 @@ for s=1:size(sess_info{1},1)
 
     sess_data.mod_idx = find(Data.Spec.ROC.sigChIndx{1});
     sess_data.mod_areas = Data.RecordPairMRIlabels(sess_data.mod_idx,1)'
-        
-    save(strcat(dir_Sess,'/session_data_info.mat'),'sess_data');
+    
+    dir_Sess_RS = strcat(dir_RS_Theta,sprintf('/Sess_%d',Sess));
+    save(strcat(dir_Sess_RS,'/session_data_info.mat'),'sess_data');
    
     % -- print out 
     sess_data
