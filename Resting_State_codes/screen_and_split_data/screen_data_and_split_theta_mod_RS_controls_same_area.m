@@ -24,18 +24,19 @@ set(0,'DefaultFigureVisible','on')
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
 
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
-step = 110;
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
+dir_RS_Theta = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state/Theta_band';
+dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data';
+
+fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
 name_structure_data_info = '/session_all_controls_same_area_info.mat';
 
-for i=1:size(sess_info{1},1)  % For each session with at least one modulator
+for i=1:9  % For each session with at least one modulator
     
     
     close all
@@ -55,11 +56,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
-    if ~exist(dir_Sess, 'dir')
-        mkdir(dir_Sess)
-    end
-    
+    dir_Sess = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area',Sess));
 
     %load(strcat(dir_Sess,'/session_control_info.mat')); % --- dataG: all data info and LFP
     load(strcat(dir_Sess,name_structure_data_info)); % --- dataG: all data info and LFP
@@ -73,9 +70,9 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 
     % ---  time parameter
     tot_time = 150001;
+    
     % ---  freq parameter for the masking
-    fmin = 10;
-    fmax = 40;
+  
     
     % ---- Lfp of the resting state for that specific pair of electrodes
     lfp_E_ns = data(electrode(:,1),:) - data(electrode(:,2),:); % all the electrodes
@@ -222,7 +219,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 end
 
 
-keyboard 
+_keyboard 
 
 % save(strcat(dir_RS,'/all_sessions_split.mat'),'sess','-v7.3');
 
