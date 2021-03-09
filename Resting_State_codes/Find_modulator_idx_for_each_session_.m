@@ -114,15 +114,15 @@ for iSess = UsedSess % For all the sessions
     
 end
   
-dir = sprintf('/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State');
-if ~exist(dir, 'dir')
-    mkdir(dir)
+dir_RS = sprintf('/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State');
+if ~exist(dir_RS, 'dir')
+    mkdir(dir_RS)
 end
 
 % ---- write the list of Sessions with at least one modulator
-writecell(Sess_modulator,strcat(dir,'/Sessions_with_modulator_info.txt'),'delimiter','\t'); % format: label_session, date session, label RS corresponding session 
+writecell(Sess_modulator,strcat(dir_RS,'/Sessions_with_modulator_info.txt'),'delimiter','\t'); % format: label_session, date session, label RS corresponding session 
 % ---- Session summary 
-writecell(Sess_modulator,strcat(dir,'/Summary_sessions.txt'),'delimiter','\t'); % format: label_session, date session, number of channels 
+writecell(Sess_modulator,strcat(dir_RS,'/Summary_sessions.txt'),'delimiter','\t'); % format: label_session, date session, number of channels 
 
 % [unic,idx_unic] = unique(Sess_modulator(:,2)); % get RS session date without repetitions
 % % -- write the RS sessions without repetitions

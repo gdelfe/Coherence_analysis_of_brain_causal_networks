@@ -466,7 +466,7 @@ for iSess = 1 %UsedSess
                     [SpecTest,ftest] = tfspec(ModulatorLFP_Pre,tapers,fs,dn,fk,pad);
                     figure(1); tvimage(log(sq(SpecTest(1,:,:)))); colorbar;
                     
-                    Projection of Xk on the K tapers
+%                     Projection of Xk on the K tapers
                     [SpecK, f] = tfsp_proj_GINO(ModulatorLFP_Pre, tapers,fs, dn, fk, pad);
                     % Projection of the spectrogram on the K tapers, i.e. |X_k|^2,
                     Sx_Length = SpecK.*conj(SpecK); % compute the length of the complex number

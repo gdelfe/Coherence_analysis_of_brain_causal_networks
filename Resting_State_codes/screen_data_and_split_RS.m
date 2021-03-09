@@ -220,7 +220,7 @@ keyboard
 % save(strcat(dir_RS,'/all_sessions_split.mat'),'sess','-v7.3');
 
 
-% for i=1:20
+for i=1:2
 % 
 % %     display(['Session --- ',num2str(i)])
 % %     badSess(i).std_R
@@ -228,12 +228,12 @@ keyboard
 % %     badSess(i).std_E
 % %     sess_data_lfp(i)
 %         
-%     Sess = sess_info{1}(i); % Session number
-%     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
-%     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
-%     sess_data
-%     
-% end
+    Sess = sess_info{1}(i); % Session number
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
+    load(strcat(dir_Sess,'/sess_data_lfp.mat')); % --- dataG: all data info and LFP
+    sess_data_lfp
+    
+end
 % 
 %   
 
