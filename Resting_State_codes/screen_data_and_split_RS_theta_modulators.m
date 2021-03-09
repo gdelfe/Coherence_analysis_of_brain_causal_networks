@@ -114,6 +114,9 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     %  FIGURES          %%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
+    dir_RS_Sess = strcat(dir_RS_Theta,sprintf('/Sess_%d',Sess));
+
+        
 %     % -- plot sender / receiver LFP
 %     fig = figure;
 %     plot(lfp_S_ns);
@@ -126,23 +129,23 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 %     legend('Sender','Receiver','FontSize',11);
 %     set(gcf, 'Position',  [100, 600, 1000, 600])
 % 
-%     fname = strcat(dir_Sess,'/lfp_Sender_Receiver.png');
+%     fname = strcat(dir_RS_Sess,'/lfp_Sender_Receiver.png');
 %     saveas(fig,fname)
 %     
-%     % -- plot controls LFP
-%     
+%     % -- plot modulators LFP
+    
 %     figure;
 %     for Ch = mod_Ch
 %        plot(lfp_E_ns(Ch,:));
 %        hold on 
 %     end
-%     title('Lfp control(s)','FontSize',11);
+%     title('Lfp modulator(s)','FontSize',11);
 %     xlabel('time (sec)');
 %     ylabel('Lfp');
 %     grid on
 %     set(gcf, 'Position',  [100, 600, 1000, 600])
 % 
-%     fname = strcat(dir_Sess,'/lfp_Controls.png');
+%     fname = strcat(dir_RS_Sess,'/lfp_modulators.png');
 %     saveas(fig,fname)
     
     
@@ -213,27 +216,28 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 end
 
 
-% keyboard 
+keyboard 
 
 % save(strcat(dir_RS,'/all_sessions_split.mat'),'sess','-v7.3');
 
-% 
-% for i=1:2
-% % 
-% % %     display(['Session --- ',num2str(i)])
-% % %     badSess(i).std_R
-% % %     badSess(i).std_S
-% % %     badSess(i).std_E
-% % %     sess_data_lfp(i)
-% %         
+
+for i=1:10
+        
 %     Sess = sess_info{1}(i); % Session number
-%     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
-%     load(strcat(dir_Sess,'/sess_data_lfp.mat')); % --- dataG: all data info and LFP
+%     dir_Sess = strcat(dir_RS_Theta,sprintf('/Sess_%d',Sess));
+%     load(strcat(dir_Sess,'/session_data_lfp.mat')); % --- dataG: all data info and LFP
 %     sess_data_lfp
-%     
-% end
-% 
-%   
+    
+    
+    display(['Session --- ',num2str(i)])
+    badSess(i).std_R
+    badSess(i).std_S
+    badSess(i).std_E
+
+    
+end
+
+  
 
 
 
