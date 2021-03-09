@@ -134,10 +134,14 @@ writecell(Sess_modulator,strcat(dir_RS_Theta,'/Sessions_with_modulator_info.txt'
 writecell(Sess_modulator,strcat(dir_RS_Theta,'/Summary_sessions.txt'),'delimiter','\t'); % format: label_session, date session, number of channels 
 save(strcat(dir_RS_Theta,'/session_theta_modulator_info.mat'),'sess_info');
 
+
+load(strcat(dir_RS_Theta,'/session_theta_modulator_info.mat'));
 cnt_m = 0;
 for i = 1:size(sess_info,2)
+    sess_info(i)
+
     if sess_info(i).RS(1) == 'Y'
-        sess_info(i)
+%        sess_info(i)
         cnt_m = cnt_m + size(sess_info(i).modulator_idx,2)
     end
 end 
