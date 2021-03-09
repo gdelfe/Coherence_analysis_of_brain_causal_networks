@@ -51,31 +51,30 @@ for s=1:size(sess_info{1},1)
     load(strcat(dir_Sess,'/Data_with_theta_band.mat')); % --- dataG: all data info and LFP
     
     % -- days and dates
-    sess_data.sess_idx = session_AM(s).session_idx;
-    sess_data.day = dataG.day_STIM;
-    sess_data.rec_STIM = dataG.rec_STIM;
-    sess_data.rec_RS = dataG.rec_RS;
+    sess_data.sess_idx = [s Sess];
+    sess_data.day = Data.day;
+    sess_data.rec_STIM = Data.rec; % -- recording stim 
+    sess_data.rec_RS = sess_info{3}{s};
     
     % -- MRI infos 
-    sess_data.RecordPair = dataG.RecordPair;
-    sess_data.MRIlabels = dataG.MRIlabels;
-    sess_data.RecordPairMRIlabels = dataG.RecordPairMRIlabels;
-    sess_data.Spec = dataG.Spec; % -- p-values and stats 
+    sess_data.RecordPair = Data.RecordPair;
+    sess_data.MRIlabels = Data.MRIlabels;
+    sess_data.RecordPairMRIlabels = Data.RecordPairMRIlabels;
+    sess_data.Spec = Data.Spec; % -- p-values and stats 
     
     % -- indexes and pairs
-    sess_data.sender_pair = session_AM(s).sender;
+    sess_data.sender_pair = Data.StimPairs.Syllable;
     sess_data.sender_area = PreStimSess{Sess}{11}{1};
-    sess_data.receiver_pair = session_AM(s).receiver;
-    sess_data.receiver_idx = dataG.receiver_idx;
-    sess_data.receiver_area = dataG.RecordPairMRIlabels(sess_data.receiver_idx,1)';
+    sess_data.receiver_pair = Data.StimResPair;
+    sess_data.receiver_idx = find(Data.RecordPair == Data.StimResPairs(1)); % --- receiver label;
+    sess_data.receiver_area = Data.RecordPairMRIlabels(sess_data.receiver_idx,1)';
 
-    sess_data.mod_idx = session_MA(s).mod_idx;
-    sess_data.mod_areas = dataG.RecordPairMRIlabels(sess_data.mod_idx,1)'
+    sess_data.mod_idx = find(Data.Spec.ROC.sigChIndx{1});
+    sess_data.mod_areas = Data.RecordPairMRIlabels(sess_data.mod_idx,1)'
         
     save(strcat(dir_Sess,'/session_data_info.mat'),'sess_data');
    
     % -- print out 
-    session_AM(s)
     sess_data
     
 end
