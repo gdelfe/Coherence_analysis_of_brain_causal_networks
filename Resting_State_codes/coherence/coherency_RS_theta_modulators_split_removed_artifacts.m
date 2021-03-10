@@ -49,9 +49,9 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     close all
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_RS_Theta,sprintf('/Sess_%d',Sess));
+    dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
     
-    load(strcat(dir_Sess,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
+    load(strcat(dir_Modulators,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
     
     %     % ---  time parameter
     tot_time = 150001;
@@ -109,11 +109,6 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     mod_Ch = sess_data_lfp.mod_idx; % -- modulators (not controls!) index
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch)])
-    
-    dir_Modulators = strcat(dir_Sess,'/Modulators');
-    if ~exist(dir_Modulators, 'dir')
-        mkdir(dir_Modulators)
-    end
     
     % %%%%%%% ALL Electrodes LFP %%%%%%%%%%%%%%%%%%%%%
     lfp_E_all = sess_data_lfp.lfp_E;
@@ -257,19 +252,19 @@ end
 
 keyboard
 
-dir_Modulators = strcat(dir_RS_Theta,'/Modulators_results');
-if ~exist(dir_Modulators, 'dir')
-    mkdir(dir_Modulators)
+dir_Mod_results = strcat(dir_RS_Theta,'/Modulators_results');
+if ~exist(dir_Mod_results, 'dir')
+    mkdir(dir_Mod_results)
 end    
 
 % Save coherence and spectrum data in structure format
-save(strcat(dir_Modulators,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
-save(strcat(dir_Modulators,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_Mod_results,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_Mod_results,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)),'stim');
 
 % -- load structure files
 fk = 200;
-load(strcat(dir_Modulators,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)))
-load(strcat(dir_Modulators,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)))
+load(strcat(dir_Mod_results,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)))
+load(strcat(dir_Mod_results,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
