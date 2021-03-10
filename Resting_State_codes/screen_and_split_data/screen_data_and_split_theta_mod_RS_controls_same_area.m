@@ -218,8 +218,7 @@ for i=1:9  % For each session with at least one modulator
     
 end
 
-
-_keyboard 
+keyboard 
 
 % save(strcat(dir_RS,'/all_sessions_split.mat'),'sess','-v7.3');
 
