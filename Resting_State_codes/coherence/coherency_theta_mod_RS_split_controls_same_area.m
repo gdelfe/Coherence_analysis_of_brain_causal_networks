@@ -29,7 +29,6 @@ set(0,'DefaultFigureVisible','on')
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_RS_Theta = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state/Theta_band';
-step = 110;
 
 fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
@@ -50,9 +49,9 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     close all
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
+    dir_Sess_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area',Sess));
     
-    load(strcat(dir_Sess,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
+    load(strcat(dir_Sess_Ctrl,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
     
     
     % -- load list electrodes, sender, receiver
@@ -125,11 +124,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch),'  -- contols mod Ch: ',num2str(ctrl_Ch)])
     
-    dir_Ctrl_all = strcat(dir_Sess,'/Controls_same_area');
-    if ~exist(dir_Ctrl_all, 'dir')
-        mkdir(dir_Ctrl_all)
-    end
-    
+
     % %%%%%%% ALL Electrodes LFP %%%%%%%%%%%%%%%%%%%%%
     lfp_E_all = sess_control_lfp.lfp_E;
     
@@ -145,28 +140,48 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
         if Ch ~= sess_control_lfp.receiver_idx % if the electrode is not the receiver itself
             
             
-            % -- remove outliers from control, sender, and receiver
+            % -- MODULATOR - SENDER
+            % -- modulaor lfp
             lfp_E = sq(lfp_E_all(Ch,:,:));          % -- get lfp for only that channel
-            outliers_tot = sess_control_lfp.outliers_tot(cnt_m).idx;  % -- get the M,R,S shared outliers
-            
-            % -- Sender and Receiver LFP
+            outliers_E = sess_control_lfp.outliers_E(cnt_m).idx;  % -- get the modulator's outliers
+            % -- Sender  LFP
             lfp_S = sess_control_lfp.lfp_S;
-            lfp_R = sess_control_lfp.lfp_R;
-            % -- remove outliers from sender, receiver, and control
-            lfp_S(outliers_tot,:) = [];
-            lfp_R(outliers_tot,:) = [];
-            lfp_E(outliers_tot,:) = [];
+            outliers_S = sess_control_lfp.outliers_S;
+            % -- outliers
+            outliers_ES = [outliers_E, outliers_S];
+            outliers_ES = unique(outliers_ES);
+            % -- remove outliers from sender and modulator
+            lfp_S(outliers_ES,:) = [];
+            lfp_E(outliers_ES,:) = [];
             
             sess_control_lfp.lfp_E_clean(cnt_m).lfp = lfp_E;   % -- save to structure
             
             % -- coherence for modulator-sender, modulator-receiver
             display(['Computing modulator-sender coherence...'])
             [c_ms,f,S_m,S_s] = coherency(lfp_E,lfp_S,[N W],fs,fk,pad,0.05,1,1);
+           
+            
+            
+            
+            % -- MODULATOR - RECEIVER
+            % -- modulaor lfp
+            lfp_E = sq(lfp_E_all(Ch,:,:));          % -- get lfp for only that channel
+            outliers_E = sess_control_lfp.outliers_E(cnt_m).idx;  % -- get the modulator's outliers
+            % -- Receiver  LFP
+            lfp_R = sess_control_lfp.lfp_R;
+            outliers_R = sess_control_lfp.outliers_R;
+            % -- outliers
+            outliers_ER = [outliers_E, outliers_R];
+            outliers_ER = unique(outliers_ER);
+            % -- remove outliers from sender and modulator
+            lfp_R(outliers_ER,:) = [];
+            lfp_E(outliers_ER,:) = [];
             
             
             display(['Computing modulator-receiver coherence...'])
             [c_mr,f,S_m,S_r] = coherency(lfp_E,lfp_R,[N W],fs,fk,pad,0.05,1,1);
-            
+         
+ 
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % ABS COHERENCE                 %%%%%
@@ -187,7 +202,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             %         xlim([0 60])
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            fname = strcat(dir_Ctrl_all,sprintf('/coherency_vs_freq_all_CONTROLS_same_area_ch_%d_fk_%d.jpg',Ch,fk));
+            fname = strcat(dir_Sess_Ctrl,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
             saveas(fig,fname);
             
             % -- structure assignements
@@ -249,11 +264,17 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     
 end
 
+dir_Ctrl = strcat(dir_RS_Theta,'/Controls_same_area');
+if ~exist(dir_Ctrl, 'dir')
+    mkdir(dir_Ctrl)
+end   
+
+% Save coherence and spectrum data in structure format
+save(strcat(dir_Ctrl,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_Ctrl,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'stim');
 
 keyboard
-% Save coherence and spectrum data in structure format
-save(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'mod');
-save(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'stim');
+
 
 % -- load structure files
 fk = 200; W = 5;
