@@ -29,7 +29,7 @@ for iSess = 1 : numel(PreStimSess)
 end
 
 UsedSess = find(useSessIndx);
-dir_RS_Theta = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state/Theta_band';
+dir_RS_Theta = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Archie/Resting_state/beta_band';
 dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data';
 dlmwrite(strcat(dir_RS_Theta,'/Sessions_list_theta.txt'),UsedSess); % write the label list of all the used Sessions 
  
