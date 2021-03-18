@@ -49,7 +49,8 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 
     
    % file = 'rec004.Frontal.lfp.dat'
-    file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i})
+%     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick
+    file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie
     fid = fopen(file);
     format = 'float=>single';
     
