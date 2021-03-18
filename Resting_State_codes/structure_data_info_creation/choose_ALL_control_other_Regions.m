@@ -17,8 +17,10 @@ function [mod_Ch_rand,ControlsReg] = choose_ALL_control_other_Regions(RecordPair
     ModBrainReg = RecordPairMRIlabels(mod_Ch,1);  % -- get all the brain regions for the modulator(s)
     ReceiverReg = RecordPairMRIlabels(receiver_idx,1); % -- receiver brain region 
     ModBrainReg = [ModBrainReg; ReceiverReg] % -- add receiver region to modulators', in order to exclude it for the controls' regions
+    ModBrainReg = ModBrainReg(~cellfun('isempty',ModBrainReg)); % -- remove empty cells (in Archie)
     ModBrainReg = unique(ModBrainReg);  % -- remove duplicates
     
+    RecordPairMRIlabels = RecordPairMRIlabels(~cellfun('isempty',RecordPairMRIlabels)); % -- remove empty cells (in Archie)
     AllBrainReg = unique(RecordPairMRIlabels(:,1)); % -- all recorded regions for this session 
     ControlsReg = setdiff(AllBrainReg,ModBrainReg); % -- all other regions which are not modulators'
     

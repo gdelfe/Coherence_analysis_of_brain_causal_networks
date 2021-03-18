@@ -15,6 +15,7 @@ function [mod_Ch_rand,ModBrainReg] = choose_ALL_control_same_Region(RecordPairMR
     mod_Ch(mod_Ch == receiver_idx) = []; % -- remove the receiver from the modulators in case it is one of them
     
     ModBrainReg = RecordPairMRIlabels(mod_Ch,1);  % -- get all the brain regions for the modulator(s)
+%     ModBrainReg = ModBrainReg(~cellfun('isempty',ModBrainReg)); % -- remove empty cells (in Archie)
     ModBrainReg = unique(ModBrainReg);  % -- remove duplicates
     L = length(ModBrainReg);
     

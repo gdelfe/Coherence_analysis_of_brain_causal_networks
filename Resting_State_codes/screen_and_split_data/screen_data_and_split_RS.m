@@ -63,6 +63,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
+    
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
     if ~exist(dir_Sess, 'dir')
         mkdir(dir_Sess)

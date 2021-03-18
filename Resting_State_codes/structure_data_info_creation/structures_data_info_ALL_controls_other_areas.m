@@ -23,7 +23,7 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'beta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
@@ -55,7 +55,12 @@ for s=1:size(sess_info{1},1)
     sess_All_controls_other_areas.ctrl_area = area_Ch_rand(:)';
     sess_All_controls_other_areas 
     
-    save(strcat(dir_Sess,'/session_all_controls_other_areas_info.mat'),'sess_All_controls_other_areas');
+    dir_Ctrl = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
+    if ~exist(dir_Ctrl, 'dir')
+        mkdir(dir_Ctrl)
+    end
+    
+    save(strcat(dir_Ctrl,'/session_all_controls_other_areas_info.mat'),'sess_All_controls_other_areas');
    
     
 end

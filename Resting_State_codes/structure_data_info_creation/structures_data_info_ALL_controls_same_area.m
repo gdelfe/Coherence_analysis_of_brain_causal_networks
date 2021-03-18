@@ -41,22 +41,27 @@ set(0,'DefaultLineLineWidth',2)
 for s=1:size(sess_info{1},1)
     
     Sess = sess_info{1}(s); % Session number
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
-%     mod_Ch = sess_data.mod_idx;
-%     RecordPairMRIlabels = sess_data.RecordPairMRIlabels; % -- MRI labels of the recorder pars 
-%     MRIlabels = sess_data.MRIlabels; % -- all the available MRI labels 
-%     receiver_idx = sess_data.receiver_idx; % -- receiver idx 
-% 
-%     [mod_Ch_rand,area_Ch_rand] = choose_ALL_control_same_Region(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
-% 
-%     sess_All_controls_same_area = sess_data;
-%     sess_All_controls_same_area.ctrl_idx = mod_Ch_rand;
-%     sess_All_controls_same_area.ctrl_area = area_Ch_rand(:)';
-%     sess_All_controls_same_area 
-%     
-%     save(strcat(dir_Sess,'/session_all_controls_same_area_info.mat'),'sess_All_controls_same_area');
+    mod_Ch = sess_data.mod_idx;
+    RecordPairMRIlabels = sess_data.RecordPairMRIlabels; % -- MRI labels of the recorder pars 
+    MRIlabels = sess_data.MRIlabels; % -- all the available MRI labels 
+    receiver_idx = sess_data.receiver_idx; % -- receiver idx 
+
+    [mod_Ch_rand,area_Ch_rand] = choose_ALL_control_same_Region(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
+
+    sess_All_controls_same_area = sess_data;
+    sess_All_controls_same_area.ctrl_idx = mod_Ch_rand;
+    sess_All_controls_same_area.ctrl_area = area_Ch_rand(:)';
+    sess_All_controls_same_area 
+    
+    dir_Ctrl = strcat(dir_RS,sprintf('/Sess_%d/Controls_same_area',Sess));
+    if ~exist(dir_Ctrl, 'dir')
+        mkdir(dir_Ctrl)
+    end
+    
+    save(strcat(dir_Ctrl,'/session_all_controls_same_area_info.mat'),'sess_All_controls_same_area');
    
     
 end

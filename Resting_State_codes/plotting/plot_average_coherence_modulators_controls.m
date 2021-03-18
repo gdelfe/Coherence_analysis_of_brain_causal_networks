@@ -10,7 +10,12 @@ set(0,'DefaultFigureVisible','on')
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
-dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
+dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+
+freq_band = 'beta_band';
+monkey = 'Archie';
+dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
+
 
 dir_Controls = strcat(dir_RS,'/Modulator_controls');
 if ~exist(dir_Controls, 'dir')

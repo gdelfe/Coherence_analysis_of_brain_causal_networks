@@ -92,7 +92,7 @@ for Sess = UsedSess  % For all the sessions
         display(['-- Session ', num2str(cnt_sess), '  -- label: ',num2str(Sess),',  with modulator(s)'])
 
         
-        dir_Sess = strcat(dir_RS, sprintf('/Sess_%d',Sess));
+        dir_Sess = strcat(dir_RS, sprintf('/Sess_%d/Modulators',Sess));
         if ~exist(dir_Sess, 'dir')
             mkdir(dir_Sess)
         end
