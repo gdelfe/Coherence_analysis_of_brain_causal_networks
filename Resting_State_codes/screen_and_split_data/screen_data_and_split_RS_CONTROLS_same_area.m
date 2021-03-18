@@ -230,7 +230,7 @@ keyboard
 % save(strcat(dir_RS,'/all_sessions_split.mat'),'sess','-v7.3');
 
 
-for i=1:20
+for i=1:11
 
     display(['Session --- ',num2str(i)])
     badSess(i).std_R
