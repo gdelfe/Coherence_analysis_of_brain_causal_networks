@@ -9,12 +9,21 @@
 clear all;
 close all
 
-dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data';
+dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+
+freq_band = 'Theta_band';
+monkey = 'Archie';
+dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
+dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
+
+
+
 % set(0,'DefaultFigureVisible','off')
 set(0,'DefaultFigureVisible','on')
 
 subjects = {'maverick','archie'};
-for iSubject = 1% : length(subjects)
+
+for iSubject = 2% : length(subjects)
     clearvars -except subjects iSubject dir_Stim
     if strcmp(subjects{iSubject},'archie')
         archie_vSUBNETS220_rig3
@@ -38,7 +47,11 @@ for iSubject = 1% : length(subjects)
         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess dir_Stim
         
         disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
+        
         dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d',iSess));
+        if ~exist(dir_Sess, 'dir')
+            mkdir(dir_Sess)
+        end
 
         
         RespPair = sessElectrode(PreStimSess{iSess}); % responding channel
@@ -228,11 +241,8 @@ for iSubject = 1% : length(subjects)
         display(['Computing p-value for all the electrodes... '])
         Data = plotModulationNetworkAucMRIoverlay(Data,BrainArea,saveFigFlag,plotFigFlag,plotElecGrid,plotMRIoverlay,PlotStimElec,cmap);
         
-        dir_ThetaBand = strcat(dir_Sess,'/Theta_band');
-        if ~exist(dir_ThetaBand, 'dir')
-            mkdir(dir_ThetaBand)
-        end
-        save(strcat(dir_ThetaBand,'/Data_with_theta_band.mat'),'Data','-v7.3');
+    
+        save(strcat(dir_Sess,'/Data_with_theta_band.mat'),'Data','-v7.3');
 
         clear Data
     end

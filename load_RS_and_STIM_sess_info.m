@@ -154,9 +154,8 @@ for Sess = UsedSess  % For all the sessions
         
         save(strcat(dir_Sess,'/session_data_info.mat'),'sess_data');
 
-       
+        cnt_sess = cnt_sess + 1;
     end
-    cnt_sess = cnt_sess + 1;
     
 end
 

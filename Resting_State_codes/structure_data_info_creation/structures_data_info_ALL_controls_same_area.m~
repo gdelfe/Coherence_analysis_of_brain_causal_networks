@@ -44,6 +44,9 @@ for s=1:size(sess_info{1},1)
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
+    sess = sess_data.sess_idx(2);
+    sess_data.sess_idx = [];
+    
 %     mod_Ch = sess_data.mod_idx;
 %     RecordPairMRIlabels = sess_data.RecordPairMRIlabels; % -- MRI labels of the recorder pars 
 %     MRIlabels = sess_data.MRIlabels; % -- all the available MRI labels 
@@ -56,6 +59,7 @@ for s=1:size(sess_info{1},1)
 %     sess_All_controls_same_area.ctrl_area = area_Ch_rand(:)';
 %     sess_All_controls_same_area 
 %     
+     save(strcat(dir_Sess,'/session_data_info.mat'),'sess_All_controls_same_area');
 %     save(strcat(dir_Sess,'/session_all_controls_same_area_info.mat'),'sess_All_controls_same_area');
    
     
