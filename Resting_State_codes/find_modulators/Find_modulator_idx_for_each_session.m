@@ -29,18 +29,20 @@ for iSess = 1 : numel(PreStimSess)
 end
 
 UsedSess = find(useSessIndx);
-dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Archie/Resting_state/beta_band'
-dlmwrite(strcat(dir_RS,'/Sessions_list.txt'),UsedSess); % write the label list of all the used Sessions 
- 
-Session = Rest_Database; % Sessions for the RS 
+dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
+dir_RS_beta = strcat(dir_main,'/Archie/Resting_state/beta_band')
+dlmwrite(strcat(dir_RS_beta,'/Sessions_list.txt'),UsedSess); % write the label list of all the used Sessions
+
+Session = Rest_Database; % Sessions for the RS
+Movie_Database
 
 Sess_modulator = {}; % list of Sessions with at least one modulator
 Summary = {};
 cnt_sess = 1;
 
-keyboard 
 
-for iSess = UsedSess % For all the sessions 
+
+for iSess = UsedSess % For all the sessions
     %         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess
     disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
     
@@ -58,7 +60,7 @@ for iSess = UsedSess % For all the sessions
         case 'StimBlockShort'
             fileName_Pre = sprintf('%sSess%03d_%s_AccLLR_Elec%03d-Elec%03d_%s_grouped.mat',dataDir_Pre,iSess,day,RespPair(1),RespPair(2),stimName);
     end
-
+    
     tic
     disp('Loading Pre data ...')
     load(fileName_Pre)
@@ -66,12 +68,12 @@ for iSess = UsedSess % For all the sessions
     toc
     
     
-    modulator_idx = find(Data.Spec.ROC.sigChIndx{1}); % modulator index 
+    modulator_idx = find(Data.Spec.ROC.sigChIndx{1}); % modulator index
     
-    if ~isempty(modulator_idx) % if there is at least one modulator 
+    if ~isempty(modulator_idx) % if there is at least one modulator
         
         
-        dir_Sess = strcat(dir_RS, sprintf('/Sess_%d',iSess));
+        dir_Sess = strcat(dir_RS_beta, sprintf('/Sess_%d',iSess));
         if ~exist(dir_Sess, 'dir')
             mkdir(dir_Sess)
         end
@@ -88,7 +90,7 @@ for iSess = UsedSess % For all the sessions
         sess_info(cnt_sess).receiver = receiver;
         sess_info(cnt_sess).rec_label = receiver_label;
         sess_info(cnt_sess).sender  = sender;
-        sess_info(cnt_sess).pairs  = Data.RecordPair; % -- all recorded pairs 
+        sess_info(cnt_sess).pairs  = Data.RecordPair; % -- all recorded pairs
         
         
         dlmwrite(strcat(dir_Sess,sprintf('/receiver_Sess_%d.txt',iSess)),receiver); % write receiver pair
@@ -96,23 +98,23 @@ for iSess = UsedSess % For all the sessions
         dlmwrite(strcat(dir_Sess,sprintf('/sender_Sess_%d.txt',iSess)),sender); % write sender pair
         dlmwrite(strcat(dir_Sess,sprintf('/recorded_pairs_modulators_Sess_%d.txt',iSess)),Data.RecordPair);   % ---- all recorded pair
         
-   
+        
         % --- find the corresponding RS session and date
         RS_check = 0;
         for i=1:length(Session)
             if ~isempty(find(strcmp(Session{i}{1},Data.day))) % find the RS session associated to that date (Data.day)
-                RS_session = Session{i}{2}{1}; % resting state session 
+                RS_session = Session{i}{2}{1}; % resting state session
                 RS_check = 1;
                 sess_info(cnt_sess).RS = 'YES'
             end
         end
         
-        % --- Session info 
+        % --- Session info
         Sess_modulator{cnt_sess,1} = iSess; % number of the Session
         Sess_modulator{cnt_sess,2} = Data.day; % day of the session
         if RS_check == 1
             Sess_modulator{cnt_sess,3} = RS_session; % corresponding RS session to this stim session
-        else 
+        else
             Sess_modulator{cnt_sess,3} = '000';
             sess_info(cnt_sess).RS = 'NOT Available'
         end
@@ -125,31 +127,52 @@ for iSess = UsedSess % For all the sessions
         
     else
         display(['--- NO modulator in Session ',num2str(iSess)]);
+        
+        % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %     LOAD STIMULATION DATA INTO STRUCTURE
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        dataG.sess_idx = [cnt_sess, i Sess];
+        dataG.day_STIM = Data.day;
+        dataG.rec_STIM = Data.rec;
+        
+        dataG.fs = Data.Fs.lfp;
+        dataG.lfp_STIM_Pre = Lfp_Pre;
+        
+        dataG.MRIlabels = Data.MRIlabels;
+        dataG.RecordPair = Data.RecordPair;
+        dataG.RecordPairMRIlabels = Data.RecordPairMRIlabels;
+        dataG.StimPairs = Data.StimPairs;
+        dataG.Spec = Data.Spec;
+        
+        dataG.receiver =  Data.StimResPairs;  % ---- receiver pair
+        dataG.sender = Data.StimPairs.Syllable; % ---- sender pair
+        dataG.receiver_idx = find(Data.RecordPair == Data.StimResPairs(1)); % --- receiver label
+        dataG.modulators_idx = find(Data.Spec.ROC.sigChIndx{1}); % modulators index
+        
+        save(strcat(dir_Sess,'/data_STIM.mat'),'dataG');
+        
+        
+        % --- Session info
+        Summary{iSess,1} = iSess; % number of the Session
+        Summary{iSess,2} = Data.day; % day of the session
+        Summary{iSess,3} = size(Data.RecordPair,1); % number of tot channels for that Session
+        
     end
     
+ 
     
-    % --- Session info
-    Summary{iSess,1} = iSess; % number of the Session
-    Summary{iSess,2} = Data.day; % day of the session
-    Summary{iSess,3} = size(Data.RecordPair,1); % number of tot channels for that Session 
-    
-    
-    
-end
-  
-dir_RS = sprintf('/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State');
-if ~exist(dir_RS, 'dir')
-    mkdir(dir_RS)
 end
 
+
 % ---- write the list of Sessions with at least one modulator
-writecell(Sess_modulator,strcat(dir_RS,'/Sessions_with_modulator_info.txt'),'delimiter','\t'); % format: label_session, date session, label RS corresponding session 
-% ---- Session summary 
-writecell(Sess_modulator,strcat(dir_RS,'/Summary_sessions.txt'),'delimiter','\t'); % format: label_session, date session, number of channels 
+writecell(Sess_modulator,strcat(dir_RS_beta,'/Sessions_with_modulator_info.txt'),'delimiter','\t'); % format: label_session, date session, label RS corresponding session
+% ---- Session summary
+writecell(Sess_modulator,strcat(dir_RS_beta,'/Summary_sessions.txt'),'delimiter','\t'); % format: label_session, date session, number of channels
 
 % [unic,idx_unic] = unique(Sess_modulator(:,2)); % get RS session date without repetitions
 % % -- write the RS sessions without repetitions
-% writecell(Sess_modulator(idx_unic,:),strcat(dir,'/Sessions_with_mod_no_repetition_info.txt'),'delimiter','\t'); % format: label_session, date session, label RS corresponding session 
+% writecell(Sess_modulator(idx_unic,:),strcat(dir,'/Sessions_with_mod_no_repetition_info.txt'),'delimiter','\t'); % format: label_session, date session, label RS corresponding session
 
 
 for i = 1:11

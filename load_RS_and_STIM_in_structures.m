@@ -17,7 +17,7 @@ set(0,'DefaultLineLineWidth',2)
 subjects = {'maverick','archie'};
 
 %for
-iSubject = 1 % : length(subjects) % Loop on the animals
+iSubject = 2 % : length(subjects) % Loop on the animals
 %     clearvars -except subjects iSubject
 if strcmp(subjects{iSubject},'archie')
     archie_vSUBNETS220_rig3
