@@ -44,10 +44,13 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     close all
 %     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
-    addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
-
+%     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
+   
+    addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % add path of the specific RS session
+    file = 'rec001.Frontal_1.lfp.dat'
+   
 %     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick
-    file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie
+%     file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie
     fid = fopen(file);
     format = 'float=>single';
     
@@ -75,7 +78,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     sender = sess_control.sender_pair; % ---- sender pair
 
     % ---  time parameter
-    tot_time = 150001;
+    tot_time = 250001;
     % ---  freq parameter for the masking
     fmin = 10;
     fmax = 40;
@@ -219,7 +222,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m + 1;
     end
     
-    save(strcat(dir_Sess,'/sess_all_controls_same_area_lfp.mat'),'sess_control_lfp');
+    save(strcat(dir_Sess,'/sess_all_controls_same_area_lfp_001.mat'),'sess_control_lfp');
 
     
 end

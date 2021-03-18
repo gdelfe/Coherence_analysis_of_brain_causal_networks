@@ -143,17 +143,19 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
         if Ch ~= sess_control_lfp.receiver_idx % if the electrode is not the receiver itself
             
             
-            % -- remove outliers from control, sender, and receiver
+            % -- MODULATOR - SENDER
+            % -- modulaor lfp
             lfp_E = sq(lfp_E_all(Ch,:,:));          % -- get lfp for only that channel
-            outliers_tot = sess_control_lfp.outliers_tot(cnt_m).idx;  % -- get the M,R,S shared outliers
-            
-            % -- Sender and Receiver LFP
+            outliers_E = sess_control_lfp.outliers_E(cnt_m).idx;  % -- get the modulator's outliers
+            % -- Sender  LFP
             lfp_S = sess_control_lfp.lfp_S;
-            lfp_R = sess_control_lfp.lfp_R;
-            % -- remove outliers from sender, receiver, and control
-            lfp_S(outliers_tot,:) = [];
-            lfp_R(outliers_tot,:) = [];
-            lfp_E(outliers_tot,:) = [];
+            outliers_S = sess_control_lfp.outliers_S;
+            % -- outliers
+            outliers_ES = [outliers_E, outliers_S];
+            outliers_ES = unique(outliers_ES);
+            % -- remove outliers from sender and modulator 
+            lfp_S(outliers_ES,:) = [];
+            lfp_E(outliers_ES,:) = [];
             
             sess_control_lfp.lfp_E_clean(cnt_m).lfp = lfp_E;   % -- save to structure
             
@@ -162,6 +164,21 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             [c_ms,f,S_m,S_s] = coherency(lfp_E,lfp_S,[N W],fs,fk,pad,0.05,1,1);
             
             
+            % -- MODULATOR - RECEIVER
+            % -- modulaor lfp
+            lfp_E = sq(lfp_E_all(Ch,:,:));          % -- get lfp for only that channel
+            outliers_E = sess_control_lfp.outliers_E(cnt_m).idx;  % -- get the modulator's outliers
+            % -- Receiver  LFP
+            lfp_R = sess_control_lfp.lfp_R;
+            outliers_R = sess_control_lfp.outliers_R;
+            % -- outliers
+            outliers_ER = [outliers_E, outliers_R];
+            outliers_ER = unique(outliers_ER);
+            % -- remove outliers from sender and modulator 
+            lfp_R(outliers_ER,:) = [];
+            lfp_E(outliers_ER,:) = [];
+           
+        
             display(['Computing modulator-receiver coherence...'])
             [c_mr,f,S_m,S_r] = coherency(lfp_E,lfp_R,[N W],fs,fk,pad,0.05,1,1);
             
@@ -252,8 +269,8 @@ dir_Mod_ctrl = strcat(dir_RS,'/Modulators_Controls_avg_results');
 
 
 % Save coherence and spectrum data in structure format
-save(strcat(dir_RS,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'mod');
-save(strcat(dir_RS,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d.mat',fk,W)),'stim');
 
 keyboard
 
@@ -268,8 +285,8 @@ keyboard
 
 % -- load structure files
 fk = 200; W = 5;
-load(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
-load(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
+load(strcat(dir_Mod_ctrl,sprintf('/coh_spec_m_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
+load(strcat(dir_Mod_ctrl,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators

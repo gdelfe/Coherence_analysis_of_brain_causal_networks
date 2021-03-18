@@ -21,29 +21,39 @@
 
 clear all; close all;
 
-% set(0,'DefaultFigureVisible','off')
-set(0,'DefaultFigureVisible','on')
+set(0,'DefaultFigureVisible','off')
+% set(0,'DefaultFigureVisible','on')
+set(0,'DefaultLineLineWidth',2)
+
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
-step = 110;
+dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+
+freq_band = 'beta_band';
+monkey = 'Archie';
+dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
+
 name_structure_input = '/sess_all_controls_other_areas_lfp.mat';
 
-set(0,'DefaultLineLineWidth',2)
-
+% -- define list of sessions
+if strcmp(monkey,'Maverick')
+    list_sess = 1:19;
+    list_sess(17) = [];
+else
+    list_sess = 1:length(sess_info{3});
+end
 
 
 cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
-list_sess = 1:19;
-list_sess(17) = []; % -- Session 17 and 20 are full of artifacts
+
 
 for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least one modulator
     
@@ -51,22 +61,13 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     close all
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
     
     load(strcat(dir_Sess,name_structure_input)); % RS LFP split into 1 sec window and artifacts removed
     
-    
-    % -- load list electrodes, sender, receiver
-    %     electrode = dataG.RecordPair; % ---- all electrode pairs
-    %     receiver = dataG.receiver;  % ---- receiver pair
-    %     sender = dataG.sender; % ---- sender pair
-    %
-    %     % ---  time parameter
+    % ---  time parameter
     tot_time = 150001;
-    %     % ---  freq parameter for the masking
-    %     fmin = 10;
-    %     fmax = 40;
-    
+
     outliers_SR = [sess_control_lfp.outliers_S, sess_control_lfp.outliers_R];
     outliers_SR = unique(outliers_SR)  % -- remove repeated entries in outliers
     
@@ -126,10 +127,6 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch),'  -- contols mod Ch: ',num2str(ctrl_Ch)])
     
-    dir_Ctrl_all = strcat(dir_Sess,'/Controls_other_areas');
-    if ~exist(dir_Ctrl_all, 'dir')
-        mkdir(dir_Ctrl_all)
-    end
     
     % %%%%%%% ALL Electrodes LFP %%%%%%%%%%%%%%%%%%%%%
     lfp_E_all = sess_control_lfp.lfp_E;
@@ -149,16 +146,19 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             % -- remove outliers from control, sender, and receiver
             
             
+             % -- MODULATOR - SENDER
+            % -- modulaor lfp
             lfp_E = sq(lfp_E_all(Ch,:,:));          % -- get lfp for only that channel
-            outliers_tot = sess_control_lfp.outliers_tot(cnt_m).idx;  % -- get the M,R,S shared outliers
-            
-            % -- Sender and Receiver LFP
+            outliers_E = sess_control_lfp.outliers_E(cnt_m).idx;  % -- get the modulator's outliers
+            % -- Sender  LFP
             lfp_S = sess_control_lfp.lfp_S;
-            lfp_R = sess_control_lfp.lfp_R;
-            % -- remove outliers from sender, receiver, and control
-            lfp_S(outliers_tot,:) = [];
-            lfp_R(outliers_tot,:) = [];
-            lfp_E(outliers_tot,:) = [];
+            outliers_S = sess_control_lfp.outliers_S;
+            % -- outliers
+            outliers_ES = [outliers_E, outliers_S];
+            outliers_ES = unique(outliers_ES);
+            % -- remove outliers from sender and modulator 
+            lfp_S(outliers_ES,:) = [];
+            lfp_E(outliers_ES,:) = [];
             
             sess_control_lfp.lfp_E_clean(cnt_m).lfp = lfp_E;   % -- save to structure
             
@@ -167,6 +167,21 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             [c_ms,f,S_m,S_s] = coherency(lfp_E,lfp_S,[N W],fs,fk,pad,0.05,1,1);
             
             
+            % -- MODULATOR - RECEIVER
+            % -- modulaor lfp
+            lfp_E = sq(lfp_E_all(Ch,:,:));          % -- get lfp for only that channel
+            outliers_E = sess_control_lfp.outliers_E(cnt_m).idx;  % -- get the modulator's outliers
+            % -- Receiver  LFP
+            lfp_R = sess_control_lfp.lfp_R;
+            outliers_R = sess_control_lfp.outliers_R;
+            % -- outliers
+            outliers_ER = [outliers_E, outliers_R];
+            outliers_ER = unique(outliers_ER);
+            % -- remove outliers from sender and modulator 
+            lfp_R(outliers_ER,:) = [];
+            lfp_E(outliers_ER,:) = [];
+           
+        
             display(['Computing modulator-receiver coherence...'])
             [c_mr,f,S_m,S_r] = coherency(lfp_E,lfp_R,[N W],fs,fk,pad,0.05,1,1);
             
@@ -190,7 +205,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             %         xlim([0 60])
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            fname = strcat(dir_Ctrl_all,sprintf('/coherency_vs_freq_CONTROLS_ch_%d_fk_%d.jpg',Ch,fk));
+            fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_CONTROLS_ch_%d_fk_%d.jpg',Ch,fk));
             saveas(fig,fname);
             
             % -- structure assignements
@@ -218,9 +233,9 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             legend('Sender','Receiver','Modulator')
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.fig',Ch));
+            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.fig',Ch));
             %                 saveas(fig,fig_name);
-            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.png',Ch));
+            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.png',Ch));
             %                 saveas(fig,fig_name);
             
             % -- full length without artifacts
@@ -239,9 +254,9 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             legend('Sender','Receiver','Modulator')
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
+            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
             %                 saveas(fig,fig_name);
-            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
+            %                 fig_name = strcat(dir_Sess,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
             %                 saveas(fig,fig_name);
             
             cnt_el = cnt_el + 1; % total modulators counter            
@@ -250,16 +265,19 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
 
     end
     
-    
-    
+   
     
 end
 
 
-keyboard
+dir_Mod_ctrl = strcat(dir_RS,'/Modulators_Controls_avg_results');
+
 % Save coherence and spectrum data in structure format
-save(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_other_areas_fk_%d_W_%d.mat',fk,W)),'mod');
-save(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_other_areas_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_m_all_Controls_other_areas_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_sr_all_Controls_other_areas_fk_%d_W_%d.mat',fk,W)),'stim');
+
+
+keyboard 
 
 % -- load structure files
 fk = 200; W = 5;
