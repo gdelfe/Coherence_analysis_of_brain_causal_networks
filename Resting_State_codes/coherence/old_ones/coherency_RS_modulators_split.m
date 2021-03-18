@@ -27,26 +27,17 @@ set(0,'DefaultFigureVisible','on')
 %%%%%%%%%%%%%%%%%%%
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_base = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
-step = 110;
+dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-fid = fopen(strcat(dir_base,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+freq_band = 'beta_band';
+monkey = 'Archie';
+dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
+
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
-
-% -- load structure files
-load(strcat(dir_base,'/session_AM.mat'))
-load(strcat(dir_base,'/session_MA.mat'))
-
-
-% -- print structures on stdout
-%format short
-for s=1:size(sess_info{1},1)
-    session_AM(s)
-    session_MA(s)
-end
 
 
 cnt_m = 1; % counter for the modulator-receiver/sender coherencies
@@ -57,11 +48,11 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
-    % addpath('/vol/sas8/Maverick_RecStim_vSUBNETS220/160125/004')
-    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
-    
-    % file = 'rec004.Frontal.lfp.dat'
-    file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i})
+%     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
+    addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
+
+%     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick
+    file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie
     fid = fopen(file);
     format = 'float=>single';
     
@@ -74,10 +65,16 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     data = fread(fid,[CH,inf],format); % load the RS data
     % h = fread(fid,[CH,diff(bn)*FS./1e3],format);
     % ---- bipolar referencing, pairs of electrodes
-    dir_Sess = strcat(dir_base,sprintf('/Sess_%d',Sess));
-    if ~exist(dir_Sess, 'dir')
-        mkdir(dir_Sess)
-    end
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
+
+    load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+    load(strcat(dir_Sess,'/session_data_lfp.mat')); % --- dataG: all data info and LFP
+
+    % -- load list electrodes, sender, receiver
+    electrode = sess_data.RecordPair; % ---- all electrode pairs
+    receiver = sess_data.receiver_pair;  % ---- receiver pair
+    sender = sess_data.sender_pair; % ---- sender pair
+    
     
     % -- load list electrodes, sender, receiver
     electrode = importdata(strcat(dir_Sess,sprintf('/recorded_pairs_modulators_Sess_%d.txt',Sess))); %Data.RecordPair;   % ---- all potential modulator pairs
@@ -239,13 +236,13 @@ end
 keyboard
 
 % Save coherence and spectrum data in structure format
-save(strcat(dir_base,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
-save(strcat(dir_base,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
+save(strcat(dir_RS,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)),'stim');
 
 % -- load structure files
 fk = 200;
-load(strcat(dir_base,sprintf('/coh_spec_m_fk_%d.mat',fk)))
-load(strcat(dir_base,sprintf('/coh_spec_sr_fk_%d.mat',fk)))
+load(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d.mat',fk)))
+load(strcat(dir_RS,sprintf('/coh_spec_sr_fk_%d.mat',fk)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
@@ -309,7 +306,7 @@ legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_base,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d_self-mod-removed-corrected.png',W,fk));
+fname = strcat(dir_RS,sprintf('/coherency_mean_split-data_MS_MR_SR_W_%d_fk_%d_self-mod-removed-corrected.png',W,fk));
 saveas(fig,fname)
 
 
