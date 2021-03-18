@@ -28,9 +28,7 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'beta_band';
-monkey = 'Archie'
-
-
+monkey = 'Maverick'
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
@@ -39,6 +37,7 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
+
 
 for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
@@ -64,10 +63,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
-    if ~exist(dir_Sess, 'dir')
-        mkdir(dir_Sess)
-    end
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
     
 
     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP

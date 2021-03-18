@@ -25,8 +25,12 @@ set(0,'DefaultFigureVisible','on')
 %%%%%%%%%%%%%%%%%%%
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
-step = 110;
+dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+
+freq_band = 'beta_band';
+monkey = 'Archie';
+dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
+dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
@@ -39,10 +43,11 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
-    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
+%     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
+    addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
 
-   % file = 'rec004.Frontal.lfp.dat'
-    file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i})
+%     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick
+    file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie
     fid = fopen(file);
     format = 'float=>single';
     
@@ -55,10 +60,8 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
-    if ~exist(dir_Sess, 'dir')
-        mkdir(dir_Sess)
-    end
+    
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_same_area',Sess));
     
 
     %load(strcat(dir_Sess,'/session_control_info.mat')); % --- dataG: all data info and LFP
