@@ -28,7 +28,7 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'beta_band';
-monkey = 'Archie';
+monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
@@ -37,17 +37,24 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
-name_structure_data_info = '/session_all_controls_other_areas_info.mat';
+name_structure_data_info = '/session_controls_other_areas_info.mat';
 
 for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
 %     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
-    addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
+%     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
 
+       
+%     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % add path of the specific RS session
+    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick recording 001
+
+    
 %     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick
-    file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie
+%     file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie
+    
+    file = 'rec001.Frontal.lfp.dat'
     fid = fopen(file);
     format = 'float=>single';
     
@@ -73,6 +80,9 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 
     % ---  time parameter
     tot_time = 150001;
+    if size(data,2) < tot_time
+        tot_time = size(data,2);
+    end
     % ---  freq parameter for the masking
     fmin = 10;
     fmax = 40;
@@ -216,7 +226,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m + 1;
     end
     
-    save(strcat(dir_Sess,'/sess_all_controls_other_areas_lfp.mat'),'sess_control_lfp');
+    save(strcat(dir_Sess,'/session_controls_other_areas_lfp_rec001.mat'),'sess_control_lfp');
 
     
 end

@@ -65,16 +65,16 @@ shadedErrorBar(f,ctrl_SA.mean_coh_mr,ctrl_SA.err_mr,'lineprops',{'color',[26 198
 shadedErrorBar(f,ctrl_OA.mean_coh_mr,ctrl_OA.err_mr,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Abs MR coherence MODULATORS vs CONTROLS - Resting State','FontSize',11);
+title('Archie: Abs MR coherence MODULATORS vs CONTROLS, movie data - Resting State','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 legend('Modulators-Receivers','Controls-Receivers  same area','Controls-Receiver  other areas','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-fname = strcat(dir_Controls,sprintf('/coherency_MR_Modulators_vs_Controls_W_%d_fk_%d.png',W,fk));
+fname = strcat(dir_Controls,sprintf('/coherency_MR_Modulators_vs_Controls_W_%d_fk_%d_movie.png',W,fk));
 saveas(fig,fname)
-fname = strcat(dir_Controls,sprintf('/coherency_MR_Modulators_vs_Controls_W_%d_fk_%d.fig',W,fk));
+fname = strcat(dir_Controls,sprintf('/coherency_MR_Modulators_vs_Controls_W_%d_fk_%d_movie.fig',W,fk));
 saveas(fig,fname)
 
 % --- ELECTRODE-SENDER coherence   -------%
@@ -88,16 +88,16 @@ shadedErrorBar(f,ctrl_SA.mean_coh_ms,ctrl_SA.err_ms,'lineprops',{'color',[255, 5
 shadedErrorBar(f,ctrl_OA.mean_coh_ms,ctrl_OA.err_ms,'lineprops',{'color',[255, 128, 128]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Abs MS coherence MODULATORS vs CONTROLS - Resting State','FontSize',11);
+title('Archie: Abs MS coherence MODULATORS vs CONTROLS, movie data - Resting State','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 legend('Modulators-Senders','Controls-Senders  same area','Controls-Senders  other areas','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-fname = strcat(dir_Controls,sprintf('/coherency_MS_Modulators_vs_Controls_W_%d_fk_%d.png',W,fk));
+fname = strcat(dir_Controls,sprintf('/coherency_MS_Modulators_vs_Controls_W_%d_fk_%d_movie.png',W,fk));
 saveas(fig,fname)
-fname = strcat(dir_Controls,sprintf('/coherency_MS_Modulators_vs_Controls_W_%d_fk_%d.fig',W,fk));
+fname = strcat(dir_Controls,sprintf('/coherency_MS_Modulators_vs_Controls_W_%d_fk_%d_movie.fig',W,fk));
 saveas(fig,fname)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

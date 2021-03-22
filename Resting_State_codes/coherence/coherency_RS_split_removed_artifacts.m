@@ -32,14 +32,14 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'beta_band';
-monkey = 'Archie';
+monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-name_struct_input = '/session_data_lfp.mat';
+name_struct_input = '/session_data_lfp_001.mat';
 
 % -- define list of sessions
 if strcmp(monkey,'Maverick')
@@ -195,7 +195,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             %         xlim([0 60])
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
+            fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_ch_%d_fk_%d_rec001.jpg',Ch,fk));
             saveas(fig,fname);
             
             % -- structure assignements
@@ -223,9 +223,9 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             legend('Sender','Receiver','Modulator')
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d.fig',Ch));
+            fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d_rec001.fig',Ch));
             saveas(fig,fig_name);
-            fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d.png',Ch));
+            fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_full_length_mod_%d_rec001.png',Ch));
             saveas(fig,fig_name);
             
               % -- full length without artifacts
@@ -244,9 +244,9 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             legend('Sender','Receiver','Modulator')
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
+            fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d_rec001.fig',Ch));
             saveas(fig,fig_name);
-            fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
+            fig_name = strcat(dir_Sess,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d_rec001.png',Ch));
             saveas(fig,fig_name);
             
             cnt_el = cnt_el + 1; % total modulators counter                     
@@ -257,8 +257,6 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
 end
 
 
-keyboard
-
 dir_Mod_ctrl = strcat(dir_RS,'/Modulators_Controls_avg_results');
 if ~exist(dir_Mod_ctrl, 'dir')
     mkdir(dir_Mod_ctrl)
@@ -266,8 +264,8 @@ end
 
 
 % Save coherence and spectrum data in structure format
-save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)),'mod');
-save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)),'stim');
+save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_m_fk_%d_W_%d_rec001.mat',fk,W)),'mod');
+save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_sr_fk_%d_W_%d_rec001.mat',fk,W)),'stim');
 
 keyboard
 
