@@ -33,12 +33,11 @@ for i = list_sess %list_sess %size(sess_info{1},1) % For each session with at le
     Sess = sess_info{1}(i); % Session numberdir_Sess
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
-    dir_Controls = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
+    dir_Controls = strcat(dir_RS,sprintf('/Sess_%d/Controls_same_area',Sess));
 
     
     cd(dir_Controls)
-    !mv sess_all_controls_other_areas_lfp.mat session_controls_other_areas_lfp.mat
-    !mv session_all_controls_other_areas_info.mat session_controls_other_areas_info.mat
+    !mv sess_controls_same_area_lfp_001.mat session_controls_same_area_lfp_rec001.mat
     %     !mv sess_data_lfp.mat Modulators/session_data_lfp.mat
 
     

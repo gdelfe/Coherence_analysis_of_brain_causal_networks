@@ -34,7 +34,7 @@ PreStimSess = PreStimResponseAll_Database_NetworkEdge;
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 

@@ -120,7 +120,7 @@ for iSubject = 1% : length(subjects)
                                 clear Raw_Pre lfp_Pre
                             end
                         end
-                        
+                        keyboard
                         fprintf('\n');
                         disp(['Start ROC on PSDs @ ' num2str(AnalParams.TestSpecDiff.fk(iFreqBand,1)) '-' num2str(AnalParams.TestSpecDiff.fk(iFreqBand,2)) ' Hz'])
                         fprintf('\n\n');
@@ -130,9 +130,11 @@ for iSubject = 1% : length(subjects)
                         chs_FreqBand = Data.Spec.ROC.sigChs{iFreqBand};
                         nCh_Use = numel(chs_FreqBand);
                         
-                        nCh_Use = size(Data.RecordPair,1)
-                        for iCh = 1 : nCh_Use
-%                             iCh = find(chs_FreqBand(indx)==Data.RecordPair(:,1));
+                        
+%                         nCh_Use = size(Data.RecordPair,1)
+                        for indx = 1 : nCh_Use
+                            
+                            iCh = find(chs_FreqBand(indx)==Data.RecordPair(:,1));
                             
                             fprintf('\n\n');
                             msg = sprintf('%d/%d Channels',iCh,nCh_Use);
@@ -153,9 +155,9 @@ for iSubject = 1% : length(subjects)
                             plotElectrodeLocationMRIoverlay(day,TargCh(1));
                             title(['Receiver e' num2str(TargCh(1))])
                             
-%                             subplot(2,7,8)
-%                             plotElectrodeLocationMRIoverlay(day,chs_FreqBand(indx));
-%                             title(['Modulator e' num2str(chs_FreqBand(indx))])
+                            subplot(2,7,8)
+                            plotElectrodeLocationMRIoverlay(day,chs_FreqBand(indx));
+                            title(['Modulator e' num2str(chs_FreqBand(indx))])
                             
                             h1 = subplot(2,7,4);
                             pos1 = get(h1,'Position');
@@ -183,15 +185,18 @@ for iSubject = 1% : length(subjects)
                             text(3,mean(nTr_CorrectDetect+1:nTr)+3,'Miss','Rotation',90);
                             
                             
+                                 %% %%%%%% Spectrogram, permutation test   GINO %%%%%%
+                            hitIndx = Data.spec.lfp.DetectedIndx{iCh};
+                            missIndx = Data.spec.lfp.notDetectedIndx{iCh};
+                            ModulatorPair = Data.RecordPair(iCh,:);
+                            ModulatorLFP_Pre = sq(Lfp_Pre(:,ModulatorPair(1),:) - Lfp_Pre(:,ModulatorPair(2),:));
+                                                 
+                            
                             %% modulator decoder hit vs miss
                             % plot ROC curve of modulator activity in hit vs miss events
                             subplot(2,7,2)
                             [auc,se,S1,S2,roc_Thresh,maxYoudenIndex] = calcRocSpecDiff_HistAUC(X1,X2,AnalParams);
-                            
-                            
-                            
-                            
-                            
+                
                             S_all = [];
                             
                             S_all(hitIndx) = S1;
@@ -247,7 +252,7 @@ for iSubject = 1% : length(subjects)
                             subplot(2,7,[9 10])
                             plot(rocThresh,modDecodeHitRate','linewidth',2,'color','r'); hold on
                             plot(rocThresh,modDecodeMissRate','linewidth',2,'color','k');
-                            plot(rocThresh,modDecodeHitRate+modDecodeMissRate,'linewidth',2,'color','g')
+                            plot(rocThresh,(modDecodeHitRate+modDecodeMissRate)/2,'linewidth',2,'color','g')
                             plot([optRocThresh,optRocThresh],[floor(min([modDecodeHitRate modDecodeMissRate])*10)/10,ceil(max([modDecodeHitRate modDecodeMissRate])*10)/10],'b--')
                             xlabel(['Mean log ' fkNames{iFreqBand} ' power']);
                             ylabel('Decoding accuracy')
@@ -323,46 +328,40 @@ for iSubject = 1% : length(subjects)
                             pos1 = get(h1,'Position');
                             
                             
-                            %% %%%%%% Spectrogram, permutation test   GINO %%%%%%
-                            hitIndx = Data.spec.lfp.DetectedIndx{iCh};
-                            missIndx = Data.spec.lfp.notDetectedIndx{iCh};
-                            ModulatorPair = Data.RecordPair(iCh,:);
-                            ModulatorLFP_Pre = sq(Lfp_Pre(:,ModulatorPair(1),:) - Lfp_Pre(:,ModulatorPair(2),:));
-                            h
-                            tapers = [0.5 5];
-                            fk = 60;
-                            pad = Data.Params.Anal.pad; % pad = 2
-                            fs = Data.Fs.lfp;
-                            dn = 0.005;
-                            nPerm = 10000;
-                            alpha = 0.05;
-                            
-                            % zScore spectrogram based on AccLLR
-                            h3 = subplot(2,7,7);
-                            plotFieldzScoreBipolarSpectrogramGino(ModulatorLFP_Pre,hitIndx,missIndx,bn_Pre,tapers,fs,dn,fk,pad,nPerm,alpha)
-                            c = colorbar;
-                            c.Label.String = 'Hit - Miss (Z-score), AccLLR';
-                            pos3 = get(h3,'Position');
-                            set(h3,'Position',[pos3(1),pos3(2),pos1(3),pos3(4)]);
-                            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                       
+                            %                             tapers = [0.5 5];
+%                             fk = 60;
+%                             pad = Data.Params.Anal.pad; % pad = 2
+%                             fs = Data.Fs.lfp;
+%                             dn = 0.005;
+%                             nPerm = 10000;
+%                             alpha = 0.05;
+%                             
+%                             % zScore spectrogram based on AccLLR
+%                             h3 = subplot(2,7,7);
+%                             plotFieldzScoreBipolarSpectrogramGino(ModulatorLFP_Pre,hitIndx,missIndx,bn_Pre,tapers,fs,dn,fk,pad,nPerm,alpha)
+%                             c = colorbar;
+%                             c.Label.String = 'Hit - Miss (Z-score), AccLLR';
+%                             pos3 = get(h3,'Position');
+%                             set(h3,'Position',[pos3(1),pos3(2),pos1(3),pos3(4)]);
+%                             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                             
                             
-                            
-                           
-                            warning off
-                            keyboard
-                            %% saving the figure %%%
-                            StimSyllablePair = Data.StimPairs.Syllable;
-                            StimResPair = Data.StimResPairs;
-                            figDir = [FIGUREDIR '/ModulationNetwork/' stimTask '/PreBaseline/'];
-                            figDirBase = sprintf('Sess%03d_%s_StimPathway_Stim%03d-%03d_Rec%03d-%03d',iSess,day,StimSyllablePair(1),StimSyllablePair(2),StimResPair(1),StimResPair(2));
-                            FigDir = [figDir figDirBase '/'];
-                            if ~exist(FigDir,'dir')
-                                mkdir(FigDir)
-                            end
-                            set(gcf,'PaperPositionMode','auto')
-                            print(sprintf('%sSpec_Sess%03d_%s_Modulator_e%03d_e%03d_%02d_%02dHz_ROC.svg',FigDir,iSess,day,ModulatorPair(1),ModulatorPair(2),Fk(1),Fk(2)),'-dsvg')
-                            print(sprintf('%sSpec_Sess%03d_%s_Modulator_e%03d_e%03d_%02d_%02dHz_ROC.png',FigDir,iSess,day,ModulatorPair(1),ModulatorPair(2),Fk(1),Fk(2)),'-dpng')
+%                            
+%                             warning off
+%                             keyboard
+%                             %% saving the figure %%%
+%                             StimSyllablePair = Data.StimPairs.Syllable;
+%                             StimResPair = Data.StimResPairs;
+%                             figDir = [FIGUREDIR '/ModulationNetwork/' stimTask '/PreBaseline/'];
+%                             figDirBase = sprintf('Sess%03d_%s_StimPathway_Stim%03d-%03d_Rec%03d-%03d',iSess,day,StimSyllablePair(1),StimSyllablePair(2),StimResPair(1),StimResPair(2));
+%                             FigDir = [figDir figDirBase '/'];
+%                             if ~exist(FigDir,'dir')
+%                                 mkdir(FigDir)
+%                             end
+%                             set(gcf,'PaperPositionMode','auto')
+%                             print(sprintf('%sSpec_Sess%03d_%s_Modulator_e%03d_e%03d_%02d_%02dHz_ROC.svg',FigDir,iSess,day,ModulatorPair(1),ModulatorPair(2),Fk(1),Fk(2)),'-dsvg')
+%                             print(sprintf('%sSpec_Sess%03d_%s_Modulator_e%03d_e%03d_%02d_%02dHz_ROC.png',FigDir,iSess,day,ModulatorPair(1),ModulatorPair(2),Fk(1),Fk(2)),'-dpng')
                             %%%%%%
                             close
                         end

@@ -17,8 +17,8 @@
 
 clear all; close all;
 
-% set(0,'DefaultFigureVisible','off')
-set(0,'DefaultFigureVisible','on')
+set(0,'DefaultFigureVisible','off')
+% set(0,'DefaultFigureVisible','on')
 
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
@@ -32,23 +32,31 @@ monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
 name_structure_data_info = '/session_controls_other_areas_info.mat';
 
-for i=1:size(sess_info{1},1)  % For each session with at least one modulator
+% -- define list of sessions
+if strcmp(monkey,'Maverick')
+    list_sess = 1:19;
+    list_sess(17) = [];
+else
+    list_sess = 1:length(sess_info{3});
+end
+
+for i= list_sess  % For each session with at least one modulator
     
     
     close all
-%     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
+    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
 %     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
 
        
 %     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % add path of the specific RS session
-    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick recording 001
+%     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick recording 001
 
     
 %     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick
@@ -69,7 +77,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
 
-        load(strcat(dir_Sess,name_structure_data_info)); % --- dataG: all data info and LFP
+    load(strcat(dir_Sess,name_structure_data_info)); % --- dataG: all data info and LFP
     sess_control = sess_All_controls_other_areas;
     clear sess_All_controls_same_area;
 
@@ -226,7 +234,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m + 1;
     end
     
-    save(strcat(dir_Sess,'/session_controls_other_areas_lfp_rec001.mat'),'sess_control_lfp');
+    save(strcat(dir_Sess,'/session_controls_other_areas_lfp_movie.mat'),'sess_control_lfp');
 
     
 end

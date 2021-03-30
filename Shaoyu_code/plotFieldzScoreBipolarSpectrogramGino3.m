@@ -8,7 +8,6 @@ TestSpec = sq(sum(log(Spec))./numel(hitIndx));
 DiffSpec = tfspec(data(missIndx,:),tapers,fs,dn,fk,pad);
 AvDiffSpec =  sq(sum(log(DiffSpec)))./numel(missIndx);
 
-keyboard
 %% permutation test
 D = []; Dperm = [];
 D = TestSpec - AvDiffSpec;

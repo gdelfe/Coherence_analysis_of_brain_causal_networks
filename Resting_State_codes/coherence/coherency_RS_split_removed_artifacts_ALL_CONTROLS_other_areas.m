@@ -40,7 +40,7 @@ fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session 
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-name_structure_input = '/session_controls_other_areas_lfp_rec001.mat';
+name_structure_input = '/session_controls_other_areas_lfp_movie.mat';
 
 % -- define list of sessions
 if strcmp(monkey,'Maverick')
@@ -205,7 +205,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             %         xlim([0 60])
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_CONTROLS_ch_%d_fk_%d_rec001.jpg',Ch,fk));
+            fname = strcat(dir_Sess,sprintf('/coherency_vs_freq_CONTROLS_ch_%d_fk_%d_movie.jpg',Ch,fk));
             saveas(fig,fname);
             
             % -- structure assignements
@@ -273,8 +273,8 @@ end
 dir_Mod_ctrl = strcat(dir_RS,'/Modulators_Controls_avg_results');
 
 % Save coherence and spectrum data in structure format
-save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d_rec001.mat',fk,W)),'mod');
-save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d_rec001.mat',fk,W)),'stim');
+save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d_movie.mat',fk,W)),'mod');
+save(strcat(dir_Mod_ctrl,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d_movie.mat',fk,W)),'stim');
 
 
 keyboard 
