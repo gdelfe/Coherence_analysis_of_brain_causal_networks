@@ -239,25 +239,25 @@ for iSubject = 1% : length(subjects)
                             [modDecodeHitRate,modDecodeMissRate,rocThresh,~] = runModulatorDecoder(S1,S2,S_all,EventST,roc_Thresh);
                                                         
                             %find optimal decoding rate
-%                             ind = modDecodeHitRate > modDecodeMissRate;
-%                             if isequal(sum(ind),0) % modulator hit decoding rates across roc thresholds are all greater than miss decoding rate
-%                                 iThresh = find(roc_Thresh==maxYoudenIndex);
-%                             elseif strcmp(subjects{iSubject},'archie') && iSess == 13
-%                                 [~,iThresh] = min(abs(roc_Thresh-4.277));
-%                             else
-%                                 if ~isequal(sum(modDecodeMissRate>0.5),0)
-%                                     indd = find(ind & modDecodeMissRate>0.5);
-%                                     modDecodeHitPlusMissRate = modDecodeHitRate(ind & modDecodeMissRate>0.5) + modDecodeMissRate(ind & modDecodeMissRate>0.5);
-%                                 else
-%                                     indd = find(ind);
-%                                     modDecodeHitPlusMissRate = modDecodeHitRate(ind) + modDecodeMissRate(ind);
-%                                 end
-%                                 [~,modDecodeHitPlusMissRateInd] = max(modDecodeHitPlusMissRate);
-%                                 [~,iThresh] = min(abs(roc_Thresh-rocThresh(indd(modDecodeHitPlusMissRateInd))));
-%                             end
-% 
-%                             %iThresh = find(roc_Thresh==maxYoudenIndex);
-%                             [optModDecodeHitRate,optModDecodeMissRate,optRocThresh,DecoderTrials] = runModulatorDecoder(S1,S2,S_all,EventST,roc_Thresh,iThresh);
+                            ind = modDecodeHitRate > modDecodeMissRate;
+                            if isequal(sum(ind),0) % modulator hit decoding rates across roc thresholds are all greater than miss decoding rate
+                                iThresh = find(roc_Thresh==maxYoudenIndex);
+                            elseif strcmp(subjects{iSubject},'archie') && iSess == 13
+                                [~,iThresh] = min(abs(roc_Thresh-4.277));
+                            else
+                                if ~isequal(sum(modDecodeMissRate>0.5),0)
+                                    indd = find(ind & modDecodeMissRate>0.5);
+                                    modDecodeHitPlusMissRate = modDecodeHitRate(ind & modDecodeMissRate>0.5) + modDecodeMissRate(ind & modDecodeMissRate>0.5);
+                                else
+                                    indd = find(ind);
+                                    modDecodeHitPlusMissRate = modDecodeHitRate(ind) + modDecodeMissRate(ind);
+                                end
+                                [~,modDecodeHitPlusMissRateInd] = max(modDecodeHitPlusMissRate);
+                                [~,iThresh] = min(abs(roc_Thresh-rocThresh(indd(modDecodeHitPlusMissRateInd))));
+                            end
+
+                            %iThresh = find(roc_Thresh==maxYoudenIndex);
+                            [optModDecodeHitRate,optModDecodeMissRate,optRocThresh,DecoderTrials] = runModulatorDecoder(S1,S2,S_all,EventST,roc_Thresh,iThresh);
                             
 %                             subplot(2,7,3)
 %                             hg1=histogram(S1,'BinMethod','fd','Normalization','count','FaceColor','r');hold on
@@ -269,29 +269,29 @@ for iSubject = 1% : length(subjects)
 %                             title('Modulator')
 %                             xlim([floor(min([S1;S2])),ceil(max([S1;S2]))])
                             
-%                             
-%                             sorted_ModHitInRecHit_tr = DecoderTrials.sorted_ModHitInRecHit_tr;
-%                             ModHitNotInRecHit_tr = DecoderTrials.ModHitNotInRecHit_tr;
-%                             sorted_ModMissInRecHit_tr = DecoderTrials.sorted_ModMissInRecHit_tr;
-%                             ModMissNotInRecHit_tr = DecoderTrials.ModMissNotInRecHit_tr;
-%                             modulatorDecoder_Hit_tr = DecoderTrials.modulatorDecoder_Hit_tr;
-%                             modulatorDecoder_Miss_tr = DecoderTrials.modulatorDecoder_Miss_tr;
-%                             dum1 = DecoderTrials.dum1;
-%                             dum2 = DecoderTrials.dum2;
-%                             
-%                             indNew = [];
-%                             indNew = [sorted_ModHitInRecHit_tr,ModHitNotInRecHit_tr,sorted_ModMissInRecHit_tr,ModMissNotInRecHit_tr];
-%                             
-%                             subplot(2,7,[9 10])
-%                             plot(rocThresh,modDecodeHitRate','linewidth',2,'color','r'); hold on
-%                             plot(rocThresh,modDecodeMissRate','linewidth',2,'color','k');
-%                             plot(rocThresh,(modDecodeHitRate+modDecodeMissRate)/2,'linewidth',2,'color','g')
-%                             plot([optRocThresh,optRocThresh],[floor(min([modDecodeHitRate modDecodeMissRate])*10)/10,ceil(max([modDecodeHitRate modDecodeMissRate])*10)/10],'b--')
-%                             xlabel(['Mean log ' fkNames{iFreqBand} ' power']);
-%                             ylabel('Decoding accuracy')
-%                             ylim([floor(min([modDecodeHitRate modDecodeMissRate])*10)/10,ceil(max([modDecodeHitRate modDecodeMissRate])*10)/10])
-%                             legend('Hit','Miss','Location','NorthWest')
-%                             title('Modulator ROC decoding')
+                            
+                            sorted_ModHitInRecHit_tr = DecoderTrials.sorted_ModHitInRecHit_tr;
+                            ModHitNotInRecHit_tr = DecoderTrials.ModHitNotInRecHit_tr;
+                            sorted_ModMissInRecHit_tr = DecoderTrials.sorted_ModMissInRecHit_tr;
+                            ModMissNotInRecHit_tr = DecoderTrials.ModMissNotInRecHit_tr;
+                            modulatorDecoder_Hit_tr = DecoderTrials.modulatorDecoder_Hit_tr;
+                            modulatorDecoder_Miss_tr = DecoderTrials.modulatorDecoder_Miss_tr;
+                            dum1 = DecoderTrials.dum1;
+                            dum2 = DecoderTrials.dum2;
+                            
+                            indNew = [];
+                            indNew = [sorted_ModHitInRecHit_tr,ModHitNotInRecHit_tr,sorted_ModMissInRecHit_tr,ModMissNotInRecHit_tr];
+                            
+                            subplot(2,7,[9 10])
+                            plot(rocThresh,modDecodeHitRate','linewidth',2,'color','r'); hold on
+                            plot(rocThresh,modDecodeMissRate','linewidth',2,'color','k');
+                            plot(rocThresh,(modDecodeHitRate+modDecodeMissRate)/2,'linewidth',2,'color','g')
+                            plot([optRocThresh,optRocThresh],[floor(min([modDecodeHitRate modDecodeMissRate])*10)/10,ceil(max([modDecodeHitRate modDecodeMissRate])*10)/10],'b--')
+                            xlabel(['Mean log ' fkNames{iFreqBand} ' power']);
+                            ylabel('Decoding accuracy')
+                            ylim([floor(min([modDecodeHitRate modDecodeMissRate])*10)/10,ceil(max([modDecodeHitRate modDecodeMissRate])*10)/10])
+                            legend('Hit','Miss','Location','NorthWest')
+                            title('Modulator ROC decoding')
                             
                             
                             mod_accuracy.Decod_Accuracy = [mod_accuracy.Decod_Accuracy, max((modDecodeHitRate+modDecodeMissRate)/2)];
