@@ -1,5 +1,8 @@
 % This routine calculates the RMS of the Pre and Probe pulse signals
 %
+% The is writes the list of modulators together with their decoding
+% accuracy
+%
 % Written by Shaoyu Qiao, March 26, 2019
 % Edited by Gino Del Ferraro, March 2021
 

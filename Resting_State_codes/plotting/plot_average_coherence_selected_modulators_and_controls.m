@@ -1,4 +1,9 @@
-
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This code plots the average coherence for the modulators and controls for
+% only a specified number of modulators sorted according to their decoding
+% accuracy
+%
+% @ Gino Del Ferraro, NYU, March 2021
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
