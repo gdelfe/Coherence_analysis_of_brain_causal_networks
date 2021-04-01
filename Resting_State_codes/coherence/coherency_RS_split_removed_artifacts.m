@@ -32,10 +32,10 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'beta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
@@ -271,9 +271,9 @@ keyboard
 
 
 % -- load structure files
-fk = 200;
-load(strcat(dir_RS,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W)))
-load(strcat(dir_RS,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W)))
+fk = 200; W = 5;
+load(strcat(dir_Mod_ctrl,sprintf('/coh_spec_m_fk_%d_W_%d_rec001.mat',fk,W)))
+load(strcat(dir_Mod_ctrl,sprintf('/coh_spec_sr_fk_%d_W_%d_rec001.mat',fk,W)))
 
 % -- structures to matrices
 mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators

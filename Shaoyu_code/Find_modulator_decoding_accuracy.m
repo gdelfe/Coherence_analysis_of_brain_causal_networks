@@ -1,12 +1,36 @@
 % This routine calculates the RMS of the Pre and Probe pulse signals
 %
 % Written by Shaoyu Qiao, March 26, 2019
+% Edited by Gino Del Ferraro, March 2021
+
 clear all;
 close all
 
+addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
+dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+
+freq_band = 'beta_band';
+monkey = 'Maverick';
+dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
+dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
+
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
+fclose(fid);
+
+
+% -- define list of sessions
+if strcmp(monkey,'Maverick')
+    list_sess = 1:19;
+    list_sess(17) = [];
+else
+    list_sess = 1:length(sess_info{3});
+end
+
+
 subjects = {'maverick','archie'};
 for iSubject = 1% : length(subjects)
-    clearvars -except subjects iSubject
+%     clearvars -except subjects iSubject
     if strcmp(subjects{iSubject},'archie')
         archie_vSUBNETS220_rig3
     else
@@ -25,9 +49,11 @@ for iSubject = 1% : length(subjects)
     
     UsedSess = find(useSessIndx);
     
-    for iSess = 15%UsedSess
-        clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess
+    for i = list_sess %UsedSess
+        clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess dir_RS list_sess sess_info i
         
+        iSess = sess_info{1}(i); % Session number
+
         disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
         
         RespPair = sessElectrode(PreStimSess{iSess}); % responding channel
@@ -120,7 +146,7 @@ for iSubject = 1% : length(subjects)
                                 clear Raw_Pre lfp_Pre
                             end
                         end
-                        keyboard
+                        
                         fprintf('\n');
                         disp(['Start ROC on PSDs @ ' num2str(AnalParams.TestSpecDiff.fk(iFreqBand,1)) '-' num2str(AnalParams.TestSpecDiff.fk(iFreqBand,2)) ' Hz'])
                         fprintf('\n\n');
@@ -130,59 +156,63 @@ for iSubject = 1% : length(subjects)
                         chs_FreqBand = Data.Spec.ROC.sigChs{iFreqBand};
                         nCh_Use = numel(chs_FreqBand);
                         
+                        mod_accuracy.mod_idx = [];
+                        mod_accuracy.Decod_Accuracy = [];
                         
 %                         nCh_Use = size(Data.RecordPair,1)
                         for indx = 1 : nCh_Use
                             
                             iCh = find(chs_FreqBand(indx)==Data.RecordPair(:,1));
                             
-                            fprintf('\n\n');
-                            msg = sprintf('%d/%d Channels',iCh,nCh_Use);
-                            fprintf([reverseStr,msg]);
-                            reverseStr = repmat(sprintf('\b'),1,length(msg));
-                            fprintf('\n\n');
+                            mod_accuracy.mod_idx = [mod_accuracy.mod_idx, iCh]; % save modulator indx on structure 
                             
+%                             fprintf('\n\n');
+%                             msg = sprintf('%d/%d Channels',iCh,nCh_Use);
+%                             fprintf([reverseStr,msg]);
+%                             reverseStr = repmat(sprintf('\b'),1,length(msg));
+%                             fprintf('\n\n');
+%                             
                             stdThresh = Data.spec.lfp.stdThresh;
                             X1 = sq(lfp_Detected(:,iCh,:));
                             [X1,goodInd1] = removeNoisyLfpTrials(X1,stdThresh);
                             
                             X2 = sq(lfp_notDetected(:,iCh,:));
                             [X2,goodInd2] = removeNoisyLfpTrials(X2,stdThresh);
-                            
-                            
-                            figure('Position',[100 100 2000 800])
-                            subplot(2,7,1)
-                            plotElectrodeLocationMRIoverlay(day,TargCh(1));
-                            title(['Receiver e' num2str(TargCh(1))])
-                            
-                            subplot(2,7,8)
-                            plotElectrodeLocationMRIoverlay(day,chs_FreqBand(indx));
-                            title(['Modulator e' num2str(chs_FreqBand(indx))])
-                            
-                            h1 = subplot(2,7,4);
-                            pos1 = get(h1,'Position');
-                            ERPplotRange = [-round(max(abs(LPRawEvent(:))),-1) round(max(abs(LPRawEvent(:))),-1)];
-                            %ERPplotRange = [-30 30];
-                            imagesc((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin,1:nTr,LPRawEvent(ind,:),ERPplotRange);
-                            box off;
-                            xlabel('Time after stim onset (ms)');
-                            ylabel('Sortetd events')
-                            xlim([0 StimArtifactBlankWin+AccLLRwin])
-                            %                             c = colorbar;
-                            %                             c.Label.String = 'Voltage (\muV)';
-                            
-                            colormap(gca,polarmap)
-                            for i = 1 : nTr_CorrectDetect
-                                text(dum(i)/fs*1e3+StimArtifactBlankWin,i-0.5,'x','color','k');
-                            end
-                            title('Receiver(AccLLR)')
-                            
-                            hold on
-                            h = line([0 size(LPRawEvent,2)/fs*1e3+StimArtifactBlankWin],[nTr_CorrectDetect+0.5 nTr_CorrectDetect+0.5]);
-                            set(h,'Linewidth',1,'Linestyle','--','Color','k');
-                            
-                            text(3,mean(1:nTr_CorrectDetect)+2,'Hit','Rotation',90);
-                            text(3,mean(nTr_CorrectDetect+1:nTr)+3,'Miss','Rotation',90);
+%                             
+%                             
+%                             figure('Position',[100 100 2000 800])
+%                             subplot(2,7,1)
+%                             plotElectrodeLocationMRIoverlay(day,TargCh(1));
+%                             title(['Receiver e' num2str(TargCh(1))])
+%                             
+%                             subplot(2,7,8)
+%                             plotElectrodeLocationMRIoverlay(day,chs_FreqBand(indx));
+%                             title(['Modulator e' num2str(chs_FreqBand(indx))])
+%                             
+%                             h1 = subplot(2,7,4);
+%                             pos1 = get(h1,'Position');
+%                             ERPplotRange = [-round(max(abs(LPRawEvent(:))),-1) round(max(abs(LPRawEvent(:))),-1)];
+%                             %ERPplotRange = [-30 30];
+%                             imagesc((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin,1:nTr,LPRawEvent(ind,:),ERPplotRange);
+%                             box off;
+%                             xlabel('Time after stim onset (ms)');
+%                             ylabel('Sortetd events')
+%                             xlim([0 StimArtifactBlankWin+AccLLRwin])
+%                             %                             c = colorbar;
+%                             %                             c.Label.String = 'Voltage (\muV)';
+%                             
+%                             colormap(gca,polarmap)
+%                             for i = 1 : nTr_CorrectDetect
+%                                 text(dum(i)/fs*1e3+StimArtifactBlankWin,i-0.5,'x','color','k');
+%                             end
+%                             title('Receiver(AccLLR)')
+%                             
+%                             hold on
+%                             h = line([0 size(LPRawEvent,2)/fs*1e3+StimArtifactBlankWin],[nTr_CorrectDetect+0.5 nTr_CorrectDetect+0.5]);
+%                             set(h,'Linewidth',1,'Linestyle','--','Color','k');
+%                             
+%                             text(3,mean(1:nTr_CorrectDetect)+2,'Hit','Rotation',90);
+%                             text(3,mean(nTr_CorrectDetect+1:nTr)+3,'Miss','Rotation',90);
                             
                             
                                  %% %%%%%% Spectrogram, permutation test   GINO %%%%%%
@@ -226,15 +256,15 @@ for iSubject = 1% : length(subjects)
                             %iThresh = find(roc_Thresh==maxYoudenIndex);
                             [optModDecodeHitRate,optModDecodeMissRate,optRocThresh,DecoderTrials] = runModulatorDecoder(S1,S2,S_all,EventST,roc_Thresh,iThresh);
                             
-                            subplot(2,7,3)
-                            hg1=histogram(S1,'BinMethod','fd','Normalization','count','FaceColor','r');hold on
-                            hg2=histogram(S2,'BinMethod','fd','Normalization','count','FaceColor','k');
-                            plot([optRocThresh,optRocThresh],[0,max([hg1.Values hg2.Values])+1],'b--')
-                            legend('Hit','Miss')
-                            xlabel(['Mean log ' fkNames{iFreqBand} ' power']);
-                            ylabel('Count')
-                            title('Modulator')
-                            xlim([floor(min([S1;S2])),ceil(max([S1;S2]))])
+%                             subplot(2,7,3)
+%                             hg1=histogram(S1,'BinMethod','fd','Normalization','count','FaceColor','r');hold on
+%                             hg2=histogram(S2,'BinMethod','fd','Normalization','count','FaceColor','k');
+%                             plot([optRocThresh,optRocThresh],[0,max([hg1.Values hg2.Values])+1],'b--')
+%                             legend('Hit','Miss')
+%                             xlabel(['Mean log ' fkNames{iFreqBand} ' power']);
+%                             ylabel('Count')
+%                             title('Modulator')
+%                             xlim([floor(min([S1;S2])),ceil(max([S1;S2]))])
                             
                             
                             sorted_ModHitInRecHit_tr = DecoderTrials.sorted_ModHitInRecHit_tr;
@@ -261,71 +291,74 @@ for iSubject = 1% : length(subjects)
                             title('Modulator ROC decoding')
                             
                             
-                            h2 = subplot(2,7,11);
-                            %ERPplotRange = [-round(max(abs(LPRawEvent(:))),-1) round(max(abs(LPRawEvent(:))),-1)];
-                            imagesc((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin,1:length(indNew),LPRawEvent(indNew,:),ERPplotRange);
-                            box off;
-                            xlabel('Time after stim onset (ms)');
-                            %ylabel('Sortetd events')
-                            xlim([0 StimArtifactBlankWin+AccLLRwin])
-                            c = colorbar;
-                            c.Label.String = 'Voltage (\muV)';
-                            colormap(gca,polarmap)
-                            title('Receiver (Decoder)')
+                            mod_accuracy.Decod_Accuracy = [mod_accuracy.Decod_Accuracy, max((modDecodeHitRate+modDecodeMissRate)/2)];
                             
-                            hold on
                             
-                            h = line([0 size(LPRawEvent,2)/fs*1e3+StimArtifactBlankWin],[numel(modulatorDecoder_Hit_tr)+0.5 numel(modulatorDecoder_Hit_tr)+0.5]);
-                            set(h,'Linewidth',1,'Linestyle','--','Color','k');
+%                             h2 = subplot(2,7,11);
+%                             ERPplotRange = [-round(max(abs(LPRawEvent(:))),-1) round(max(abs(LPRawEvent(:))),-1)];
+%                             imagesc((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin,1:length(indNew),LPRawEvent(indNew,:),ERPplotRange);
+%                             box off;
+%                             xlabel('Time after stim onset (ms)');
+%                             %ylabel('Sortetd events')
+%                             xlim([0 StimArtifactBlankWin+AccLLRwin])
+%                             c = colorbar;
+%                             c.Label.String = 'Voltage (\muV)';
+%                             colormap(gca,polarmap)
+%                             title('Receiver (Decoder)')
+%                             
+%                             hold on
                             
-                            for i = 1 : numel(sorted_ModHitInRecHit_tr)
-                                text(dum1(i)/fs*1e3+StimArtifactBlankWin,i-0.5,'x','color','k');
-                            end
-                            
-                            for i = numel(modulatorDecoder_Hit_tr)+1 : numel(modulatorDecoder_Hit_tr)+numel(sorted_ModMissInRecHit_tr)
-                                text(dum2(i-numel(modulatorDecoder_Hit_tr))/fs*1e3+StimArtifactBlankWin,i-0.5,'x','color','k');
-                            end
-                            
-                            text(8,mean(1:numel(modulatorDecoder_Hit_tr))+15,{'Hit';num2str(optModDecodeHitRate)},'Rotation',90)
-                            text(8,mean(numel(modulatorDecoder_Hit_tr)+1:length(indNew))+15,{'Miss';num2str(optModDecodeMissRate)},'Rotation',90)
-                            
-                            pos2 = get(h2,'Position');
-                            set(h2,'Position',[pos2(1),pos2(2),pos1(3),pos1(4)]);
-                            %
-                            
-                            % receiver hit amd miss ERPs
-                            subplot(2,7,6)
-                            avgERP_RecHit_tr = mean(LPRawEvent(hitIndx,:));
-                            semERP_RecHit_tr = std(LPRawEvent(hitIndx,:))/sqrt(numel(hitIndx));
-                            plotSTA((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin, avgERP_RecHit_tr,semERP_RecHit_tr,[1 0 0]);
-                            
-                            hold on
-                            avgERP_RecMiss_tr = mean(LPRawEvent(missIndx,:));
-                            semERP_RecMiss_tr = std(LPRawEvent(missIndx,:))/sqrt(numel(missIndx));
-                            plotSTA((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin,avgERP_RecMiss_tr,semERP_RecMiss_tr,[0 0 0]);
-                            xlabel('Time after stim onset (ms)');
-                            ylabel('Amplitude (\muV)')
-                            title('ERP')
-                            %legend('Hit',' ', 'Miss',' ','Location','SouthEast')
-                            xlim([0 StimArtifactBlankWin+AccLLRwin])
-                            %ylim([-20 10])
-                            
-                            % modulator decoded receiver hit amd miss ERPs
-                            h1 = subplot(2,7,13);
-                            avgERP_ModHit_tr = mean(LPRawEvent(modulatorDecoder_Hit_tr,:));
-                            semERP_ModHit_tr = std(LPRawEvent(modulatorDecoder_Hit_tr,:))/sqrt(numel(modulatorDecoder_Hit_tr));
-                            plotSTA((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin, avgERP_ModHit_tr,semERP_ModHit_tr,[1 0 0]);
-                            
-                            hold on
-                            avgERP_ModMiss_tr = mean(LPRawEvent(modulatorDecoder_Miss_tr,:));
-                            semERP_ModMiss_tr = std(LPRawEvent(modulatorDecoder_Miss_tr,:))/sqrt(numel(modulatorDecoder_Miss_tr));
-                            plotSTA((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin,avgERP_ModMiss_tr,semERP_ModMiss_tr,[0 0 0]);
-                            xlabel('Time after stim onset (ms)');
-                            ylabel('Amplitude (\muV)')
-                            title('Decoded ERP')
-                            xlim([0 StimArtifactBlankWin+AccLLRwin])
-                            %legend('Decoder Hit',' ', 'Decoder Miss',' ')
-                            pos1 = get(h1,'Position');
+%                             h = line([0 size(LPRawEvent,2)/fs*1e3+StimArtifactBlankWin],[numel(modulatorDecoder_Hit_tr)+0.5 numel(modulatorDecoder_Hit_tr)+0.5]);
+%                             set(h,'Linewidth',1,'Linestyle','--','Color','k');
+%                             
+%                             for i = 1 : numel(sorted_ModHitInRecHit_tr)
+%                                 text(dum1(i)/fs*1e3+StimArtifactBlankWin,i-0.5,'x','color','k');
+%                             end
+%                             
+%                             for i = numel(modulatorDecoder_Hit_tr)+1 : numel(modulatorDecoder_Hit_tr)+numel(sorted_ModMissInRecHit_tr)
+%                                 text(dum2(i-numel(modulatorDecoder_Hit_tr))/fs*1e3+StimArtifactBlankWin,i-0.5,'x','color','k');
+%                             end
+%                             
+%                             text(8,mean(1:numel(modulatorDecoder_Hit_tr))+15,{'Hit';num2str(optModDecodeHitRate)},'Rotation',90)
+%                             text(8,mean(numel(modulatorDecoder_Hit_tr)+1:length(indNew))+15,{'Miss';num2str(optModDecodeMissRate)},'Rotation',90)
+%                             
+%                             pos2 = get(h2,'Position');
+%                             set(h2,'Position',[pos2(1),pos2(2),pos1(3),pos1(4)]);
+%                             %
+%                             
+%                             % receiver hit amd miss ERPs
+%                             subplot(2,7,6)
+%                             avgERP_RecHit_tr = mean(LPRawEvent(hitIndx,:));
+%                             semERP_RecHit_tr = std(LPRawEvent(hitIndx,:))/sqrt(numel(hitIndx));
+%                             plotSTA((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin, avgERP_RecHit_tr,semERP_RecHit_tr,[1 0 0]);
+%                             
+%                             hold on
+%                             avgERP_RecMiss_tr = mean(LPRawEvent(missIndx,:));
+%                             semERP_RecMiss_tr = std(LPRawEvent(missIndx,:))/sqrt(numel(missIndx));
+%                             plotSTA((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin,avgERP_RecMiss_tr,semERP_RecMiss_tr,[0 0 0]);
+%                             xlabel('Time after stim onset (ms)');
+%                             ylabel('Amplitude (\muV)')
+%                             title('ERP')
+%                             %legend('Hit',' ', 'Miss',' ','Location','SouthEast')
+%                             xlim([0 StimArtifactBlankWin+AccLLRwin])
+%                             %ylim([-20 10])
+%                             
+%                             % modulator decoded receiver hit amd miss ERPs
+%                             h1 = subplot(2,7,13);
+%                             avgERP_ModHit_tr = mean(LPRawEvent(modulatorDecoder_Hit_tr,:));
+%                             semERP_ModHit_tr = std(LPRawEvent(modulatorDecoder_Hit_tr,:))/sqrt(numel(modulatorDecoder_Hit_tr));
+%                             plotSTA((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin, avgERP_ModHit_tr,semERP_ModHit_tr,[1 0 0]);
+%                             
+%                             hold on
+%                             avgERP_ModMiss_tr = mean(LPRawEvent(modulatorDecoder_Miss_tr,:));
+%                             semERP_ModMiss_tr = std(LPRawEvent(modulatorDecoder_Miss_tr,:))/sqrt(numel(modulatorDecoder_Miss_tr));
+%                             plotSTA((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin,avgERP_ModMiss_tr,semERP_ModMiss_tr,[0 0 0]);
+%                             xlabel('Time after stim onset (ms)');
+%                             ylabel('Amplitude (\muV)')
+%                             title('Decoded ERP')
+%                             xlim([0 StimArtifactBlankWin+AccLLRwin])
+%                             %legend('Decoder Hit',' ', 'Decoder Miss',' ')
+%                             pos1 = get(h1,'Position');
                             
                             
                        
@@ -369,6 +402,8 @@ for iSubject = 1% : length(subjects)
                 end
             end
         end
-        clear Data
+        dir_Sess_RS = strcat(dir_RS,sprintf('/Sess_%d/Modulators',iSess));
+        save(strcat(dir_Sess_RS,'/modulators_decod_accuracy.mat'),'mod_accuracy');
+        clear Data mod_score
     end
 end
