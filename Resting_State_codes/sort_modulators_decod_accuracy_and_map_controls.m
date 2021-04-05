@@ -20,9 +20,10 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'beta_band';
-monkey = 'Archie';
+monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
+dir_out = strcat(dir_main,sprintf('%s/Resting_state/%s/Modulators_controls',monkey,freq_band));
 
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
@@ -49,29 +50,42 @@ for i= list_sess  % For each session with at least one modulator
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
     load(strcat(dir_Sess,name_structure))
-    sessions = repmat(Sess,1,size(mod_accuracy.mod_idx,2));
-    mod_sess = [double(sessions)', double(mod_accuracy.mod_idx)', mod_accuracy.Decod_Accuracy'] % session, modulator idx, decod accuracy
-    modulators = [modulators; mod_sess];
+    load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+    
+    rec_idx = sess_data.receiver_idx; 
+    mod_list = mod_accuracy.mod_idx;
+    accuracy = mod_accuracy.Decod_Accuracy';
+    
+    idx = find(mod_list == rec_idx); % get the index for the modulator-receiver 
 
+    if ~isempty(idx) % remove element if it is receiver        
+        mod_list(idx) = [];
+        accuracy(idx) = [];
+    end 
+    
+    sessions = repmat(Sess,1,size(mod_list,2));
+    mod_sess = [double(sessions)', double(mod_list)', accuracy] % session, modulator idx, decod accuracy
+    modulators = [modulators; mod_sess];
+     
 end
 
 modulators = [modulators, double(1:size(modulators,1))']
 modulators = sortrows(modulators,3,'descend');
-dlmwrite(strcat(dir_RS,'/modulators_sorted_decod_accuracy.txt'),modulators,'delimiter','\t'); % session, modulator idx, decod accuracy, order index i
+dlmwrite(strcat(dir_out,'/modulators_sorted_decod_accuracy.txt'),modulators,'delimiter','\t'); % session, modulator idx, decod accuracy, order index i
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % CONTROLS SAME AREA
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-name_struct_input = '/session_all_controls_same_area_info.mat';
+name_struct_input = '/session_controls_same_area_info.mat';
 ctrl_list = [];
 
 for i = list_sess  % For each session with at least one modulator
 
     Sess = sess_info{1}(i); % Session number
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_same_area',Sess));
-    load(strcat(dir_Sess,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
+    load(strcat(dir_Sess,name_struct_input)); % load data structure info 
     sess_controls = sess_All_controls_same_area;
     clear sess_All_controls_same_area;
     
@@ -82,7 +96,7 @@ for i = list_sess  % For each session with at least one modulator
 end
 
 ctrl_list = [ctrl_list, (1:size(ctrl_list,1))']; % Session, control idx, order index i
-dlmwrite(strcat(dir_RS,'/control_list_same_area.txt'),ctrl_list,'delimiter','\t'); % session, modulator idx, order index i
+dlmwrite(strcat(dir_out,'/control_list_same_area.txt'),ctrl_list,'delimiter','\t'); % session, control idx, order index i
 
 
 
@@ -90,7 +104,7 @@ dlmwrite(strcat(dir_RS,'/control_list_same_area.txt'),ctrl_list,'delimiter','\t'
 % CONTROLS OTHER AREAS
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-name_struct_input = '/session_all_controls_other_areas_info.mat';
+name_struct_input = '/session_controls_other_areas_info.mat';
 ctrl_list = [];
 
 for i = list_sess  % For each session with at least one modulator
@@ -108,5 +122,5 @@ for i = list_sess  % For each session with at least one modulator
 end
 
 ctrl_list = [ctrl_list, (1:size(ctrl_list,1))']; % Session, control idx, order index i
-dlmwrite(strcat(dir_RS,'/control_list_other_areas.txt'),ctrl_list,'delimiter','\t'); % session, modulator idx, order index i
+dlmwrite(strcat(dir_out,'/control_list_other_areas.txt'),ctrl_list,'delimiter','\t'); % session, control idx, order index i
 

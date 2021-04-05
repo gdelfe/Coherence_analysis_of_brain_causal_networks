@@ -1,9 +1,4 @@
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code plots the average coherence for the modulators and controls for
-% only a specified number of modulators sorted according to their decoding
-% accuracy
-%
-% @ Gino Del Ferraro, NYU, March 2021
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -18,80 +13,117 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Res
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'beta_band';
-monkey = 'Maverick';
-dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
-dir_Controls = strcat(dir_RS,'/Modulators_Controls_avg_results');
+dir_Maverick = strcat(dir_main,sprintf('Maverick/Resting_state/%s',freq_band));
+dir_Archie = strcat(dir_main,sprintf('Archie/Resting_state/%s',freq_band));
 
-mod_list = importdata(strcat(dir_RS,'/modulators_sorted_decod_accuracy.txt'));
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+dir_Ctrl_Maverick = strcat(dir_Maverick,'/Modulators_Controls_avg_results');
+dir_Ctrl_Archie = strcat(dir_Archie,'/Modulators_Controls_avg_results');
+
+N = 20 % --- max number of modulators 
+figstr = 'RS_30_modulators';
+fk = 200; W = 5;
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%       MAVERICK              %
+mod_list = importdata(strcat(dir_Maverick,'/modulators_sorted_decod_accuracy.txt'));
+fid = fopen(strcat(dir_Maverick,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
-
-if monkey == 'Maverick'
-    sess_info{1}(20) = [];
-    sess_info{1}(17) = [];
-end 
-
 fclose(fid);
-N = 30 % --- max number of modulators 
+
+% --- remove Maverick's bad sessions
+sess_info{1}(20) = [];
+sess_info{1}(17) = [];
 
 % -- select the first N index
 mod_idx = mod_list(1:N,4);
 sess_numb = unique(mod_list(1:N,1));
 
 % -- find the session index corresponding to the session with top modulators 
-sess_idx = [];
+sess_idx_M = [];
 for i=1:length(sess_numb)
-    sess_idx = [sess_idx, find(sess_info{1}==sess_numb(i))];
+    sess_idx_M = [sess_idx_M, find(sess_info{1}==sess_numb(i))];
 end
 
-fk = 200; W = 5;
-% %%%%%%%%% MODULATORS  %%%%%%
-load(strcat(dir_Controls,sprintf('/coh_spec_m_fk_%d_W_%d.mat',fk,W))); % structure mod
-load(strcat(dir_Controls,sprintf('/coh_spec_sr_fk_%d_W_%d.mat',fk,W))); % structure stim
-stim_mod = stim;
-mod_mod = mod;
+% %%%%%%%%% MODULATORS Maverick %%%%%%
+load(strcat(dir_Ctrl_Maverick,sprintf('/coh_spec_m_fk_%d_W_%d_rec001.mat',fk,W))); % structure mod
+load(strcat(dir_Ctrl_Maverick,sprintf('/coh_spec_sr_fk_%d_W_%d_rec001.mat',fk,W))); % structure stim
+struct_mod_mav = mod;
+struct_stim_mav = stim;
 
-mod = mod(mod_idx);
-stim = stim(sess_idx);
+struct_mod_mav = struct_mod_mav(mod_idx);
+struct_stim_mav = struct_stim_mav(sess_idx_M);
 
-modulators = mean_coh_and_spec_RS(mod,stim);
 
-%%%%%%%%% CONTROLS SAME AREA %%%%%%%%%%%%
-ctrl_list = importdata(strcat(dir_RS,'/control_list_same_area.txt')); % session, modulator idx, order index i
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%       ARCHIE                %
+mod_list = importdata(strcat(dir_Archie,'/modulators_sorted_decod_accuracy.txt'));
+fid = fopen(strcat(dir_Archie,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
+fclose(fid);
 
-load(strcat(dir_Controls,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d.mat',fk,W)));
-load(strcat(dir_Controls,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d.mat',fk,W)));
-stim_ctrl_SA = stim;
-mod_ctrl_SA = mod;
 
-ctrl_idx = [];
+% -- select the first N index
+mod_idx = mod_list(1:N,4);
+sess_numb = unique(mod_list(1:N,1));
+
+% -- find the session index corresponding to the session with top modulators 
+sess_idx_A = [];
 for i=1:length(sess_numb)
-    ctrl_idx = [ctrl_idx; find(ctrl_list(:,1)==sess_numb(i))];
+    sess_idx_A = [sess_idx_A, find(sess_info{1}==sess_numb(i))];
 end
 
-mod = mod(ctrl_idx);
-stim = stim(sess_idx);
 
-ctrl_SA = mean_coh_and_spec_RS(mod,stim);
+% %%%%%%%%% MODULATORS Archie %%%%%%
+load(strcat(dir_Ctrl_Archie,sprintf('/coh_spec_m_fk_%d_W_%d_rec001.mat',fk,W))); % structure mod
+load(strcat(dir_Ctrl_Archie,sprintf('/coh_spec_sr_fk_%d_W_%d_rec001.mat',fk,W))); % structure stim
+struct_mod_arc = mod;
+struct_stim_arc = stim;
+
+struct_mod_arc = struct_mod_arc(mod_idx);
+struct_stim_arc = struct_stim_arc(sess_idx_A);
 
 
-%%%%%%%%% CONTROLS OTHER AREAS %%%%%%%%%%%
-ctrl_list = importdata(strcat(dir_RS,'/control_list_other_areas.txt')); % session, modulator idx, order index i
+% %%%%%%%%% Computes modulators for Maverick and Archie %%%%%%
+modulators = mean_coh_and_spec_across_monkeys(struct_mod_mav,struct_stim_mav,struct_mod_arc,struct_stim_arc);
 
-load(strcat(dir_Controls,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d.mat',fk,W)));
-load(strcat(dir_Controls,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d.mat',fk,W)));
-stim_ctrl_OA = stim;
-mod_ctrl_OA = mod;
 
-ctrl_idx = [];
-for i=1:length(sess_numb)
-    ctrl_idx = [ctrl_idx; find(ctrl_list(:,1)==sess_numb(i))];
-end
 
-mod = mod(ctrl_idx);
-stim = stim(sess_idx);
+%%%%%%%%% CONTROLS SAME AREA Maverick %%%%%%%%%%%%
+load(strcat(dir_Ctrl_Maverick,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d_rec001.mat',fk,W)));
+load(strcat(dir_Ctrl_Maverick,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d_rec001.mat',fk,W)));
+mod_ctrl_SA_mav = mod;
+stim_ctrl_SA_mav = stim;
 
-ctrl_OA = mean_coh_and_spec_RS(mod,stim);
+
+
+
+%%%%%%%%% CONTROLS SAME AREA Archie %%%%%%%%%%%%
+load(strcat(dir_Ctrl_Archie,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d_rec001.mat',fk,W)));
+load(strcat(dir_Ctrl_Archie,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d_rec001.mat',fk,W)));
+mod_ctrl_SA_arc = mod;
+stim_ctrl_SA_arc = stim;
+
+
+ctrl_SA = mean_coh_and_spec_across_monkeys(mod_ctrl_SA_mav,stim_ctrl_SA_mav,mod_ctrl_SA_arc,stim_ctrl_SA_arc);
+
+
+%%%%%%%%% CONTROLS OTHER AREA Maverick %%%%%%%%%%%%
+load(strcat(dir_Ctrl_Maverick,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d_rec001.mat',fk,W)));
+load(strcat(dir_Ctrl_Maverick,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d_rec001.mat',fk,W)));
+mod_ctrl_OA_mav = mod;
+stim_ctrl_OA_mav = stim;
+
+%%%%%%%%% CONTROLS OTHER AREA Archie %%%%%%%%%%%%
+load(strcat(dir_Ctrl_Archie,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d_rec001.mat',fk,W)));
+load(strcat(dir_Ctrl_Archie,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d_rec001.mat',fk,W)));
+mod_ctrl_OA_arc = mod;
+stim_ctrl_OA_arc = stim;
+
+
+ctrl_OA = mean_coh_and_spec_across_monkeys(mod_ctrl_OA_mav,stim_ctrl_OA_mav,mod_ctrl_OA_arc,stim_ctrl_OA_arc);
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -117,16 +149,16 @@ shadedErrorBar(f,ctrl_SA.mean_coh_mr,ctrl_SA.err_mr,'lineprops',{'color',[26 198
 shadedErrorBar(f,ctrl_OA.mean_coh_mr,ctrl_OA.err_mr,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Maverick: Abs MR coherence MODULATORS vs CONTROLS, movie - 30 modulators','FontSize',11);
+title('Both animals: Abs MR coherence MODULATORS vs CONTROLS, rec001 - Resting State','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 legend('Modulators-Receivers','Controls-Receivers  same area','Controls-Receiver  other areas','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-fname = strcat(dir_Controls,sprintf('/coherency_MR_Modulators_vs_Controls_W_%d_fk_%d_%s.png',W,fk,figstr));
+fname = strcat(dir_Ctrl_Maverick,sprintf('/coherency_MR_Modulators_vs_Controls_both_monkeys_W_%d_fk_%d_rec001.png',W,fk));
 saveas(fig,fname)
-fname = strcat(dir_Controls,sprintf('/coherency_MR_Modulators_vs_Controls_W_%d_fk_%d_%s.fig',W,fk,figstr));
+fname = strcat(dir_Ctrl_Maverick,sprintf('/coherency_MR_Modulators_vs_Controls_both_monkeys_W_%d_fk_%d_rec001.fig',W,fk));
 saveas(fig,fname)
 
 % --- ELECTRODE-SENDER coherence   -------%
@@ -140,16 +172,16 @@ shadedErrorBar(f,ctrl_SA.mean_coh_ms,ctrl_SA.err_ms,'lineprops',{'color',[255, 5
 shadedErrorBar(f,ctrl_OA.mean_coh_ms,ctrl_OA.err_ms,'lineprops',{'color',[255, 128, 128]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Maverick: Abs MS coherence MODULATORS vs CONTROLS, movie - 30 modulators ','FontSize',11);
+title('Both animals: Abs MS coherence MODULATORS vs CONTROLS, rec001 - Resting State','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 legend('Modulators-Senders','Controls-Senders  same area','Controls-Senders  other areas','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-fname = strcat(dir_Controls,sprintf('/coherency_MS_Modulators_vs_Controls_W_%d_fk_%d_.png',W,fk,figstr));
+fname = strcat(dir_Ctrl_Maverick,sprintf('/coherency_MS_Modulators_vs_Controls_both_monkeys_W_%d_fk_%d_rec001.png',W,fk));
 saveas(fig,fname)
-fname = strcat(dir_Controls,sprintf('/coherency_MS_Modulators_vs_Controls_W_%d_fk_%d_movie_30_modulators.fig',W,fk,figstr));
+fname = strcat(dir_Ctrl_Maverick,sprintf('/coherency_MS_Modulators_vs_Controls_both_monkeys_W_%d_fk_%d_rec001.fig',W,fk));
 saveas(fig,fname)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

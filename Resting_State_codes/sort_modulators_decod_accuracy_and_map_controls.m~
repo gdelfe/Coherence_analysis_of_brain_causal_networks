@@ -1,6 +1,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code sorts the modulators according to their decoding accuracy
-% For all the controls, 
+% For all the controls, same area and different area, it lists them
+% together with the session label and the i indx
+% 
+% @ Gino Del Ferraro, NYU, March 2021
 
 
 
@@ -17,7 +20,7 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'beta_band';
-monkey = 'Archie';
+monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
@@ -46,10 +49,23 @@ for i= list_sess  % For each session with at least one modulator
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
     load(strcat(dir_Sess,name_structure))
-    sessions = repmat(Sess,1,size(mod_accuracy.mod_idx,2));
-    mod_sess = [double(sessions)', double(mod_accuracy.mod_idx)', mod_accuracy.Decod_Accuracy'] % session, modulator idx, decod accuracy
-    modulators = [modulators; mod_sess];
+    load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+    
+    rec_idx = sess_data.receiver_idx; 
+    mod_list = mod_accuracy.mod_idx;
+    accuracy = mod_accuracy.Decod_Accuracy';
+    
+    idx = find(mod_list == rec_idx);
 
+    if ~isempty(idx)        
+        mod_list(idx) = [];
+        accuracy(idx) = [];
+    end 
+    
+    sessions = repmat(Sess,1,size(mod_list,2));
+    mod_sess = [double(sessions)', double(mod_list)', accuracy] % session, modulator idx, decod accuracy
+    modulators = [modulators; mod_sess];
+     
 end
 
 modulators = [modulators, double(1:size(modulators,1))']
@@ -61,7 +77,7 @@ dlmwrite(strcat(dir_RS,'/modulators_sorted_decod_accuracy.txt'),modulators,'deli
 % CONTROLS SAME AREA
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-name_struct_input = '/session_all_controls_same_area_info.mat';
+name_struct_input = '/session_controls_same_area_info.mat';
 ctrl_list = [];
 
 for i = list_sess  % For each session with at least one modulator
@@ -87,7 +103,7 @@ dlmwrite(strcat(dir_RS,'/control_list_same_area.txt'),ctrl_list,'delimiter','\t'
 % CONTROLS OTHER AREAS
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-name_struct_input = '/session_all_controls_other_areas_info.mat';
+name_struct_input = '/session_controls_other_areas_info.mat';
 ctrl_list = [];
 
 for i = list_sess  % For each session with at least one modulator
