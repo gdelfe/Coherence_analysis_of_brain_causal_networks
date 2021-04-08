@@ -22,8 +22,9 @@ set(0,'DefaultFigureVisible','on')
 subjects = {'maverick','archie'};
 
 %for
-iSubject = 1% : length(subjects) % Loop on the animals
-%     clearvars -except subjects iSubject
+iSubject = 2;
+monkey = 'Archie';
+
 if strcmp(subjects{iSubject},'archie')
     archie_vSUBNETS220_rig3
 else
@@ -32,8 +33,8 @@ end
 PreStimSess = PreStimResponseAll_Database_NetworkEdge;
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_RS_Theta = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state/Theta_Band';
-dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data';
+dir_RS_Theta = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/%s/Resting_state/theta_band',monkey);
+dir_Stim_Theta = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/%s/Stim_data/Theta_band',monkey);
 
 fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
@@ -47,7 +48,7 @@ set(0,'DefaultLineLineWidth',2)
 for s=1:size(sess_info{1},1)
     
     Sess = sess_info{1}(s); % Session number
-    dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d/Theta_Band',Sess));
+    dir_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d/',Sess));
     load(strcat(dir_Sess,'/Data_with_theta_band.mat')); % --- dataG: all data info and LFP
     
     % -- days and dates

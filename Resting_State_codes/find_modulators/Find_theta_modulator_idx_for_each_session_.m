@@ -9,8 +9,8 @@ close all
 
 subjects = {'maverick','archie'};
 
-monkey = 'Archie';
-iSubject = 2;
+monkey = 'Maverick';
+iSubject = 1;
 
 if strcmp(subjects{iSubject},'archie')
     archie_vSUBNETS220_rig3
@@ -29,8 +29,8 @@ for iSess = 1 : numel(PreStimSess)
 end
 
 UsedSess = find(useSessIndx);
-dir_RS_Theta = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Archie/Resting_state/theta_band';
-dir_Stim_Theta = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/%s/Stim_data/Theta_band',monkey);
+dir_RS_Theta = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/%s/Resting_state/theta_band_beta_conditioned',monkey);
+dir_Stim_Theta = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/%s/Stim_data/Theta_band_beta_conditioned',monkey);
 dlmwrite(strcat(dir_RS_Theta,'/Sessions_list_theta.txt'),UsedSess); % write the label list of all the used Sessions 
  
 Session = Rest_Database; % Sessions for the RS 

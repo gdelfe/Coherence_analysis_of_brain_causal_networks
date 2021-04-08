@@ -12,8 +12,8 @@ close all
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'beta_band';
-monkey = 'Maverick';
+freq_band = 'theta_band';
+monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
@@ -32,7 +32,7 @@ end
 
 
 subjects = {'maverick','archie'};
-for iSubject = 1% : length(subjects)
+for iSubject = 2% : length(subjects)
 %     clearvars -except subjects iSubject
     if strcmp(subjects{iSubject},'archie')
         archie_vSUBNETS220_rig3
@@ -64,31 +64,41 @@ for iSubject = 1% : length(subjects)
         stimTask = PreStimSess{iSess}{7};
         day = sessDay(PreStimSess{iSess});
         
-        %% loading Pre data        
-        dataDir_Pre = sprintf('%s/AccLLR/%sStimAllSess/StimResponseSessions/',DATADIR,stimName);
-        switch stimTask
-            case 'StimSinglePulse'
-                fileName_Pre = sprintf('%sSess%03d_%s_AccLLR_Elec%03d-Elec%03d_%s_1stPulse.mat',dataDir_Pre,iSess,day,RespPair(1),RespPair(2),stimName);
-                
-            case 'StimBlockShort'
-                fileName_Pre = sprintf('%sSess%03d_%s_AccLLR_Elec%03d-Elec%03d_%s_grouped.mat',dataDir_Pre,iSess,day,RespPair(1),RespPair(2),stimName);
+        %% loading Pre data
+        if strcmp(freq_band,'theta_band') % -- load data for the theta band 
+            dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d',iSess));
+            tic
+            disp('Loading Pre data ...')
+            load(strcat(dir_Sess,'/Data_with_theta_band.mat')); % --- dataG: all data info and LFP
+            disp('Done with Pre data loading')
+            toc
+        else
+            % -- load data for the beta band 
+            dataDir_Pre = sprintf('%s/AccLLR/%sStimAllSess/StimResponseSessions/',DATADIR,stimName);
+            switch stimTask
+                case 'StimSinglePulse'
+                    fileName_Pre = sprintf('%sSess%03d_%s_AccLLR_Elec%03d-Elec%03d_%s_1stPulse.mat',dataDir_Pre,iSess,day,RespPair(1),RespPair(2),stimName);
+                    
+                case 'StimBlockShort'
+                    fileName_Pre = sprintf('%sSess%03d_%s_AccLLR_Elec%03d-Elec%03d_%s_grouped.mat',dataDir_Pre,iSess,day,RespPair(1),RespPair(2),stimName);
+            end
+         
+            tic
+            disp('Loading Pre data ...')
+            load(fileName_Pre)
+            disp('Done with Pre data loading')
+            toc
         end
         
-        tic
-        disp('Loading Pre data ...')
-        load(fileName_Pre)
-        disp('Done with Pre data loading')
-        toc
-        
-        %% identifying beta modulators %%%%%%
+        %% identifying beta/Theta modulators %%%%%%
         fs = Data.Fs.lfp;% lfp sampling rate
         Fs = Data.Fs.raw;% raw sampling rate
         
         AnalParams = Data.Params.Anal;
         AnalParams.Tapers = [0.5,2];
-        AnalParams.TestSpecDiff.fk = [10 40];
+        AnalParams.TestSpecDiff.fk = [4 8];
         
-        fkNames = {'\beta'};
+        fkNames = {'\theta'};
         Data.Params.Anal = AnalParams;
         Data.Spec.ROC.fk = AnalParams.TestSpecDiff.fk;
         StimTrials = Data.StimTrials(Data.goodTrials_index);
