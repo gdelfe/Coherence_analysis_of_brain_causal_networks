@@ -1,5 +1,3 @@
-
-
 % This routine calculates the RMS of the Pre and Probe pulse signals
 %
 % Written by Shaoyu Qiao, March 26, 2019

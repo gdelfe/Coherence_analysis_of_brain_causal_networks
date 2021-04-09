@@ -17,8 +17,8 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 freq_band = 'beta_band';
 monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
-% dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
-dir_Stim = strcat(dir_main,sprintf('%s/Stim_data',monkey));
+dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
+% dir_Stim = strcat(dir_main,sprintf('%s/Stim_data',monkey));
 
 
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
@@ -34,8 +34,9 @@ else
 end
 
 sess_list = importdata(strcat(dir_Stim,'/Sessions_list.txt'));
+cd(dir_Stim)
 
-for i = sess_list %list_sess %list_sess %size(sess_info{1},1) % For each session with at least one modulator
+for i = sess_list %list_sess %size(sess_info{1},1) % For each session with at least one modulator
     
     
 %     close all
@@ -43,19 +44,20 @@ for i = sess_list %list_sess %list_sess %size(sess_info{1},1) % For each session
 %     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
 %     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
 %     dir_Controls = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
-
-    dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d/Theta_band',i));
+                
+%     dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d/Theta_band',i));
+    if isempty(find(sess_info{1}== i))
+        system(sprintf('rm -rf Sess_%d',i))
+    end 
     
-    
-    cd(dir_Sess)
 %     !mv session_all_controls_other_areas_info.mat session_controls_other_areas_info.mat
 %     !mv sess_all_controls_other_areas_lfp_001.mat session_controls_other_areas_lfp_rec001.mat
 %     !mv sess_all_controls_other_areas_lfp.mat session_controls_other_areas_lfp_movie.mat
 
-    system(sprintf('mkdir %s/Theta_band/Sess_%d',dir_Stim,i))
-    system(sprintf('mv Data_with_theta_band.mat %s/Theta_band/Sess_%d',dir_Stim,i))
-    cd('..')
-    !rm -rf Theta_band
+%     system(sprintf('mkdir %s/Theta_band/Sess_%d',dir_Stim,i))
+%     system(sprintf('mv Data_with_theta_band.mat %s/Theta_band/Sess_%d',dir_Stim,i))
+%     cd('..')
+%     !rm -rf Theta_band
     %     !mv sess_data_lfp.mat Modulators/session_data_lfp.mat
 
     

@@ -22,8 +22,8 @@ set(0,'DefaultFigureVisible','on')
 subjects = {'maverick','archie'};
 
 %for
-iSubject = 2;
-monkey = 'Archie';
+iSubject = 1;
+monkey = 'Maverick';
 
 if strcmp(subjects{iSubject},'archie')
     archie_vSUBNETS220_rig3

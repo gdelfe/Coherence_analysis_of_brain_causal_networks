@@ -29,9 +29,9 @@ for iSess = 1 : numel(PreStimSess)
 end
 
 UsedSess = find(useSessIndx);
-dir_RS_Theta = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/%s/Resting_state/theta_band_beta_conditioned',monkey);
-dir_Stim_Theta = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/%s/Stim_data/Theta_band_beta_conditioned',monkey);
-dlmwrite(strcat(dir_RS_Theta,'/Sessions_list_theta.txt'),UsedSess); % write the label list of all the used Sessions 
+dir_RS_Theta = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/%s/Resting_state/theta_band',monkey);
+dir_Stim_Theta = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/%s/Stim_data/Theta_band',monkey);
+sess_list = importdata(strcat(dir_Stim_Theta,'/Sessions_with_modulators_list.txt')); % write the label list of all the used Sessions 
  
 Session = Rest_Database; % Sessions for the RS 
 
@@ -40,7 +40,7 @@ Summary = {};
 cnt_sess = 1;
  
 
-for iSess = UsedSess % For all the sessions 
+for iSess = sess_list % For all the sessions 
     %         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess
     disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
     
@@ -130,15 +130,15 @@ end
 keyboard 
 % ---- write the list of Sessions with at least one modulator
 writecell(Sess_modulator,strcat(dir_RS_Theta,'/Sessions_with_modulator_info.txt'),'delimiter','\t'); % format: label_session, date session, label RS corresponding session 
-% ---- Session summary 
-writecell(Sess_modulator,strcat(dir_RS_Theta,'/Summary_sessions.txt'),'delimiter','\t'); % format: label_session, date session, number of channels 
 save(strcat(dir_RS_Theta,'/session_theta_modulator_info.mat'),'sess_info');
 
 
 load(strcat(dir_RS_Theta,'/session_theta_modulator_info.mat'));
+
 cnt_m = 0;
 for i = 1:size(sess_info,2)
     sess_info(i)
+    cnt_m = cnt_m + size(sess_info(i).modulator_idx,2)
 
     if sess_info(i).RS(1) == 'Y'
 %        sess_info(i)

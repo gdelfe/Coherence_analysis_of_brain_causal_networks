@@ -27,30 +27,33 @@ set(0,'DefaultFigureVisible','on')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'beta_band';
+freq_band = 'theta_band';
 monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
+filename = '.mat'; % -- filename for sess_data_info.mat 
 
 
 for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
-        addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
-    %     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
+        addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Maverick RS/movie session
+    %     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Archie movie session 
     
-%     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % add path of the specific RS session
-%     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick recording 001
-    %     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick
-    %     file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie
-    file = 'rec001.Frontal.lfp.dat'
+%     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % -- Archie rec 001
+%     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick rec 001
+        file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick lfp recording 
+    %     file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie lfp recording 
+    
+%     file = 'rec001.Frontal.lfp.dat' % -- for the rec 001 lfp loading 
+
     fid = fopen(file);
     format = 'float=>single';
     
@@ -64,9 +67,12 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
-    
-    
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
+    dir_Sess_mod = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
+    if ~exist(dir_Sess_mod,'dir')
+        mkdir(dir_Sess_mod)
+    end 
+   
     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
     % -- load list electrodes, sender, receiver
@@ -136,7 +142,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         legend('sender')
         set(gcf, 'Position',  [100, 600, 1000, 600])
         
-        fname = strcat(dir_Sess,'/lfp_Sender_movie.png');
+        fname = strcat(dir_Sess_mod,'/lfp_Sender_movie.png');
         saveas(fig,fname)
 
         fig = figure;
@@ -148,7 +154,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         legend('receiver','FontSize',11);
         set(gcf, 'Position',  [100, 600, 1000, 600])
         
-        fname = strcat(dir_Sess,'/lfp_Receiver_movie.png');
+        fname = strcat(dir_Sess_mod,'/lfp_Receiver_movie.png');
         saveas(fig,fname)
     %
 
@@ -230,7 +236,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     end
     
     sess_data_lfp
-    save(strcat(dir_Sess,'/session_data_lfp_movie.mat'),'sess_data_lfp');
+    save(strcat(dir_Sess_mod,sprintf('/session_data_lfp%s',filename)),'sess_data_lfp');
     
     
 end
@@ -250,8 +256,8 @@ for i=1:11
     % %     sess_data_lfp(i)
     %
     Sess = sess_info{1}(i); % Session number
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
-    load(strcat(dir_Sess,'/session_data_lfp_movie.mat')); % --- dataG: all data info and LFP
+    dir_Sess_mod = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
+    load(strcat(dir_Sess_mod,sprintf('/session_data_lfp%s',filename)); % --- dataG: all data info and LFP
     sess_data_lfp
     
 end
