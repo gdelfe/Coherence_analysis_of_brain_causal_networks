@@ -14,29 +14,31 @@ clear all; close all;
 
 % set(0,'DefaultFigureVisible','off')
 set(0,'DefaultFigureVisible','on')
+set(0,'DefaultLineLineWidth',2)
 
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
 
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_RS_Theta = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state/Theta_band';
-dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data';
+addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
+dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+freq_band = 'theta_band';
+monkey = 'Archie';
+dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
+
+fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-set(0,'DefaultLineLineWidth',2)
 
-% -- load structure files
 
 % -- print structures on stdout
 %format short
-for s=1:9
+for s=1:size(sess_info{1},1)
     
     Sess = sess_info{1}(s); % Session number
-    dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d/Theta_band',Sess));
+    dir_Sess = strcat(dir_RS_Theta,sprintf('/Sess_%d',Sess));
     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
     mod_Ch = sess_data.mod_idx;
@@ -55,7 +57,7 @@ for s=1:9
     if ~exist(dir_Ctrl, 'dir')
         mkdir(dir_Ctrl)
     end
-    save(strcat(dir_Ctrl,'/session_all_controls_same_area_info.mat'),'sess_All_controls_same_area');
+    save(strcat(dir_Ctrl,'/session_controls_same_area_info.mat'),'sess_All_controls_same_area');
    
     
 end
