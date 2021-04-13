@@ -278,74 +278,74 @@ end
 save(strcat(dir_Mod_results,sprintf('/coh_spec_m_fk_%d_W_%d%s',fk,W,filename)),'mod');
 save(strcat(dir_Mod_results,sprintf('/coh_spec_sr_fk_%d_W_%d%s',fk,W,filename)),'stim');
 
-keyboard
-
-% -- load structure files
-fk = 200;
-load(strcat(dir_Mod_results,sprintf('/coh_spec_m_fk_%d_W_%d%s',fk,W,filename)))
-load(strcat(dir_Mod_results,sprintf('/coh_spec_sr_fk_%d_W_%d%s',fk,W,filename)))
-
-% -- structures to matrices
-mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
-stim_mat = cell2mat(struct2cell(stim)); % transform struct to mat for sender-receiver
-
-
-% -- assign fields to matrices
-coh_ms = sq(mod_mat(1,:,:))'; % 1st field, c_ms
-coh_mr = sq(mod_mat(2,:,:))'; %  2nd field, c_mr
-spec_m = sq(mod_mat(3,:,:))'; %  3rd field, spec_m
-
-coh_sr = sq(stim_mat(1,:,:))'; % 1st field, c_sr
-spec_s = sq(stim_mat(2,:,:))'; %  2nd field, spec_s
-spec_r = sq(stim_mat(3,:,:))'; %  3rd field, spec_r
-
-
-% --- mean coherences
-mean_cho_ms = mean(abs(coh_ms));  % modulator - sender
-mean_cho_mr = mean(abs(coh_mr));  % modulator - receiver
-mean_cho_sr = mean(abs(coh_sr));  % sender - receiver
-
-% --- std coherences
-std_cho_ms = std(abs(coh_ms));  % modulator - sender
-std_cho_mr = std(abs(coh_mr)); % modulator - receiver
-std_cho_sr = std(abs(coh_sr));  % modulator - receiver
-
-% --- Error bars
-M = size(coh_ms,1);
-S = size(coh_sr,1);
-err_ms = std_cho_ms/sqrt(M);
-err_mr = std_cho_mr/sqrt(M);
-err_sr = std_cho_sr/sqrt(S);
-
-
-
-set(0,'DefaultFigureVisible','on')
-% -- FIGURE: Plot average coherence across sessions for MR, SR, MS
-fig = figure;
-% hAx=axes;
-% hAx.XScale='linear'
-% hAx.YScale='log'
-hold all
-
-
-shadedErrorBar(f,mean_cho_ms,err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
-
-grid on
-title('Mean abs coherency Theta Modulators - MS, SR, SR - Resting State','FontSize',11);
-xlabel('freq (Hz)');
-ylabel('coherence');
-% legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
-% legend('M-S mean abs','M-R mean abs','S-R mean abs','M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-legend('M-S coherency','M-R coherency','S-R coherency','FontSize',10)
-% legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-% xlim([0 60])
-set(gcf, 'Position',  [100, 600, 1000, 600])
-
-fname = strcat(dir_Modulators,sprintf('/coherency_theta_mod_MS_MR_SR_W_%d_fk_%d.png',W,fk));
-saveas(fig,fname)
-fname = strcat(dir_Modulators,sprintf('/coherency_theta_mod_MS_MR_SR_W_%d_fk_%d.fig',W,fk));
-saveas(fig,fname)
-
-
+% keyboard
+% 
+% % -- load structure files
+% fk = 200;
+% load(strcat(dir_Mod_results,sprintf('/coh_spec_m_fk_%d_W_%d%s',fk,W,filename)))
+% load(strcat(dir_Mod_results,sprintf('/coh_spec_sr_fk_%d_W_%d%s',fk,W,filename)))
+% 
+% % -- structures to matrices
+% mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
+% stim_mat = cell2mat(struct2cell(stim)); % transform struct to mat for sender-receiver
+% 
+% 
+% % -- assign fields to matrices
+% coh_ms = sq(mod_mat(1,:,:))'; % 1st field, c_ms
+% coh_mr = sq(mod_mat(2,:,:))'; %  2nd field, c_mr
+% spec_m = sq(mod_mat(3,:,:))'; %  3rd field, spec_m
+% 
+% coh_sr = sq(stim_mat(1,:,:))'; % 1st field, c_sr
+% spec_s = sq(stim_mat(2,:,:))'; %  2nd field, spec_s
+% spec_r = sq(stim_mat(3,:,:))'; %  3rd field, spec_r
+% 
+% 
+% % --- mean coherences
+% mean_cho_ms = mean(abs(coh_ms));  % modulator - sender
+% mean_cho_mr = mean(abs(coh_mr));  % modulator - receiver
+% mean_cho_sr = mean(abs(coh_sr));  % sender - receiver
+% 
+% % --- std coherences
+% std_cho_ms = std(abs(coh_ms));  % modulator - sender
+% std_cho_mr = std(abs(coh_mr)); % modulator - receiver
+% std_cho_sr = std(abs(coh_sr));  % modulator - receiver
+% 
+% % --- Error bars
+% M = size(coh_ms,1);
+% S = size(coh_sr,1);
+% err_ms = std_cho_ms/sqrt(M);
+% err_mr = std_cho_mr/sqrt(M);
+% err_sr = std_cho_sr/sqrt(S);
+% 
+% 
+% 
+% set(0,'DefaultFigureVisible','on')
+% % -- FIGURE: Plot average coherence across sessions for MR, SR, MS
+% fig = figure;
+% % hAx=axes;
+% % hAx.XScale='linear'
+% % hAx.YScale='log'
+% hold all
+% 
+% 
+% shadedErrorBar(f,mean_cho_ms,err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
+% 
+% grid on
+% title('Mean abs coherency Theta Modulators - MS, SR, SR - Resting State','FontSize',11);
+% xlabel('freq (Hz)');
+% ylabel('coherence');
+% % legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
+% % legend('M-S mean abs','M-R mean abs','S-R mean abs','M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
+% legend('M-S coherency','M-R coherency','S-R coherency','FontSize',10)
+% % legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
+% % xlim([0 60])
+% set(gcf, 'Position',  [100, 600, 1000, 600])
+% 
+% fname = strcat(dir_Modulators,sprintf('/coherency_theta_mod_MS_MR_SR_W_%d_fk_%d.png',W,fk));
+% saveas(fig,fname)
+% fname = strcat(dir_Modulators,sprintf('/coherency_theta_mod_MS_MR_SR_W_%d_fk_%d.fig',W,fk));
+% saveas(fig,fname)
+% 
+% 
