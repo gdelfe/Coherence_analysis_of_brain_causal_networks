@@ -268,9 +268,7 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
 end
 
 
-keyboard
-
-dir_Mod_results = strcat(dir_RS_Theta,'/Modulators_Controls_avg_results');
+dir_Mod_results = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',recording));
 if ~exist(dir_Mod_results, 'dir')
     mkdir(dir_Mod_results)
 end    
@@ -279,6 +277,8 @@ end
 % Save coherence and spectrum data in structure format
 save(strcat(dir_Mod_results,sprintf('/coh_spec_m_fk_%d_W_%d%s',fk,W,filename)),'mod');
 save(strcat(dir_Mod_results,sprintf('/coh_spec_sr_fk_%d_W_%d%s',fk,W,filename)),'stim');
+
+keyboard
 
 % -- load structure files
 fk = 200;

@@ -20,8 +20,8 @@
 
 clear all; close all;
 
-% set(0,'DefaultFigureVisible','off')
-set(0,'DefaultFigureVisible','on')
+set(0,'DefaultFigureVisible','off')
+% set(0,'DefaultFigureVisible','on')
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
@@ -30,15 +30,15 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 name_struct_input = '/session_data_lfp_movie.mat';
-filename = '.mat'; % -- filename for sess_data_info.mat 
-recording = 'last_recording';
+filename = '_movie.mat'; % -- filename for sess_data_info.mat 
+recording = 'movie';
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
 
-fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
@@ -49,7 +49,7 @@ set(0,'DefaultLineLineWidth',2)
 cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
 
-for i = 1:size(sess_info{1},1)-1  % For each session with at least one modulator
+for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -268,9 +268,7 @@ for i = 1:size(sess_info{1},1)-1  % For each session with at least one modulator
 end
 
 
-keyboard
-
-dir_Mod_results = strcat(dir_RS_Theta,'/Modulators_Controls_avg_results');
+dir_Mod_results = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',recording));
 if ~exist(dir_Mod_results, 'dir')
     mkdir(dir_Mod_results)
 end    
@@ -279,6 +277,8 @@ end
 % Save coherence and spectrum data in structure format
 save(strcat(dir_Mod_results,sprintf('/coh_spec_m_fk_%d_W_%d%s',fk,W,filename)),'mod');
 save(strcat(dir_Mod_results,sprintf('/coh_spec_sr_fk_%d_W_%d%s',fk,W,filename)),'stim');
+
+keyboard
 
 % -- load structure files
 fk = 200;
