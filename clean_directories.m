@@ -21,7 +21,7 @@ dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 % dir_Stim = strcat(dir_main,sprintf('%s/Stim_data',monkey));
 
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
@@ -42,7 +42,7 @@ for i = 1:size(sess_info{1},1) % For each session with at least one modulator
 %     close all
     Sess = sess_info{1}(i); % Session numberdir_Sess
 %     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
     cd(dir_Sess)
 %     dir_Controls = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
                 
@@ -51,7 +51,8 @@ for i = 1:size(sess_info{1},1) % For each session with at least one modulator
 %         system(sprintf('rm -rf Sess_%d',i))
 %     end 
     
-    !mv session_data_info.mat Modulators
+    !rm -rf last_recording
+    !rm -rf movie
 %     !mv sess_all_controls_other_areas_lfp_001.mat session_controls_other_areas_lfp_rec001.mat
 %     !mv sess_all_controls_other_areas_lfp.mat session_controls_other_areas_lfp_movie.mat
 

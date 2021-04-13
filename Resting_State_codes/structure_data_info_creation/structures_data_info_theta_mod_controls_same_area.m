@@ -27,22 +27,22 @@ freq_band = 'theta_band';
 monkey = 'Maverick';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
-fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 
-% -- define list of sessions
-if strcmp(monkey,'Maverick')
-    list_sess = 1:19;
-    list_sess(17) = [];
-else
-    list_sess = 1:length(sess_info{1});
-end
+% % -- define list of sessions
+% if strcmp(monkey,'Maverick')
+%     list_sess = 1:19;
+%     list_sess(17) = [];
+% else
+%     list_sess = 1:length(sess_info{1});
+% end
 
 % -- print structures on stdout
 %format short
-for s=list_sess
+for s=1:length(sess_info{1}) %list_sess
     
     Sess = sess_info{1}(s); % Session number
     dir_Sess = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));

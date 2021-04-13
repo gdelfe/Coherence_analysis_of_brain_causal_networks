@@ -36,7 +36,7 @@ fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session 
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-filename = '.mat'; % -- filename for sess_data_info.mat 
+filename = '_rec001.mat'; % -- filename for sess_data_info.mat 
 
 name_structure_data_info = '/session_controls_same_area_info.mat';
 
@@ -44,20 +44,20 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     close all
     % -- MOVIE OR LAST RECORDING 
-    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Maverick RS/movie session
+%     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Maverick RS/movie session
 %     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Archie movie session
 %     
-    file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick lfp recording
+%     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick lfp recording
 %     file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie lfp recording
-    fid = fopen(file);
+%     fid = fopen(file);
     
     
     % -- RECORDING 001
-%     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick rec 001
+    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick rec 001
 %     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % -- Archie rec 001
-% %     file = 'rec001.Frontal.lfp.dat' % -- Maverick for the rec 001 lfp loading
+    file = 'rec001.Frontal.lfp.dat' % -- Maverick for the rec 001 lfp loading
 %     file = 'rec001.Frontal_1.lfp.dat' % -- Archie for the rec 001 lfp loading
-%     fid = fopen(file);
+    fid = fopen(file);
 
     format = 'float=>single';
     
@@ -92,6 +92,10 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     lfp_E_ns = data(electrode(:,1),:) - data(electrode(:,2),:); % all the electrodes
     lfp_S_ns = data(sender(1),:) - data(sender(2),:); % sender
     lfp_R_ns = data(receiver(1),:) - data(receiver(2),:); % receiver
+    
+    % -- if the LFP is shorter than tot_time
+    t_length = size(lfp_S_ns,2);
+    tot_time = min(t_length,tot_time);
     
     % include signal up to time where signal is not corrupted
     lfp_E_ns = lfp_E_ns(:,1:tot_time);
