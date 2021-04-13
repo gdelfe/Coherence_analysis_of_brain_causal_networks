@@ -24,7 +24,7 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
-monkey = 'Archie';
+monkey = 'Maverick';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
 fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
@@ -32,13 +32,20 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 
+% -- define list of sessions
+if strcmp(monkey,'Maverick')
+    list_sess = 1:19;
+    list_sess(17) = [];
+else
+    list_sess = 1:length(sess_info{1});
+end
 
 % -- print structures on stdout
 %format short
-for s=1:size(sess_info{1},1)
+for s=list_sess
     
     Sess = sess_info{1}(s); % Session number
-    dir_Sess = strcat(dir_RS_Theta,sprintf('/Sess_%d',Sess));
+    dir_Sess = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
     mod_Ch = sess_data.mod_idx;

@@ -15,7 +15,7 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
-monkey = 'Archie';
+monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 % dir_Stim = strcat(dir_main,sprintf('%s/Stim_data',monkey));
@@ -42,7 +42,7 @@ for i = 1:size(sess_info{1},1) % For each session with at least one modulator
 %     close all
     Sess = sess_info{1}(i); % Session numberdir_Sess
 %     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_same_area',Sess));
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
     cd(dir_Sess)
 %     dir_Controls = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
                 
@@ -51,7 +51,7 @@ for i = 1:size(sess_info{1},1) % For each session with at least one modulator
 %         system(sprintf('rm -rf Sess_%d',i))
 %     end 
     
-    !rm -rf movie
+    !mv session_data_info.mat Modulators
 %     !mv sess_all_controls_other_areas_lfp_001.mat session_controls_other_areas_lfp_rec001.mat
 %     !mv sess_all_controls_other_areas_lfp.mat session_controls_other_areas_lfp_movie.mat
 

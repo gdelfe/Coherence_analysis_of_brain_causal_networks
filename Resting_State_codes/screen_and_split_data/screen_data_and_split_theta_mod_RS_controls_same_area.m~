@@ -55,8 +55,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     % -- RECORDING 001
 %     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick rec 001
     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % -- Archie rec 001
-%     file = 'rec001.Frontal.lfp.dat' % -- Maverick for the rec 001 lfp loading
-    file = 'rec001.Frontal_1.lfp.dat' % -- Archie for the rec 001 lfp loading
+    file = 'rec001.Frontal_1.lfp.dat' % -- for the rec 001 lfp loading
     fid = fopen(file);
 
     format = 'float=>single';
