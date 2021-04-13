@@ -29,14 +29,14 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
-monkey = 'Archie';
+monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-filename = '_rec001.mat'; % -- filename for sess_data_info.mat 
+filename = '.mat'; % -- filename for sess_data_info.mat 
 
 name_structure_data_info = '/session_controls_same_area_info.mat';
 
@@ -44,20 +44,20 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     
     close all
     % -- MOVIE OR LAST RECORDING 
-%     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Maverick RS/movie session
+    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Maverick RS/movie session
 %     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Archie movie session
 %     
-%     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick lfp recording
+    file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick lfp recording
 %     file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie lfp recording
-%     fid = fopen(file);
+    fid = fopen(file);
     
     
     % -- RECORDING 001
 %     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick rec 001
-    addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % -- Archie rec 001
-%     file = 'rec001.Frontal.lfp.dat' % -- Maverick for the rec 001 lfp loading
-    file = 'rec001.Frontal_1.lfp.dat' % -- Archie for the rec 001 lfp loading
-    fid = fopen(file);
+%     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % -- Archie rec 001
+% %     file = 'rec001.Frontal.lfp.dat' % -- Maverick for the rec 001 lfp loading
+%     file = 'rec001.Frontal_1.lfp.dat' % -- Archie for the rec 001 lfp loading
+%     fid = fopen(file);
 
     format = 'float=>single';
     

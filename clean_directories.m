@@ -26,12 +26,12 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 % -- define list of sessions
-if strcmp(monkey,'Maverick')
-    list_sess = 1:19;
-    list_sess(17) = [];
-else
-    list_sess = 1:length(sess_info{3});
-end
+% if strcmp(monkey,'Maverick')
+%     list_sess = 1:19;
+%     list_sess(17) = [];
+% else
+%     list_sess = 1:length(sess_info{3});
+% end
 
 % sess_list = importdata(strcat(dir_Stim,'/Sessions_list.txt'));
 % cd(dir_Stim)

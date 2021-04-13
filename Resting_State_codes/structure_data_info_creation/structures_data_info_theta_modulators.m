@@ -45,7 +45,7 @@ set(0,'DefaultLineLineWidth',2)
 
 % -- print structures on stdout
 %format short
-for s=1:size(sess_info{1},1)
+for s=1%:size(sess_info{1},1)
     
     Sess = sess_info{1}(s); % Session number
     dir_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d/',Sess));
