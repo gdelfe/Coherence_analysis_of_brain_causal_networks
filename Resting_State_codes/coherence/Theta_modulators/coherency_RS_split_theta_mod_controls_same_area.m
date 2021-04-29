@@ -23,6 +23,8 @@ clear all; close all;
 
 set(0,'DefaultFigureVisible','off')
 % set(0,'DefaultFigureVisible','on')
+set(0,'DefaultLineLineWidth',2)
+
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
@@ -30,12 +32,12 @@ set(0,'DefaultFigureVisible','off')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/sess_controls_same_area_lfp.mat';
-filename = '.mat'; % -- filename for sess_data_info.mat 
-recording = 'last_recording';
+name_struct_input = '/sess_controls_same_area_lfp_rec001.mat';
+filename = '_movie.mat'; % -- filename for sess_data_info.mat 
+recording = 'movie';
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
 
@@ -43,12 +45,18 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
+% -- exclude bad sessions 
+excluded_sess = [8,22,30,31];
+excluded_idx = [2,5,8,9];
+sess_list = 1:size(sess_info{1},1);
+sess_list(excluded_idx) = [];
+
 
 cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
 
 
-for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
+for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -75,7 +83,7 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     %     fmax = 40;
     
     outliers_SR = [sess_control_lfp.outliers_S, sess_control_lfp.outliers_R];
-    outliers_SR = unique(outliers_SR)  % -- remove repeated entries in outliers
+    outliers_SR = unique(outliers_SR);  % -- remove repeated entries in outliers
     
     % %%%%%%%%%%% Sender and Receiver LFP %%%%%%%%%%%%%%%%%%%
     lfp_S = sess_control_lfp.lfp_S;
@@ -240,8 +248,8 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
             fig = figure;
             plot(lfp_S_rshape)
             hold on
-            plot(lfp_R_rshape)
-            hold on
+%             plot(lfp_R_rshape)
+%             hold on
             plot(lfp_E_rshape)
             grid on
             title(sprintf('full length - Controls modulator %d',Ch),'FontSize',11)

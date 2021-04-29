@@ -19,13 +19,13 @@ set(0,'DefaultFigureVisible','on')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'beta_band';
+freq_band = 'theta_band';
 monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 dir_out = strcat(dir_main,sprintf('%s/Resting_state/%s/Modulators_controls',monkey,freq_band));
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
@@ -33,15 +33,16 @@ set(0,'DefaultLineLineWidth',2)
 
 
 name_structure = '/modulators_decod_accuracy.mat';
+% 
+% % -- define list of sessions
+% if strcmp(monkey,'Maverick')
+%     list_sess = 1:19;
+%     list_sess(17) = [];
+% else
+%     list_sess = 1:length(sess_info{3});
+% end
 
-% -- define list of sessions
-if strcmp(monkey,'Maverick')
-    list_sess = 1:19;
-    list_sess(17) = [];
-else
-    list_sess = 1:length(sess_info{3});
-end
-
+list_sess = 1:length(sess_info{3});
 modulators = [];
 cnt_el = 1;
 for i= list_sess  % For each session with at least one modulator
@@ -54,7 +55,8 @@ for i= list_sess  % For each session with at least one modulator
     
     rec_idx = sess_data.receiver_idx; 
     mod_list = mod_accuracy.mod_idx;
-    accuracy = mod_accuracy.Decod_Accuracy';
+    accuracy = mod_accuracy.auc';
+%     accuracy = mod_accuracy.Decod_Accuracy';
     
     idx = find(mod_list == rec_idx); % get the index for the modulator-receiver 
 
@@ -71,9 +73,9 @@ end
 
 modulators = [modulators, double(1:size(modulators,1))']
 modulators = sortrows(modulators,3,'descend');
-dlmwrite(strcat(dir_out,'/modulators_sorted_decod_accuracy.txt'),modulators,'delimiter','\t'); % session, modulator idx, decod accuracy, order index i
+dlmwrite(strcat(dir_out,'/modulators_sorted_decod_accuracy_AUC.txt'),modulators,'delimiter','\t'); % session, modulator idx, decod accuracy, order index i
 
-
+keyboard 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % CONTROLS SAME AREA
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -90,7 +92,7 @@ for i = list_sess  % For each session with at least one modulator
     clear sess_All_controls_same_area;
     
     sessions = repmat(Sess,1,size(sess_controls.ctrl_idx,2));
-    controls = [double(sessions)', double(sess_controls.ctrl_idx)']; % session, modulator idx, decod accuracy
+    controls = [double(sessions)', double(sess_controls.ctrl_idx)']; % session, ctrl idx
     ctrl_list = [ctrl_list; controls];
     
 end

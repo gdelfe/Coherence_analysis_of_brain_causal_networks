@@ -21,7 +21,7 @@ set(0,'DefaultFigureVisible','on')
 
 subjects = {'maverick','archie'};
 
-for iSubject = 1% : length(subjects)
+for iSubject = 2% : length(subjects)
     clearvars -except subjects iSubject dir_Stim
     if strcmp(subjects{iSubject},'archie')
         archie_vSUBNETS220_rig3

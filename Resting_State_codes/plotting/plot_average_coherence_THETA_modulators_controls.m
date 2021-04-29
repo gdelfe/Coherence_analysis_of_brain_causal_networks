@@ -7,36 +7,41 @@ clear all; close all;
 % set(0,'DefaultFigureVisible','off')
 set(0,'DefaultFigureVisible','on')
 
+addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
+dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
-dir_RS_Theta = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state/Theta_band';
+filename = '_rec001.mat'; % -- filename for sess_data_info.mat 
+figname = '_rec001';
+recording = 'rec001';
+title_caption = 'rec001';
 
-dir_Controls = strcat(dir_RS_Theta,'/Modulator_controls_avg_results');
-if ~exist(dir_Controls, 'dir')
-    mkdir(dir_Controls)
-end
+freq_band = 'theta_band';
+monkey = 'Maverick';
+
+dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
+dir_avg = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',recording));
+
 
 
 fk = 200; W = 5;
 % %%%%%%%%% MODULATORS  %%%%%%
-load(strcat(dir_RS_Theta,sprintf('/Modulators_results/coh_spec_m_fk_%d_W_%d.mat',fk,W))); % structure mod
-load(strcat(dir_RS_Theta,sprintf('/Modulators_results/coh_spec_sr_fk_%d_W_%d.mat',fk,W))); % structure stim
+load(strcat(dir_avg,sprintf('/coh_spec_m_fk_%d_W_%d%s',fk,W,filename))); % structure mod
+load(strcat(dir_avg,sprintf('/coh_spec_sr_fk_%d_W_%d%s',fk,W,filename))); % structure stim
 stim_mod = stim;
 mod_mod = mod;
 modulators = mean_coh_and_spec_RS(mod,stim);
 
 %%%%%%%%% CONTROLS SAME AREA %%%%%%%%%%%%
-load(strcat(dir_RS_Theta,sprintf('/Controls_same_area/coh_spec_m_Controls_same_area_fk_%d_W_%d.mat',fk,W)));
-load(strcat(dir_RS_Theta,sprintf('/Controls_same_area/coh_spec_sr_Controls_same_area_fk_%d_W_%d.mat',fk,W)));
+load(strcat(dir_avg,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)));
+load(strcat(dir_avg,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)));
 stim_ctrl_SA = stim;
 mod_ctrl_SA = mod;
 ctrl_SA = mean_coh_and_spec_RS(mod,stim);
 
 
 %%%%%%%%% CONTROLS OTHER AREAS %%%%%%%%%%%
-load(strcat(dir_RS_Theta,sprintf('/Controls_other_areas/coh_spec_m_Controls_other_areas_fk_%d_W_%d.mat',fk,W)));
-load(strcat(dir_RS_Theta,sprintf('/Controls_other_areas/coh_spec_sr_Controls_other_areas_fk_%d_W_%d.mat',fk,W)));
+load(strcat(dir_avg,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s',fk,W,filename)));
+load(strcat(dir_avg,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d%s',fk,W,filename)));
 stim_ctrl_OA = stim;
 mod_ctrl_OA = mod;
 ctrl_OA = mean_coh_and_spec_RS(mod,stim);
@@ -65,16 +70,16 @@ shadedErrorBar(f,ctrl_SA.mean_coh_mr,ctrl_SA.err_mr,'lineprops',{'color',[26 198
 shadedErrorBar(f,ctrl_OA.mean_coh_mr,ctrl_OA.err_mr,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Mean Abs MR coherence THETA MODULATORS vs CONTROLS - Resting State','FontSize',11);
+title(sprintf('Mean Abs MR coherence THETA MODULATORS vs CONTROLS - %s',title_caption),'FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 legend('Modulators-Receivers','Controls-Receivers same area','Controls-Receiver other areas','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-fname = strcat(dir_Controls,sprintf('/coherency_MR_Theta_Modulators_vs_Controls_W_%d_fk_%d.png',W,fk));
+fname = strcat(dir_avg,sprintf('/coherency_MR_Theta_Modulators_vs_Controls_W_%d_fk_%d%s.png',W,fk,figname));
 saveas(fig,fname)
-fname = strcat(dir_Controls,sprintf('/coherency_MR_Theta_Modulators_vs_Controls_W_%d_fk_%d.fig',W,fk));
+fname = strcat(dir_avg,sprintf('/coherency_MR_Theta_Modulators_vs_Controls_W_%d_fk_%d%s.fig',W,fk,figname));
 saveas(fig,fname)
 
 % --- ELECTRODE-SENDER coherence   -------%
@@ -88,17 +93,20 @@ shadedErrorBar(f,ctrl_SA.mean_coh_ms,ctrl_SA.err_ms,'lineprops',{'color',[255, 5
 shadedErrorBar(f,ctrl_OA.mean_coh_ms,ctrl_OA.err_ms,'lineprops',{'color',[255, 128, 128]/255},'patchSaturation',0.4); hold on
 
 grid on
-title('Mean Abs MS coherence Theta MODULATORS vs CONTROLS - Resting State','FontSize',11);
+title(sprintf('Mean Abs MS coherence Theta MODULATORS vs CONTROLS - %s',title_caption),'FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 legend('Modulators-Senders','Controls-Senders  same area','Controls-Senders  other areas','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-fname = strcat(dir_Controls,sprintf('/coherency_MS_Theta_Modulators_vs_Controls_W_%d_fk_%d.png',W,fk));
+fname = strcat(dir_avg,sprintf('/coherency_MS_Theta_Modulators_vs_Controls_W_%d_fk_%d%s.png',W,fk,figname));
 saveas(fig,fname)
-fname = strcat(dir_Controls,sprintf('/coherency_MS_Theta_Modulators_vs_Controls_W_%d_fk_%d.fig',W,fk));
+fname = strcat(dir_avg,sprintf('/coherency_MS_Theta_Modulators_vs_Controls_W_%d_fk_%d%s.fig',W,fk,figname));
 saveas(fig,fname)
+
+
+keyboard 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %      FIGURES  SPECTRUMS

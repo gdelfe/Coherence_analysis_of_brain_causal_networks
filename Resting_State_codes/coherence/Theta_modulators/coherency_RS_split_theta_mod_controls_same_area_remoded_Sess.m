@@ -21,8 +21,10 @@
 
 clear all; close all;
 
-% set(0,'DefaultFigureVisible','off')
-set(0,'DefaultFigureVisible','on')
+set(0,'DefaultFigureVisible','off')
+% set(0,'DefaultFigureVisible','on')
+set(0,'DefaultLineLineWidth',2)
+
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
@@ -30,7 +32,7 @@ set(0,'DefaultFigureVisible','on')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/sess_controls_same_area_lfp_movie.mat';
+name_struct_input = '/sess_controls_same_area_lfp_rec001.mat';
 filename = '_movie.mat'; % -- filename for sess_data_info.mat 
 recording = 'movie';
 
@@ -43,13 +45,17 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
+excluded_sess = [8,22,30,31];
+excluded_idx = [5,8,9];
+sess_list = 1:size(sess_info{1},1);
+sess_list(excluded_idx) = [];
+
 
 cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
-list_sess = 1:9;
 
 
-for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least one modulator
+for i = 1:sess_list  % For each session with at least one modulator
     
     
     close all
@@ -76,7 +82,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
     %     fmax = 40;
     
     outliers_SR = [sess_control_lfp.outliers_S, sess_control_lfp.outliers_R];
-    outliers_SR = unique(outliers_SR)  % -- remove repeated entries in outliers
+    outliers_SR = unique(outliers_SR);  % -- remove repeated entries in outliers
     
     % %%%%%%%%%%% Sender and Receiver LFP %%%%%%%%%%%%%%%%%%%
     lfp_S = sess_control_lfp.lfp_S;
@@ -151,6 +157,7 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
         % --- COHERENCE- Modulator - Sender/Receiver -- %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
+        if
         if Ch ~= sess_control_lfp.receiver_idx % if the electrode is not the receiver itself
             
             
@@ -241,8 +248,8 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             fig = figure;
             plot(lfp_S_rshape)
             hold on
-            plot(lfp_R_rshape)
-            hold on
+%             plot(lfp_R_rshape)
+%             hold on
             plot(lfp_E_rshape)
             grid on
             title(sprintf('full length - Controls modulator %d',Ch),'FontSize',11)
@@ -278,9 +285,9 @@ for i = list_sess %1:size(sess_info{1},1)-1  % For each session with at least on
             cnt_el = cnt_el + 1; % total control counter            
         end
         cnt_m = cnt_m + 1; % counter for control within this session
-
     end    
-    
+        save(strcat(dir_Mod_recording,sprintf('/sess_data_lfp_coherence_fk_%d_W_%d%s',fk,W,filename)),'sess_data_lfp');
+
 end
 
 
@@ -294,81 +301,82 @@ save(strcat(dir_Ctrl,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s',fk,W,
 save(strcat(dir_Ctrl,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)),'stim');
 
 
-keyboard
-
-
-% -- load structure files
-fk = 200; W = 5;
-load(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
-load(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
-
-% -- structures to matrices
-mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
-stim_mat = cell2mat(struct2cell(stim)); % transform struct to mat for sender-receiver
-
-
-% -- assign fields to matrices
-coh_ms = sq(mod_mat(1,:,:))'; % 1st field, c_ms
-coh_mr = sq(mod_mat(2,:,:))'; %  2nd field, c_mr
-spec_m = sq(mod_mat(3,:,:))'; %  3rd field, spec_m
-
-coh_sr = sq(stim_mat(1,:,:))'; % 1st field, c_sr
-spec_s = sq(stim_mat(2,:,:))'; %  2nd field, spec_s
-spec_r = sq(stim_mat(3,:,:))'; %  3rd field, spec_r
-
-
-
-% --- mean coherences
-mean_cho_ms = mean(abs(coh_ms));  % modulator - sender
-mean_cho_mr = mean(abs(coh_mr));  % modulator - receiver
-mean_cho_sr = mean(abs(coh_sr));  % sender - receiver
-
-% --- std coherences
-std_cho_ms = std(abs(coh_ms));  % modulator - sender
-std_cho_mr = std(abs(coh_mr)); % modulator - receiver
-std_cho_sr = std(abs(coh_sr));  % modulator - receiver
-
-% --- Error bars
-M = size(coh_ms,1);
-S = size(coh_sr,1);
-err_ms = std_cho_ms/sqrt(M);
-err_mr = std_cho_mr/sqrt(M);
-err_sr = std_cho_sr/sqrt(S);
-
-
-
-set(0,'DefaultFigureVisible','on')
-% -- FIGURE: Plot average coherence across sessions for MR, SR, MS
-fig = figure;
-% hAx=axes;
-% hAx.XScale='linear'
-% hAx.YScale='log'
-hold all
-
-% shadedErrorBar(f,mean_cho_ms,err_ms,'lineProps','b','patchSaturation',0.4); hold on
-% shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[255, 83, 26]/255},'patchSaturation',0.4); hold on
-% shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[230, 184 , 0]/255},'patchSaturation',0.4); hold on
-
-
-shadedErrorBar(f,mean_cho_ms,err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
-
-grid on
-title('Abs coherency CONTROLS of MS, SR, SR - Resting State, all Sessions','FontSize',11);
-xlabel('freq (Hz)');
-ylabel('coherence');
-% legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
-% legend('M-S mean abs','M-R mean abs','S-R mean abs','M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10)
-% legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
-% xlim([0 60])
-set(gcf, 'Position',  [100, 600, 1000, 600])
-
-
-fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
-saveas(fig,fname)
-fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
-saveas(fig,fname)
-
-
+% 
+% keyboard
+% 
+% 
+% % -- load structure files
+% fk = 200; W = 5;
+% load(strcat(dir_RS,sprintf('/coh_spec_m_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
+% load(strcat(dir_RS,sprintf('/coh_spec_sr_all_Controls_same_area_fk_%d_W_%d.mat',fk,W)))
+% 
+% % -- structures to matrices
+% mod_mat = cell2mat(struct2cell(mod)); % transform struct to mat for modulators
+% stim_mat = cell2mat(struct2cell(stim)); % transform struct to mat for sender-receiver
+% 
+% 
+% % -- assign fields to matrices
+% coh_ms = sq(mod_mat(1,:,:))'; % 1st field, c_ms
+% coh_mr = sq(mod_mat(2,:,:))'; %  2nd field, c_mr
+% spec_m = sq(mod_mat(3,:,:))'; %  3rd field, spec_m
+% 
+% coh_sr = sq(stim_mat(1,:,:))'; % 1st field, c_sr
+% spec_s = sq(stim_mat(2,:,:))'; %  2nd field, spec_s
+% spec_r = sq(stim_mat(3,:,:))'; %  3rd field, spec_r
+% 
+% 
+% 
+% % --- mean coherences
+% mean_cho_ms = mean(abs(coh_ms));  % modulator - sender
+% mean_cho_mr = mean(abs(coh_mr));  % modulator - receiver
+% mean_cho_sr = mean(abs(coh_sr));  % sender - receiver
+% 
+% % --- std coherences
+% std_cho_ms = std(abs(coh_ms));  % modulator - sender
+% std_cho_mr = std(abs(coh_mr)); % modulator - receiver
+% std_cho_sr = std(abs(coh_sr));  % modulator - receiver
+% 
+% % --- Error bars
+% M = size(coh_ms,1);
+% S = size(coh_sr,1);
+% err_ms = std_cho_ms/sqrt(M);
+% err_mr = std_cho_mr/sqrt(M);
+% err_sr = std_cho_sr/sqrt(S);
+% 
+% 
+% 
+% set(0,'DefaultFigureVisible','on')
+% % -- FIGURE: Plot average coherence across sessions for MR, SR, MS
+% fig = figure;
+% % hAx=axes;
+% % hAx.XScale='linear'
+% % hAx.YScale='log'
+% hold all
+% 
+% % shadedErrorBar(f,mean_cho_ms,err_ms,'lineProps','b','patchSaturation',0.4); hold on
+% % shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[255, 83, 26]/255},'patchSaturation',0.4); hold on
+% % shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[230, 184 , 0]/255},'patchSaturation',0.4); hold on
+% 
+% 
+% shadedErrorBar(f,mean_cho_ms,err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_mr,err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_cho_sr,err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
+% 
+% grid on
+% title('Abs coherency CONTROLS of MS, SR, SR - Resting State, all Sessions','FontSize',11);
+% xlabel('freq (Hz)');
+% ylabel('coherence');
+% % legend('M-S mean abs','M-R mean abs','M-S abs mean','M-R abs mean','FontSize',10)
+% % legend('M-S mean abs','M-R mean abs','S-R mean abs','M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
+% legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10)
+% % legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
+% % xlim([0 60])
+% set(gcf, 'Position',  [100, 600, 1000, 600])
+% 
+% 
+% fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.png',W,fk));
+% saveas(fig,fname)
+% fname = strcat(dir_RS,sprintf('/coherency_mean_all_Controls_same_area_split-data_MS_MR_SR_W_%d_fk_%d-all-Sess.fig',W,fk));
+% saveas(fig,fname)
+% 
+% 

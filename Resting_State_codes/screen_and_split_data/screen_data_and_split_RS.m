@@ -28,16 +28,17 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
-filename = '_rec001.mat'; % -- filename for sess_data_info.mat 
+% sub_dir = ''
+filename = '_rec002.mat'; % -- filename for sess_data_info.mat 
 
 
 for i=1:size(sess_info{1},1)  % For each session with at least one modulator
@@ -47,12 +48,14 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 %         addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Maverick RS/movie session
 %         addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Archie movie session 
     
-    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick rec 001
-%     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % -- Archie rec 001
+
+%     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick rec 001
+%     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/002/',sess_info{2}{i})) % -- Archie rec 001
 %         file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick lfp recording 
 %         file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie lfp recording 
-    
-    file = 'rec001.Frontal.lfp.dat' % -- for the rec 001 lfp loading 
+
+    file = strcat('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/',sprintf('%s/002/rec002.Frontal_1.lfp.dat',sess_info{2}{i}))
+%     file = 'rec003.Frontal_1.lfp.dat' % -- for the rec 001 lfp loading 
 
     fid = fopen(file);
     format = 'float=>single';
@@ -67,13 +70,8 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
     dir_Sess_mod = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
-    if ~exist(dir_Sess_mod,'dir')
-        mkdir(dir_Sess_mod)
-    end 
-   
-    load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+    load(strcat(dir_Sess_mod,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
     % -- load list electrodes, sender, receiver
     electrode = sess_data.RecordPair; % ---- all electrode pairs
@@ -81,21 +79,39 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
     sender = sess_data.sender_pair; % ---- sender pair
     
     % ---  time parameter
-    
-    tot_time = 150001;
-    if size(data,2) < tot_time
-        tot_time = size(data,2);
-    end 
+%     
+%     tot_time = max(150001,size(data,2)-mod(size(data,2),1000)+1);
+    tot_time = min(150001,size(data,2)-mod(size(data,2),1000)+1);
+
     
     % ---- Lfp of the resting state for that specific pair of electrodes
     lfp_E_ns = data(electrode(:,1),:) - data(electrode(:,2),:); % all the electrodes
     lfp_S_ns = data(sender(1),:) - data(sender(2),:); % sender
     lfp_R_ns = data(receiver(1),:) - data(receiver(2),:); % receiver
     
+    figure;
+    plot(lfp_S_ns)
+    hold on 
+    plot(lfp_R_ns)
+    hold on 
+    plot(lfp_E_ns(17,:))
+    grid on
+    legend('Sender','Receiver','Modulator');
+    
     % include signal up to time where signal is not corrupted
     lfp_E_ns = lfp_E_ns(:,1:tot_time);
     lfp_S_ns = lfp_S_ns(:,1:tot_time);
     lfp_R_ns = lfp_R_ns(:,1:tot_time);
+    
+    
+%     mod_idx = sess_data.mod_idx;
+%     figure;
+%     plot(lfp_S_ns)
+%     hold on
+%     plot(lfp_R_ns)
+%     hold on
+%     plot(lfp_E_ns(mod_idx(2),:))
+%     grid on 
     
     
     % create matrices to store the split data: trial x time

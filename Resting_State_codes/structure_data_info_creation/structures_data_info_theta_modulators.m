@@ -22,8 +22,8 @@ set(0,'DefaultFigureVisible','on')
 subjects = {'maverick','archie'};
 
 %for
-iSubject = 1;
-monkey = 'Maverick';
+iSubject = 2;
+monkey = 'Archie';
 
 if strcmp(subjects{iSubject},'archie')
     archie_vSUBNETS220_rig3
@@ -36,7 +36,7 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_RS_Theta = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/%s/Resting_state/theta_band',monkey);
 dir_Stim_Theta = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/%s/Stim_data/theta_band',monkey);
 
-fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
@@ -73,7 +73,7 @@ for s=1%:size(sess_info{1},1)
     sess_data.mod_idx = find(Data.Spec.ROC.sigChIndx{1});
     sess_data.mod_areas = Data.RecordPairMRIlabels(sess_data.mod_idx,1)'
     
-    dir_Sess_RS = strcat(dir_RS_Theta,sprintf('/Sess_%d',Sess));
+    dir_Sess_RS = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
     save(strcat(dir_Sess_RS,'/session_data_info.mat'),'sess_data');
    
     % -- print out 

@@ -12,27 +12,27 @@ close all
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'theta_band';
+freq_band = 'beta_band';
 monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 
 % -- define list of sessions
-if strcmp(monkey,'Maverick')
-    list_sess = 1:19;
-    list_sess(17) = [];
-else
+% if strcmp(monkey,'Maverick')
+%     list_sess = 1:19;
+%     list_sess(17) = [];
+% else
     list_sess = 1:length(sess_info{3});
-end
+% end
 
 
 subjects = {'maverick','archie'};
-for iSubject = 2% : length(subjects)
+for iSubject = 2    % : length(subjects)
 %     clearvars -except subjects iSubject
     if strcmp(subjects{iSubject},'archie')
         archie_vSUBNETS220_rig3
@@ -53,7 +53,7 @@ for iSubject = 2% : length(subjects)
     UsedSess = find(useSessIndx);
     
     for i = list_sess %UsedSess
-        clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess dir_RS list_sess sess_info i
+        clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess dir_RS list_sess sess_info i dir_Stim freq_band
         
         iSess = sess_info{1}(i); % Session number
 
@@ -96,7 +96,7 @@ for iSubject = 2% : length(subjects)
         
         AnalParams = Data.Params.Anal;
         AnalParams.Tapers = [0.5,2];
-        AnalParams.TestSpecDiff.fk = [4 8];
+        AnalParams.TestSpecDiff.fk = [10 40];
         
         fkNames = {'\theta'};
         Data.Params.Anal = AnalParams;
@@ -139,7 +139,7 @@ for iSubject = 2% : length(subjects)
                     pval = [];
                     pval_roc = [];
                     AnalParams.Spec.Test.fk = AnalParams.TestSpecDiff.fk(iFreqBand,:);
-                    Fk = AnalParams.Spec.Test.fk;
+%                     Fk = AnalParams.Spec.Test.fk;
                     
                     if ~isempty(Data.Spec.ROC.sigChs{iFreqBand})
                         % load LFPs
@@ -171,6 +171,8 @@ for iSubject = 2% : length(subjects)
                         
                         mod_accuracy.mod_idx = [];
                         mod_accuracy.Decod_Accuracy = [];
+                        mod_accuracy.auc = [];
+                        mod_accuracy.se = [];
                         
 %                         nCh_Use = size(Data.RecordPair,1)
                         for indx = 1 : nCh_Use
@@ -305,7 +307,8 @@ for iSubject = 2% : length(subjects)
                             
                             
                             mod_accuracy.Decod_Accuracy = [mod_accuracy.Decod_Accuracy, max((modDecodeHitRate+modDecodeMissRate)/2)];
-                            
+                            mod_accuracy.auc = [mod_accuracy.auc, auc];
+                            mod_accuracy.se = [mod_accuracy.se, se];
                             
 %                             h2 = subplot(2,7,11);
 %                             ERPplotRange = [-round(max(abs(LPRawEvent(:))),-1) round(max(abs(LPRawEvent(:))),-1)];

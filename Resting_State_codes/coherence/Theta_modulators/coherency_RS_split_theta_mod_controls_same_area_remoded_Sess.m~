@@ -32,7 +32,7 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/sess_controls_other_areas_lfp_movie.mat';
+name_struct_input = '/sess_controls_same_area_lfp_rec001.mat';
 filename = '_movie.mat'; % -- filename for sess_data_info.mat 
 recording = 'movie';
 
@@ -45,22 +45,27 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
+excluded_sess = [8,22,30,31];
+excluded_idx = [5,8,9];
+sess_list = 1:size(sess_info{1},1);
+sess_list(excluded_idx) = [];
+
 
 cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
 
 
-for i = 1:size(sess_info{1},1) 
+for i = 1:sess_list  % For each session with at least one modulator
     
     
     close all
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_other_areas',Sess));
+    dir_Sess_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area',Sess));
     
     load(strcat(dir_Sess_Ctrl,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
     
-      dir_Sess_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_other_areas/%s',Sess,recording));
+    dir_Sess_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area/%s',Sess,recording));
     if ~exist(dir_Sess_Ctrl, 'dir')
         mkdir(dir_Sess_Ctrl)
     end
@@ -77,7 +82,7 @@ for i = 1:size(sess_info{1},1)
     %     fmax = 40;
     
     outliers_SR = [sess_control_lfp.outliers_S, sess_control_lfp.outliers_R];
-    outliers_SR = unique(outliers_SR)  % -- remove repeated entries in outliers
+    outliers_SR = unique(outliers_SR);  % -- remove repeated entries in outliers
     
     % %%%%%%%%%%% Sender and Receiver LFP %%%%%%%%%%%%%%%%%%%
     lfp_S = sess_control_lfp.lfp_S;
@@ -127,7 +132,7 @@ for i = 1:size(sess_info{1},1)
     stim(cnt_sr).s_r = S_r; % receiver spectrum
     cnt_sr = cnt_sr + 1;    % sender/receiver counter
     
-    % -- store coherence results into lfp structure
+     % -- store coherence results into lfp structure 
     sess_control_lfp.c_sr = c_sr;
     sess_control_lfp.s_s = S_s;
     sess_control_lfp.s_r = S_r;
@@ -152,6 +157,7 @@ for i = 1:size(sess_info{1},1)
         % --- COHERENCE- Modulator - Sender/Receiver -- %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
+        if
         if Ch ~= sess_control_lfp.receiver_idx % if the electrode is not the receiver itself
             
             
@@ -225,6 +231,7 @@ for i = 1:size(sess_info{1},1)
             mod(cnt_el).c_mr = c_mr;  % M-R coherence
             mod(cnt_el).s_m = S_m; % Modulator spectrum
             
+            
             sess_control_lfp.ctrl(cnt_m).c_ms = c_ms;
             sess_control_lfp.ctrl(cnt_m).c_mr = c_mr;
             sess_control_lfp.ctrl(cnt_m).S_m = S_m;
@@ -241,8 +248,8 @@ for i = 1:size(sess_info{1},1)
             fig = figure;
             plot(lfp_S_rshape)
             hold on
-            plot(lfp_R_rshape)
-            hold on
+%             plot(lfp_R_rshape)
+%             hold on
             plot(lfp_E_rshape)
             grid on
             title(sprintf('full length - Controls modulator %d',Ch),'FontSize',11)
@@ -278,22 +285,23 @@ for i = 1:size(sess_info{1},1)
             cnt_el = cnt_el + 1; % total control counter            
         end
         cnt_m = cnt_m + 1; % counter for control within this session
-
     end    
-    
+        save(strcat(dir_Mod_recording,sprintf('/sess_data_lfp_coherence_fk_%d_W_%d%s',fk,W,filename)),'sess_data_lfp');
+
 end
 
 
 dir_Ctrl = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',recording));
 if ~exist(dir_Ctrl, 'dir')
     mkdir(dir_Ctrl)
-end    
+end   
 
 % Save coherence and spectrum data in structure format
-save(strcat(dir_Ctrl,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s',fk,W,filename)),'mod');
-save(strcat(dir_Ctrl,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d%s',fk,W,filename)),'stim');
+save(strcat(dir_Ctrl,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)),'mod');
+save(strcat(dir_Ctrl,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)),'stim');
 
 
+% 
 % keyboard
 % 
 % 
