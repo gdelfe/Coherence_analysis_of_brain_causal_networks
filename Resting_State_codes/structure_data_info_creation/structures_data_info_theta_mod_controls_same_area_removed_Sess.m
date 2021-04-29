@@ -42,14 +42,14 @@ fclose(fid);
 
 % -- exclude bad sessions 
 excluded_sess = [8,22,30,31];
-excluded_idx = [5,8,9];
+excluded_idx = [2,5,8,9];
 sess_list = 1:size(sess_info{1},1);
 sess_list(excluded_idx) = [];
 
 % -- print structures on stdout
 %format short
 
-for s=1:length(sess_info{1}) %list_sess
+for s= sess_list %length(sess_info{1}) %list_sess
     
     Sess = sess_info{1}(s); % Session number
     dir_Sess = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
@@ -60,11 +60,13 @@ for s=1:length(sess_info{1}) %list_sess
     MRIlabels = sess_data.MRIlabels; % -- all the available MRI labels 
     receiver_idx = sess_data.receiver_idx; % -- receiver idx 
 
-    
+    % --- exclude bad channels 
     if Sess == 19 
         mod_Ch(mod_Ch == 60) = [];   % Exclude bad channel
     end
-    if Sess == 41 && Ch == 8 % Exclude bad channel
+    if Sess == 41 
+        mod_Ch(mod_Ch == 8) = [];   % Exclude bad channel
+    end 
     
     [mod_Ch_rand,area_Ch_rand] = choose_ALL_control_same_Region(RecordPairMRIlabels,MRIlabels,receiver_idx,mod_Ch);
 
@@ -77,7 +79,7 @@ for s=1:length(sess_info{1}) %list_sess
     if ~exist(dir_Ctrl, 'dir')
         mkdir(dir_Ctrl)
     end
-    save(strcat(dir_Ctrl,'/session_controls_same_area_info.mat'),'sess_All_controls_same_area');
+    save(strcat(dir_Ctrl,'/session_controls_same_area_info_removed_artifacts.mat'),'sess_All_controls_same_area');
    
     
 end

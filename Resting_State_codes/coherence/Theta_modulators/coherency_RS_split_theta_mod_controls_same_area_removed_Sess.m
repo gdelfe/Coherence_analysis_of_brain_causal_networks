@@ -32,9 +32,9 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/sess_controls_same_area_lfp_rec001.mat';
+name_struct_input = '/sess_controls_same_area_lfp_movie_removed_artifacts.mat';
 filename = '_movie.mat'; % -- filename for sess_data_info.mat 
-recording = 'movie';
+recording = 'movie_corrected';
 
 freq_band = 'theta_band';
 monkey = 'Archie';
@@ -45,8 +45,9 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
+% -- exclude bad sessions 
 excluded_sess = [8,22,30,31];
-excluded_idx = [5,8,9];
+excluded_idx = [2,5,8,9];
 sess_list = 1:size(sess_info{1},1);
 sess_list(excluded_idx) = [];
 
@@ -55,7 +56,7 @@ cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
 
 
-for i = 1:sess_list  % For each session with at least one modulator
+for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -157,7 +158,6 @@ for i = 1:sess_list  % For each session with at least one modulator
         % --- COHERENCE- Modulator - Sender/Receiver -- %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        if
         if Ch ~= sess_control_lfp.receiver_idx % if the electrode is not the receiver itself
             
             
@@ -248,18 +248,18 @@ for i = 1:sess_list  % For each session with at least one modulator
             fig = figure;
             plot(lfp_S_rshape)
             hold on
-%             plot(lfp_R_rshape)
-%             hold on
+            plot(lfp_R_rshape)
+            hold on
             plot(lfp_E_rshape)
             grid on
             title(sprintf('full length - Controls modulator %d',Ch),'FontSize',11)
             legend('Sender','Receiver','Modulator')
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.fig',Ch));
-            %                 saveas(fig,fig_name);
-            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.png',Ch));
-            %                 saveas(fig,fig_name);
+            fig_name = strcat(dir_Sess_Ctrl,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.fig',Ch));
+            saveas(fig,fig_name);
+            fig_name = strcat(dir_Sess_Ctrl,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.png',Ch));
+            saveas(fig,fig_name);
             
             % -- full length without artifacts
             lfp_S_rshape = reshape(lfp_S',[],1)';
@@ -277,17 +277,17 @@ for i = 1:sess_list  % For each session with at least one modulator
             legend('Sender','Receiver','Modulator')
             set(gcf, 'Position',  [100, 600, 1000, 500])
             
-            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
-            %                 saveas(fig,fig_name);
-            %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
-            %                 saveas(fig,fig_name);
+            fig_name = strcat(dir_Sess_Ctrl,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
+            saveas(fig,fig_name);
+            fig_name = strcat(dir_Sess_Ctrl,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
+            saveas(fig,fig_name);
             
             cnt_el = cnt_el + 1; % total control counter            
         end
         cnt_m = cnt_m + 1; % counter for control within this session
-    end    
-        save(strcat(dir_Mod_recording,sprintf('/sess_data_lfp_coherence_fk_%d_W_%d%s',fk,W,filename)),'sess_data_lfp');
-
+    end   
+    save(strcat(dir_Sess_Ctrl,sprintf('/sess_data_lfp_coherence_fk_%d_W_%d%s',fk,W,filename)),'sess_control_lfp');
+    
 end
 
 

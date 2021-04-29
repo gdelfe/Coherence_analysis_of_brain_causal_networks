@@ -36,29 +36,41 @@ fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load se
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-filename = '_movie.mat'; % -- filename for sess_data_info.mat 
+filename = '_movie_removed_artifacts.mat'; % -- filename for sess_data_info.mat
+recording = 'movie';
 
 name_structure_data_info = '/session_controls_same_area_info_removed_artifacts.mat';
 
-for i=1:size(sess_info{1},1)  % For each session with at least one modulator
+% -- exclude bad sessions 
+excluded_sess = [8,22,30,31];
+excluded_idx = [2,5,8,9];
+sess_list = 1:size(sess_info{1},1);
+sess_list(excluded_idx) = [];
+
+
+for i= sess_list  % For each session with at least one modulator
     
     close all
     % -- MOVIE OR LAST RECORDING 
 %     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Maverick RS/movie session
 %     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Archie movie session
-%     
+
+    file = sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/rec%s.Frontal_1.lfp.dat',sess_info{2}{i},sess_info{3}{i},sess_info{3}{i})  % -- Archie for the rec 001 lfp loading
+
 %     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick lfp recording
 %     file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie lfp recording
 %     fid = fopen(file);
-    
-    
+      
     % -- RECORDING 001
-    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick rec 001
-%     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % -- Archie rec 001
-    file = 'rec001.Frontal.lfp.dat' % -- Maverick for the rec 001 lfp loading
-%     file = 'rec001.Frontal_1.lfp.dat' % -- Archie for the rec 001 lfp loading
+    %     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick rec 001
+    
+%     if i == 1 || i == 12 % -- RS is not available so we use rec 001
+%         file = sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/rec001.Frontal_1.lfp.dat',sess_info{2}{i})  % -- Archie for the rec 001 lfp loading
+%     else % --- RS recording is available for this date
+%         file = sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/002/rec002.Frontal_1.lfp.dat',sess_info{2}{i})  % -- Archie for the rec 001 lfp loading
+%     end
+    
     fid = fopen(file);
-
     format = 'float=>single';
     
     CH = 220; % tot number of channels
