@@ -24,7 +24,6 @@ function [mod_Ch_rand,ModBrainReg] = choose_ALL_control_same_Region(RecordPairMR
         brainRegMod = ModBrainReg{reg}; % -- get the brain region 
         brain_idx = MRIlabels.(brainRegMod).ElecIndx;  % -- get the indexes of the electrodes in the same brain region
        
-        
         brain_idx = setdiff(brain_idx,mod_Ch); % -- remove all the modulator indexes from the list of brain indexes for that region 
         brain_idx(brain_idx == receiver_idx) = []; % -- esclude the receiver from the control modulators, in case it belongs to this brain area
         mod_Ch_rand = [mod_Ch_rand, brain_idx]; % -- return all the control electrodes in the same area as the modulator(s)'

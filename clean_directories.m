@@ -14,14 +14,14 @@ set(0,'DefaultFigureVisible','on')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'theta_band';
-monkey = 'Maverick';
+freq_band = 'beta_band';
+monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 % dir_Stim = strcat(dir_main,sprintf('%s/Stim_data',monkey));
 
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
@@ -45,14 +45,14 @@ for i = 1:size(sess_info{1},1) % For each session with at least one modulator
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
     cd(dir_Sess)
 %     dir_Controls = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
-                
 %     dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d/Theta_band',i));
 %     if isempty(find(sess_info{1}== i))
 %         system(sprintf('rm -rf Sess_%d',i))
 %     end 
-    
-    !rm -rf last_recording
-    !rm -rf movie
+     
+    !mv session_data_lfp_001.mat session_data_lfp_rec001.mat 
+%     !rm -rf last_recording
+%     !rm -rf movie
 %     !mv sess_all_controls_other_areas_lfp_001.mat session_controls_other_areas_lfp_rec001.mat
 %     !mv sess_all_controls_other_areas_lfp.mat session_controls_other_areas_lfp_movie.mat
 

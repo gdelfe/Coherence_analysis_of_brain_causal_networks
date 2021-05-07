@@ -52,9 +52,10 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-% theta band excluded sessions
-excluded_sess = [8,22,30,31];
-excluded_idx = [2,5,8,9];
+
+% beta band excluded sessions 
+excluded_sess = [14,30,41];
+excluded_idx = [2,8,11];
 sess_list = 1:size(sess_info{1},1);
 sess_list(excluded_idx) = [];
 
@@ -69,7 +70,8 @@ for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one 
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
-    if sess_info{2}{i} == '180702' % -- if RS is available 
+%     if sess_info{2}{i} == '180702' % -- if RS is available 
+    if any([6,7,9,10] == i) % -- if RS is available 
         dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording2));
         load(strcat(dir_Modulators,name_struct_input_2)); % RS LFP split into 1 sec window and artifacts removed
     else % -- use first recording 
@@ -93,13 +95,6 @@ for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one 
         
         if Ch ~= sess_data_lfp.receiver_idx            
             
-            if Sess == 19 && Ch == 29   % Exclude bad channel
-                % do nothing
-            elseif Sess == 29 && Ch == 68 % Exclude bad channel
-                % do nothing
-            elseif Sess == 41 && Ch == 8 % Exclude bad channel
-                % do nothing
-            else
                 % -- structure assignements
                 mod(cnt_el).c_ms = sess_data_lfp.mod(cnt_m).c_ms ; % assign M-S coherence value for this modulator
                 mod(cnt_el).c_mr = sess_data_lfp.mod(cnt_m).c_mr;  % M-R coherence
@@ -110,9 +105,8 @@ for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one 
         end
         cnt_m = cnt_m + 1; % counter for modulators within this session
         
-    end
-    
 end
+ 
 
 
 keyboard

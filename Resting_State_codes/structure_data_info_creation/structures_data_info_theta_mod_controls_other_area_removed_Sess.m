@@ -51,9 +51,10 @@ for s = sess_list
     
     % --- exclude bad channels
     if Sess == 19
-        mod_Ch(mod_Ch == 60) = [];   % Exclude bad channel
-    end
-    if Sess == 41
+        mod_Ch(mod_Ch == 29) = [];   % Exclude bad channel
+    elseif Sess == 29
+        mod_Ch(mod_Ch == 68) = [];   % Exclude bad channel
+    elseif Sess == 41
         mod_Ch(mod_Ch == 8) = [];   % Exclude bad channel
     end
     
@@ -68,7 +69,7 @@ for s = sess_list
     if ~exist(dir_Ctrl, 'dir')
         mkdir(dir_Ctrl)
     end
-    save(strcat(dir_Ctrl,'/session_controls_other_areas_info_removed_artifacts.mat'),'sess_All_controls_other_areas');
+    save(strcat(dir_Ctrl,'/session_controls_other_areas_info_rec001_002_removed_artifacts.mat'),'sess_All_controls_other_areas');
     
     
 end

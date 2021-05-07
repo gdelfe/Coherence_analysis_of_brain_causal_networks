@@ -27,7 +27,7 @@ set(0,'DefaultFigureVisible','on')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'theta_band';
+freq_band = 'beta_band';
 monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
@@ -41,7 +41,7 @@ set(0,'DefaultLineLineWidth',2)
 filename = '_rec002.mat'; % -- filename for sess_data_info.mat 
 
 
-for i=1:size(sess_info{1},1)  % For each session with at least one modulator
+for i= 5:10 %1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all

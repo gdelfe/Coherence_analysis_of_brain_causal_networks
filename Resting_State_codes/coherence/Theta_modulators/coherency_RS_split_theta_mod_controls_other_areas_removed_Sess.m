@@ -32,7 +32,7 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/sess_controls_same_area_lfp_rec001_002_removed_artifacts.mat';
+name_struct_input = '/sess_controls_other_areas_lfp_rec001_002_removed_artifacts.mat';
 filename = '_rec001_002.mat'; % -- filename for sess_data_info.mat 
 recording = 'rec001_002_corrected';
 
@@ -62,11 +62,11 @@ for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one 
     close all
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area',Sess));
+    dir_Sess_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_other_areas',Sess));
     
     load(strcat(dir_Sess_Ctrl,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
     
-    dir_Sess_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area/%s',Sess,recording));
+    dir_Sess_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_other_areas/%s',Sess,recording));
     if ~exist(dir_Sess_Ctrl, 'dir')
         mkdir(dir_Sess_Ctrl)
     end
@@ -297,8 +297,8 @@ if ~exist(dir_Ctrl, 'dir')
 end   
 
 % Save coherence and spectrum data in structure format
-save(strcat(dir_Ctrl,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)),'mod');
-save(strcat(dir_Ctrl,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)),'stim');
+save(strcat(dir_Ctrl,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s',fk,W,filename)),'mod');
+save(strcat(dir_Ctrl,sprintf('/coh_spec_sr_Controls_other _areas_fk_%d_W_%d%s',fk,W,filename)),'stim');
 
 
 % 

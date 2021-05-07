@@ -19,19 +19,19 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Res
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
-filename = '_rec001.mat';
-recording = 'rec001';
-N = 10; % --- max number of modulators 
-figstr = sprintf('rec001_%d_theta_modulators',N);
-title_caption = sprintf('rec001 - %d modulators - AUC',N)
+monkey = 'Archie';
+filename = '_rec001_002.mat';
+recording = 'rec001_002_corrected';
+N = 41; % --- max number of modulators 
+figstr = sprintf('%d_theta_modulators_removed_Sess_rec001_002',N);
+title_caption = sprintf('rec001 rec002 - %d modulators - AUC',N)
 
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Controls = strcat(dir_RS,sprintf('/Modulators_Controls_avg_results/%s',recording));
 dir_Controls_auc = strcat(dir_Controls,'/AUC');
 dir_mod_ctrl_list = strcat(dir_RS,'/Modulators_controls');
 
-mod_list = importdata(strcat(dir_mod_ctrl_list,'/modulators_sorted_decod_accuracy_AUC.txt'));
+mod_list = importdata(strcat(dir_mod_ctrl_list,'/modulators_sorted_decod_accuracy_removed_Sess_AUC_rec001_002.txt'));
 display([sprintf('---- > Total number of modulators for %s is : ',monkey),num2str(size(mod_list,1))])
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
@@ -48,6 +48,10 @@ mod_idx = mod_list(1:N,4);
 sess_numb = unique(mod_list(1:N,1)); % session label with top modulators 
 
 % -- find the session index corresponding to the session with top modulators 
+% -- exclude bad sessions 
+excluded_idx = [2,5,8,9];
+sess_info{1}(excluded_idx) = [];
+
 sess_idx = [];
 for i=1:length(sess_numb)
     sess_idx = [sess_idx, find(sess_info{1}==sess_numb(i))];
@@ -60,13 +64,13 @@ load(strcat(dir_Controls,sprintf('/coh_spec_sr_fk_%d_W_%d%s',fk,W,filename))); %
 mod_mod = mod;
 stim_mod = stim;
 
-mod = mod(mod_idx);
-stim = stim(sess_idx);
+mod_mod = mod_mod(mod_idx);
+stim_mod = stim_mod(sess_idx);
 
-modulators = mean_coh_and_spec_RS(mod,stim);
+modulators = mean_coh_and_spec_RS(mod_mod,stim_mod);
 
 %%%%%%%%% CONTROLS SAME AREA %%%%%%%%%%%%
-ctrl_list = importdata(strcat(dir_mod_ctrl_list,'/control_list_same_area.txt')); % session, modulator idx, order index i
+ctrl_list = importdata(strcat(dir_mod_ctrl_list,'/control_list_same_area_removed_Sess_rec001_002.txt')); % session, modulator idx, order index i
 
 load(strcat(dir_Controls,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)));
 load(strcat(dir_Controls,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)));
@@ -78,14 +82,14 @@ for i=1:length(sess_numb)
     ctrl_idx = [ctrl_idx; find(ctrl_list(:,1)==sess_numb(i))];
 end
 
-mod = mod(ctrl_idx);
-stim = stim(sess_idx);
+mod_ctrl_SA = mod_ctrl_SA(ctrl_idx);
+stim_ctrl_SA = stim_ctrl_SA(sess_idx);
 
-ctrl_SA = mean_coh_and_spec_RS(mod,stim);
+ctrl_SA = mean_coh_and_spec_RS(mod_ctrl_SA,stim_ctrl_SA);
 
 
 %%%%%%%%% CONTROLS OTHER AREAS %%%%%%%%%%%
-ctrl_list = importdata(strcat(dir_mod_ctrl_list,'/control_list_other_areas.txt')); % session, modulator idx, order index i
+ctrl_list = importdata(strcat(dir_mod_ctrl_list,'/control_list_other_areas_removed_Sess_rec001_002.txt')); % session, modulator idx, order index i
 
 load(strcat(dir_Controls,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s',fk,W,filename)));
 load(strcat(dir_Controls,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d%s',fk,W,filename)));
@@ -97,10 +101,10 @@ for i=1:length(sess_numb)
     ctrl_idx = [ctrl_idx; find(ctrl_list(:,1)==sess_numb(i))];
 end
 
-mod = mod(ctrl_idx);
-stim = stim(sess_idx);
+mod_ctrl_OA = mod_ctrl_OA(ctrl_idx);
+stim_ctrl_OA = stim_ctrl_OA(sess_idx);
 
-ctrl_OA = mean_coh_and_spec_RS(mod,stim);
+ctrl_OA = mean_coh_and_spec_RS(mod_ctrl_OA,stim_ctrl_OA);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
