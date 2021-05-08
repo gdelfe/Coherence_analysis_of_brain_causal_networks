@@ -36,24 +36,38 @@ fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load se
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-filename = '_rec001_002_removed_artifacts.mat'; % -- filename for sess_data_info.mat
+filename = '_rec001_002_removed_artifacts_V2.mat'; % -- filename for sess_data_info.mat
 % recording = 'movie';
 
-name_structure_data_info = '/session_controls_same_area_info_rec001_002_removed_artifacts.mat';
+name_structure_data_info = '/session_controls_same_area_info_rec001_002_removed_artifacts_V2.mat';
 
-% -- exclude bad sessions 
-excluded_sess = [8,22,30,31];
-excluded_idx = [2,5,8,9];
+% % -- exclude bad sessions theta band 
+% excluded_sess = [8,22,30,31];
+% excluded_idx = [2,5,8,9];
+% sess_list = 1:size(sess_info{1},1);
+% sess_list(excluded_idx) = [];
+
+% -- exclude bad sessions theta band -- modified (V2)
+excluded_sess = [8,30,31];
+excluded_idx = [2,8,9];
 sess_list = 1:size(sess_info{1},1);
 sess_list(excluded_idx) = [];
+rec002_session = [4,6,7,10,11];
+
+
+% % beta band excluded sessions beta band 
+% excluded_sess = [14,30,41];
+% excluded_idx = [2,8,11];
+% sess_list = 1:size(sess_info{1},1);
+% sess_list(excluded_idx) = [];
 
 
 for i= sess_list  % For each session with at least one modulator
     
     close all
     
-%     if sess_info{2}{i} == '180702' % -- if RS is available 
-    if any([6,7,9,10] == i) % -- if RS is available
+%     if sess_info{2}{i} == '180702' % -- if RS is available -- for theta band
+    if any(rec002_session == i) % -- for beta band 
         file = sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/002/rec002.Frontal_1.lfp.dat',sess_info{2}{i});  % -- Archie for the rec 001 lfp loading
     else % -- use first recording 
         file = sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/rec001.Frontal_1.lfp.dat',sess_info{2}{i});  % -- Archie for the rec 001 lfp loading
@@ -187,16 +201,16 @@ for i= sess_list  % For each session with at least one modulator
     % %%%%%%%%% SESSIONS WITH HIGH STD %%%%%%%%%%%%%%%%%%%%%%%%
     % --- find sessions with high std (>150)
     if std(lfp_S_ns,[],2) > 150  badSess(i).std_S = std(lfp_S_ns,[],2);
-        display(['Sess -- ',num2str(Sess),' Sender -- ']); end 
+        display(['Sess -- ',num2str(Sess),' Sender LFP high variance -- ']); end 
     
     if std(lfp_R_ns,[],2) > 150  badSess(i).std_R = std(lfp_R_ns,[],2); 
-        display(['Sess -- ',num2str(Sess),' Receiver -- ',num2str(Ch)]); end 
+        display(['Sess -- ',num2str(Sess),' Receiver LFP high variance  -- ',num2str(Ch)]); end 
 
     ctrl_Ch = sess_control.ctrl_idx;
     cnt_M = 1;
     for Ch = ctrl_Ch
             if std(lfp_E_ns(Ch,:,:),[],2) > 150  badSess(i).std_E(cnt_M).std = std(lfp_E_ns(Ch,:,:),[],2); 
-            display(['Sess -- ',num2str(Sess),' Modulator -- ',num2str(Ch)])
+            display(['Sess -- ',num2str(Sess),' Control channel - LFP high variance -- ',num2str(Ch)])
             end 
             cnt_M = cnt_M + 1;
     end 
@@ -243,13 +257,13 @@ end
 % % save(strcat(dir_RS,'/all_sessions_split.mat'),'sess','-v7.3');
 % 
 % 
-% for i=1:20
-% 
-%     display(['Session --- ',num2str(i)])
+for i=1:10
+
+    display(['Session --- ',num2str(i)])
 %     badSess(i).std_R
 %     badSess(i).std_S
-%     badSess(i).std_E
-% end
+    badSess(i).std_E
+end
 
   
 

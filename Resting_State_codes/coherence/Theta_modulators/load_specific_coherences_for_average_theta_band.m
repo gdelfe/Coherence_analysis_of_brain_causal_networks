@@ -1,21 +1,11 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code computes the Resting State coherence between the THETA
-% modulators found by Shaoyu's and both the sender and the receiver
+% Load only specific sessions for the computation of the average coherence.
+% This code creates the .mat files for the mr, ms, sr coherence relative to
+% specific sessions (e.g. with no artifacts, no bad channels)
+% 
 %
-% It computes the mean and the std of such coherence, across all the
-% channels that have causal modulators
-%
-% In contrast to other codes that employes the coherence-gram to estimate
-% the coherence vs frequency, this code employes directly coherency.m
-%
-% INPUT: sess_data_lfp.mat
-%        structure containing all modulator infos + RS LFP split
-%
-% OUTPUT: txt files with the values of the coherence MR, MS, SR and
-% corresponding figures
-%
-%    @ Gino Del Ferraro, November 2020, Pesaran lab, NYU
+%    @ Gino Del Ferraro, May 2021, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all; close all;
@@ -37,12 +27,12 @@ name_struct_input_1 = '/sess_data_lfp_coherence_fk_200_W_5_rec001.mat';
 name_struct_input_2 = '/sess_data_lfp_coherence_fk_200_W_5_rec002.mat';
 
 
-filename = '_rec001_002.mat'; % -- filename for sess_data_info.mat
+filename = '_rec001_002_V2.mat'; % -- filename for sess_data_info.mat
 recording1 = 'rec001';
 recording2 = 'rec002';
 save_dir = 'rec001_002_corrected';
 
-freq_band = 'beta_band';
+freq_band = 'theta_band';
 monkey = 'Archie';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 fk = 200; W = 5;
@@ -53,8 +43,14 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 % theta band excluded sessions
-excluded_sess = [8,22,30,31];
-excluded_idx = [2,5,8,9];
+% excluded_sess = [8,22,30,31];
+% excluded_idx = [2,5,8,9];
+% sess_list = 1:size(sess_info{1},1);
+% sess_list(excluded_idx) = [];
+
+% theta band excluded sessions --- modified 
+excluded_sess = [8,30,31];
+excluded_idx = [2,8,9];
 sess_list = 1:size(sess_info{1},1);
 sess_list(excluded_idx) = [];
 
@@ -69,7 +65,8 @@ for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one 
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
-    if sess_info{2}{i} == '180702' % -- if RS is available 
+%     if sess_info{2}{i} == '180702' % -- if RS is available 
+    if any([4,6,7,10,11] == i) % -- if using rec 002
         dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording2));
         load(strcat(dir_Modulators,name_struct_input_2)); % RS LFP split into 1 sec window and artifacts removed
     else % -- use first recording 

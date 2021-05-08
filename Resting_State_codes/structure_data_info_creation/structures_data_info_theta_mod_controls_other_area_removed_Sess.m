@@ -32,9 +32,15 @@ fclose(fid);
 
 set(0,'DefaultLineLineWidth',2)
 
-% -- exclude bad sessions
-excluded_sess = [8,22,30,31];
-excluded_idx = [2,5,8,9];
+% % -- exclude bad sessions
+% excluded_sess = [8,22,30,31];
+% excluded_idx = [2,5,8,9];
+% sess_list = 1:size(sess_info{1},1);
+% sess_list(excluded_idx) = [];
+
+% -- exclude bad sessions -- modified (V2)
+excluded_sess = [8,30,31];
+excluded_idx = [2,8,9];
 sess_list = 1:size(sess_info{1},1);
 sess_list(excluded_idx) = [];
 
@@ -69,7 +75,7 @@ for s = sess_list
     if ~exist(dir_Ctrl, 'dir')
         mkdir(dir_Ctrl)
     end
-    save(strcat(dir_Ctrl,'/session_controls_other_areas_info_rec001_002_removed_artifacts.mat'),'sess_All_controls_other_areas');
+    save(strcat(dir_Ctrl,'/session_controls_other_areas_info_rec001_002_removed_artifacts_V2.mat'),'sess_All_controls_other_areas');
     
     
 end

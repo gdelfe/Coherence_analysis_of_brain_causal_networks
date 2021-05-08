@@ -50,7 +50,7 @@ for i = 1:size(sess_info{1},1) % For each session with at least one modulator
 %         system(sprintf('rm -rf Sess_%d',i))
 %     end 
      
-    !mv session_data_lfp_001.mat session_data_lfp_rec001.mat 
+    !mv sess_data_lfp_coherence_fk_200_W_5_movie.mat movie
 %     !rm -rf last_recording
 %     !rm -rf movie
 %     !mv sess_all_controls_other_areas_lfp_001.mat session_controls_other_areas_lfp_rec001.mat

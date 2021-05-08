@@ -32,8 +32,8 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/sess_controls_same_area_lfp_rec001_002_removed_artifacts.mat';
-filename = '_rec001_002.mat'; % -- filename for sess_data_info.mat 
+name_struct_input = '/sess_controls_same_area_lfp_rec001_002_removed_artifacts_V2.mat';
+filename = '_rec001_002_V2.mat'; % -- filename for sess_data_info.mat 
 recording = 'rec001_002_corrected';
 
 freq_band = 'theta_band';
@@ -45,11 +45,25 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-% -- exclude bad sessions 
-excluded_sess = [8,22,30,31];
-excluded_idx = [2,5,8,9];
+% % -- exclude bad sessions 
+% excluded_sess = [8,22,30,31];
+% excluded_idx = [2,5,8,9];
+% sess_list = 1:size(sess_info{1},1);
+% sess_list(excluded_idx) = [];
+
+
+% -- exclude bad sessions theta band -- modified (V2)
+excluded_sess = [8,30,31];
+excluded_idx = [2,8,9];
 sess_list = 1:size(sess_info{1},1);
 sess_list(excluded_idx) = [];
+rec002_session = [4,6,7,10,11];
+
+% beta band excluded sessions beta band 
+% excluded_sess = [14,30,41];
+% excluded_idx = [2,8,11];
+% sess_list = 1:size(sess_info{1},1);
+% sess_list(excluded_idx) = [];
 
 
 cnt_sr = 1; % counter sender-receiver coherencies
@@ -290,6 +304,7 @@ for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one 
     
 end
 
+keyboard
 
 dir_Ctrl = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',recording));
 if ~exist(dir_Ctrl, 'dir')
