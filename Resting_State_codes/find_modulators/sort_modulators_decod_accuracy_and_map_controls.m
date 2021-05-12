@@ -45,6 +45,7 @@ name_structure = '/modulators_decod_accuracy.mat';
 list_sess = 1:length(sess_info{3});
 modulators = [];
 cnt_el = 1;
+
 for i= list_sess  % For each session with at least one modulator
     
     Sess = sess_info{1}(i); % Session number

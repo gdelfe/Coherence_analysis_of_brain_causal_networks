@@ -23,23 +23,26 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 
 freq_band = 'theta_band';
 monkey = 'Archie';
+
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
-dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 dir_out = strcat(dir_main,sprintf('%s/Resting_state/%s/Modulators_controls',monkey,freq_band));
 
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-filename = '_AUC_rec001_002';
+filename = '_AUC_rec001_all'; % -- write out file 
 
-% -- exclude bad sessions 
-excluded_sess = [8,22,30,31];
-excluded_idx = [2,5,8,9];
+% % -- exclude bad sessions 
+% excluded_sess = [8,22,30,31];
+% excluded_idx = [2,5,8,9];
 sess_list = 1:size(sess_info{1},1);
-sess_list(excluded_idx) = [];
+% sess_list(excluded_idx) = [];
 
 name_structure = '/modulators_decod_accuracy.mat';
+name_struct_input_SA = '/session_controls_same_area_lfp_rec001.mat'; % -- structure controls Same Area
+name_struct_input_OA = '/session_controls_other_areas_lfp_rec001.mat'; % -- structure controls Other Areas
+
 
 modulators = [];
 
@@ -71,9 +74,9 @@ for i= sess_list  % For each session with at least one modulator
 end
 
 
-modulators(43,:) = [];
-modulators(30,:) = [];
-modulators(9,:) = [];
+% modulators(43,:) = [];
+% modulators(30,:) = [];
+% modulators(9,:) = [];
 
 
 modulators = [modulators, double(1:size(modulators,1))']
@@ -86,14 +89,13 @@ dlmwrite(strcat(dir_out,sprintf('/modulators_sorted_decod_accuracy_removed_Sess%
 % CONTROLS SAME AREA
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-name_struct_input = '/session_controls_same_area_info_rec001_002_removed_artifacts.mat';
 ctrl_list = [];
 
 for i = sess_list  % For each session with at least one modulator
 
     Sess = sess_info{1}(i); % Session number
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_same_area',Sess));
-    load(strcat(dir_Sess,name_struct_input)); % load data structure info 
+    load(strcat(dir_Sess,name_struct_input_SA)); % load data structure info 
     sess_controls = sess_All_controls_same_area;
     clear sess_All_controls_same_area;
     
@@ -104,7 +106,7 @@ for i = sess_list  % For each session with at least one modulator
 end
 
 ctrl_list = [ctrl_list, (1:size(ctrl_list,1))']; % Session, control idx, order index i
-dlmwrite(strcat(dir_out,'/control_list_same_area_removed_Sess_rec001_002.txt'),ctrl_list,'delimiter','\t'); % session, control idx, order index i
+dlmwrite(strcat(dir_out,sprintf('/control_list_same_area%s.txt',filename_ctrl)),ctrl_list,'delimiter','\t'); % session, control idx, order index i
 
 
 
@@ -112,14 +114,13 @@ dlmwrite(strcat(dir_out,'/control_list_same_area_removed_Sess_rec001_002.txt'),c
 % CONTROLS OTHER AREAS
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-name_struct_input = '/session_controls_other_areas_info_rec001_002_removed_artifacts.mat';
 ctrl_list = [];
 
 for i = sess_list  % For each session with at least one modulator
 
     Sess = sess_info{1}(i); % Session number
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
-    load(strcat(dir_Sess,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
+    load(strcat(dir_Sess,name_struct_input_OA)); % RS LFP split into 1 sec window and artifacts removed
     sess_controls = sess_All_controls_other_areas;
     clear sess_All_controls_other_areas;
     
@@ -130,7 +131,7 @@ for i = sess_list  % For each session with at least one modulator
 end
 
 ctrl_list = [ctrl_list, (1:size(ctrl_list,1))']; % Session, control idx, order index i
-dlmwrite(strcat(dir_out,'/control_list_other_areas_removed_Sess_rec001_002.txt'),ctrl_list,'delimiter','\t'); % session, control idx, order index i
+dlmwrite(strcat(dir_out,sprintf('/control_list_other_areas%s.txt',filename_ctrl)),ctrl_list,'delimiter','\t'); % session, control idx, order index i
 
 
 

@@ -27,7 +27,7 @@ name_struct_input_1 = '/sess_data_lfp_coherence_fk_200_W_5_rec001.mat';
 name_struct_input_2 = '/sess_data_lfp_coherence_fk_200_W_5_rec002.mat';
 
 
-filename = '_rec001_002_V2.mat'; % -- filename for sess_data_info.mat
+filename = '_rec001_002_all.mat'; % -- filename for sess_data_info.mat
 recording1 = 'rec001';
 recording2 = 'rec002';
 save_dir = 'rec001_002_corrected';
@@ -48,17 +48,17 @@ fclose(fid);
 % sess_list = 1:size(sess_info{1},1);
 % sess_list(excluded_idx) = [];
 
-% theta band excluded sessions --- modified 
-excluded_sess = [8,30,31];
-excluded_idx = [2,8,9];
-sess_list = 1:size(sess_info{1},1);
-sess_list(excluded_idx) = [];
+% % theta band excluded sessions --- modified 
+% excluded_sess = [8,30,31];
+% excluded_idx = [2,8,9];
+% sess_list = 1:size(sess_info{1},1);
+% sess_list(excluded_idx) = [];
 
 
 cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
 
-for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one modulator
+for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -90,20 +90,20 @@ for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one 
         
         if Ch ~= sess_data_lfp.receiver_idx            
             
-            if Sess == 19 && Ch == 29   % Exclude bad channel
-                % do nothing
-            elseif Sess == 29 && Ch == 68 % Exclude bad channel
-                % do nothing
-            elseif Sess == 41 && Ch == 8 % Exclude bad channel
-                % do nothing
-            else
+%             if Sess == 19 && Ch == 29   % Exclude bad channel
+%                 % do nothing
+%             elseif Sess == 29 && Ch == 68 % Exclude bad channel
+%                 % do nothing
+%             elseif Sess == 41 && Ch == 8 % Exclude bad channel
+%                 % do nothing
+%             else
                 % -- structure assignements
                 mod(cnt_el).c_ms = sess_data_lfp.mod(cnt_m).c_ms ; % assign M-S coherence value for this modulator
                 mod(cnt_el).c_mr = sess_data_lfp.mod(cnt_m).c_mr;  % M-R coherence
                 mod(cnt_el).s_m = sess_data_lfp.mod(cnt_m).S_m; % Modulator spectrum
                 
                 cnt_el = cnt_el + 1; % total modulators counter
-            end
+%             end
         end
         cnt_m = cnt_m + 1; % counter for modulators within this session
         

@@ -20,8 +20,8 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 
 freq_band = 'theta_band';
 monkey = 'Archie';
-filename = '_rec001_002.mat';
-recording = 'rec001_002_corrected';
+filename = '_rec001_002.mat'; % -- loading file name 
+recording = 'rec001_002_corrected'; % -- folder where to load file
 N = 41; % --- max number of modulators 
 figstr = sprintf('%d_theta_modulators_removed_Sess_rec001_002',N);
 title_caption = sprintf('rec001 rec002 - %d modulators - AUC',N)

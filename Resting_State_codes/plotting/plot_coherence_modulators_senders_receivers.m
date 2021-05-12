@@ -15,17 +15,20 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 
 freq_band = 'theta_band';
 monkey = 'Archie';
-recording = 'rec001_002_corrected';
-title_rec = 'rec 001 - 002 v2';
+filename = '_movie_all';
+recording = 'movie';
+title_rec = 'movie - ALL Sessions';
 freq_modulators = 'theta modulators';
+
+
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Controls = strcat(dir_RS,sprintf('/Modulators_Controls_avg_results/%s',recording));
 
 
 fk = 200; W = 5;
 % %%%%%%%%% MODULATORS  %%%%%%
-load(strcat(dir_Controls,sprintf('/coh_spec_m_fk_%d_W_%d_rec001_002.mat',fk,W))); % structure mod
-load(strcat(dir_Controls,sprintf('/coh_spec_sr_fk_%d_W_%d_rec001_002.mat',fk,W))); % structure stim
+load(strcat(dir_Controls,sprintf('/coh_spec_m_fk_%d_W_%d%s.mat',fk,W,filename))); % structure mod
+load(strcat(dir_Controls,sprintf('/coh_spec_sr_fk_%d_W_%d%s.mat',fk,W,filename))); % structure stim
 stim_mod = stim;
 mod_mod = mod;
 
@@ -56,27 +59,27 @@ shadedErrorBar(f,modulators.mean_coh_mr,modulators.err_mr,'lineprops',{'color',[
 shadedErrorBar(f,modulators.mean_coh_sr,modulators.err_sr,'lineprops',{'color',[0 204 204]/255},'patchSaturation',0.4); hold on
 
 grid on
-title(sprintf('%s - %s - Abs coherency of MR, MS, SR - %s',monkey,freq_modulators,title_rec),'FontSize',11);
+title(sprintf('%s - %s - Abs coherency of MR, MS - %s',monkey,freq_modulators,title_rec),'FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
-% legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10)
-% legend('M-S abs coherency','M-R abs coherency','FontSize',10)
-legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
+legend('M-S abs coherency','M-R abs coherency','S-R abs coherency','FontSize',10)
+% % % legend('M-S abs coherency','M-R abs coherency','FontSize',10)
+% legend('M-S abs mean','M-R abs mean','S-R abs mean','FontSize',10)
 % xlim([0 60])
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 keyboard
 
-fname = strcat(dir_Controls,sprintf('/coherency_MS_MR_SR_W_%d_fk_%d_%s.png',W,fk,freq_band));
+fname = strcat(dir_Controls,sprintf('/coherency_MS_MR_SR_W_%d_fk_%d_%s%s.png',W,fk,freq_band,filename));
 saveas(fig,fname)
-fname = strcat(dir_Controls,sprintf('/coherency_MS_MR_SR_W_%d_fk_%d_%s.fig',W,fk,freq_band));
+fname = strcat(dir_Controls,sprintf('/coherency_MS_MR_SR_W_%d_fk_%d_%s%s.fig',W,fk,freq_band,filename));
 saveas(fig,fname)
 
 
 
-fname = strcat(dir_Controls,sprintf('/coherency_MS_MR_W_%d_fk_%d_%s.png',W,fk,freq_band));
+fname = strcat(dir_Controls,sprintf('/coherency_MS_MR_W_%d_fk_%d_%s%s.png',W,fk,freq_band,filename));
 saveas(fig,fname)
-fname = strcat(dir_Controls,sprintf('/coherency_MS_MR_W_%d_fk_%d_%s.fig',W,fk,freq_band));
+fname = strcat(dir_Controls,sprintf('/coherency_MS_MR_W_%d_fk_%d_%s%s.fig',W,fk,freq_band,filename));
 saveas(fig,fname)
 
 

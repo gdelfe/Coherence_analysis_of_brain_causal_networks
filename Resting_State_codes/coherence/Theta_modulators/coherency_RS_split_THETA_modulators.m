@@ -31,11 +31,11 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/session_data_lfp_movie.mat';
-filename = '_rec001_002_V2.mat'; % -- filename for sess_data_info.mat 
-recording = 'rec001_002_corrected';
+name_struct_input = '/session_data_lfp_rec001.mat';
+filename = '_rec001.mat'; % -- filename for sess_data_info.mat 
+recording = 'rec001';
 
-freq_band = 'theta_band';
+freq_band = 'beta_band';
 monkey = 'Archie';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
