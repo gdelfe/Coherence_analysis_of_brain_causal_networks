@@ -28,7 +28,7 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'theta_band';
+freq_band = 'beta_band';
 monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
@@ -36,11 +36,11 @@ fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load se
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-filename = '_movie.mat'; % -- filename for sess_data_info.mat 
+filename = '_rec002.mat'; % -- write out filename for sess_data_info.mat 
 
-name_structure_data_info = '/session_controls_same_area_info_removed_artifacts.mat';
+name_structure_data_info = '/session_controls_same_area_info.mat';
 
-for i=1:size(sess_info{1},1)  % For each session with at least one modulator
+for i= 5:10 %1:size(sess_info{1},1)  % For each session with at least one modulator
     
     close all
     % -- MOVIE OR LAST RECORDING 
@@ -52,11 +52,8 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
 %     fid = fopen(file);
     
     
-    % -- RECORDING 001
-    addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick rec 001
-%     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % -- Archie rec 001
-    file = 'rec001.Frontal.lfp.dat' % -- Maverick for the rec 001 lfp loading
-%     file = 'rec001.Frontal_1.lfp.dat' % -- Archie for the rec 001 lfp loading
+    % -- RECORDING 002
+    file = strcat('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/',sprintf('%s/002/rec002.Frontal_1.lfp.dat',sess_info{2}{i}))
     fid = fopen(file);
 
     format = 'float=>single';
@@ -231,7 +228,7 @@ for i=1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m + 1;
     end
     
-    save(strcat(dir_Sess,sprintf('/sess_controls_same_area_lfp%s',filename)),'sess_control_lfp');
+    save(strcat(dir_Sess,sprintf('/session_controls_same_area_lfp%s',filename)),'sess_control_lfp');
 
     
 end

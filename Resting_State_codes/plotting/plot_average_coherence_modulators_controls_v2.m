@@ -19,44 +19,66 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Res
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 sess_list_file = '/Sessions_with_modulator_info_movie.txt';
-freq_band = 'beta_band';
-monkey = 'Archie';
-filename = '_movie'; % -- loading file name for coherence averages ******************
-filename_mod = '_decod_accuracy_all'; % -- loading file name for the list of modulators  ***************
+freq_band = 'theta_band';
+monkey = 'Maverick';
+filename = ''; % -- loading file name for coherence averages ******************
+filename_mod = '_AUC'; % -- loading file name for the list of modulators  ***************
 filename_ctrl = ''; % -- loading file name for the list of controls 
+f_ctrl = ''; % -- loading file name for the controls coherences *****************
 
-recording = 'movie'; % -- folder where to load coherency files  *************
-N = 80; % --- max number of modulators 
-figstr = sprintf('%d_beta_modulators_%s',N,recording); % -- name figure for the coherence  
-title_caption = sprintf('movie, decod accuracy - %d modulators',N) % -- title captions    **************
+save_dir = 'last_recording'; % -- saving directory *****************
+
+recording = 'last_recording'; % -- folder where to load coherency files  *************
+% title_caption = sprintf('movie - no bad Sessions, AUC') % -- title captions    **************
 
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Controls = strcat(dir_RS,sprintf('/Modulators_Controls_avg_results/%s',recording));
-% dir_Controls_decod = strcat(dir_Controls,'/AUC'); % -- folder where to save images ***********
-dir_Controls_decod = strcat(dir_Controls,'/decod_accuracy'); % -- folder where to save images ************
+dir_Controls_decod = strcat(dir_RS,sprintf('/Modulators_Controls_avg_results/%s/AUC',save_dir)); % -- folder where to save images ************
+% dir_Controls_decod = strcat(dir_RS,sprintf('/Modulators_Controls_avg_results/%s/decod_accuracy',save_dir)); % -- folder where to save images ************
 
 dir_mod_ctrl_list = strcat(dir_RS,'/Modulators_controls');
-
-mod_list = importdata(strcat(dir_mod_ctrl_list,sprintf('/modulators_sorted%s.txt',filename_mod)));
-display([sprintf('---- > Total number of modulators for %s is : ',monkey),num2str(size(mod_list,1))])
 
 fid = fopen(strcat(dir_RS,sess_list_file)); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-   
+% N = 10; % --- max number of modulators 
+N_list = [10,20,30,40,41];
 
-% -- select the first N index
-mod_idx = mod_list(1:N,4);
-sess_numb = unique(mod_list(1:N,1)); % session label with top modulators 
+% -- excluded bad beta sessions Archie 
+% excluded_sess = [14,16,22,30,41]; % --- beta
+% excluded_sess = [8,22,30,31]; % --- theta
 
-% -- exclude bad beta sessions Archie 
-excluded_idx = [2,3,5,8,11];
-sess_info{1}(excluded_idx) = [];
 
-% % -- exclude bad theta sessions Archie 
+
+% % -- excluded bad theta sessions Archie 
 % excluded_idx = [2,5,8,9];
 % sess_info{1}(excluded_idx) = [];
+
+
+for N = N_list
+
+    close all;
+    
+mod_list = importdata(strcat(dir_mod_ctrl_list,sprintf('/modulators_sorted%s.txt',filename_mod)));
+display([sprintf('---- > Total number of modulators for %s is : ',monkey),num2str(size(mod_list,1))])
+
+mod_remain = mod_list;
+
+% 
+% for j = excluded_sess
+%     mod_remain(mod_remain(:,1) == j,:) = [];
+% end
+
+N = min(N,length(mod_remain));
+title_caption = sprintf('last rec - all Sessions, AUC') % -- title captions    **************
+title_caption = sprintf('%s - %d modulators',title_caption,N);
+figstr = sprintf('%d_theta_modulators%s',N,f_ctrl); % -- name figure for the coherence ************* 
+
+% -- select the first N index
+mod_idx = mod_remain(1:N,4);
+
+sess_numb = unique(mod_remain(1:N,1)); % session label with top modulators 
 
 % -- find the session index corresponding to the session with top modulators 
 sess_idx = [];
@@ -64,11 +86,6 @@ for i=1:length(sess_numb)
     sess_idx = [sess_idx, find(sess_info{1}==sess_numb(i))];
 end
 
-% -- find the session index corresponding to the session with top modulators 
-sess_idx = [];
-for i=1:length(sess_info{1})
-    sess_idx = [sess_idx, find(sess_info{1}(i)==sess_numb)];
-end
 
 fk = 200; W = 5;
 % %%%%%%%%% MODULATORS  %%%%%%
@@ -85,8 +102,8 @@ modulators = mean_coh_and_spec_RS(mod_mod,stim_mod);
 %%%%%%%%% CONTROLS SAME AREA %%%%%%%%%%%%
 ctrl_list = importdata(strcat(dir_mod_ctrl_list,sprintf('/control_list_same_area%s.txt',filename_ctrl))); % session, modulator idx, order index i
 
-load(strcat(dir_Controls,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s.mat',fk,W,filename)));
-load(strcat(dir_Controls,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s.mat',fk,W,filename)));
+load(strcat(dir_Controls,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s.mat',fk,W,f_ctrl)));
+load(strcat(dir_Controls,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s.mat',fk,W,f_ctrl)));
 mod_ctrl_SA = mod;
 stim_ctrl_SA = stim;
 
@@ -104,8 +121,8 @@ ctrl_SA = mean_coh_and_spec_RS(mod_ctrl_SA,stim_ctrl_SA);
 %%%%%%%%% CONTROLS OTHER AREAS %%%%%%%%%%%
 ctrl_list = importdata(strcat(dir_mod_ctrl_list,sprintf('/control_list_other_areas%s.txt',filename_ctrl))); % session, modulator idx, order index i
 
-load(strcat(dir_Controls,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s.mat',fk,W,filename)));
-load(strcat(dir_Controls,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d%s.mat',fk,W,filename)));
+load(strcat(dir_Controls,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s.mat',fk,W,f_ctrl)));
+load(strcat(dir_Controls,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d%s.mat',fk,W,f_ctrl)));
 mod_ctrl_OA = mod;
 stim_ctrl_OA = stim;
 
@@ -185,10 +202,10 @@ saveas(fig,fname)
 
 
 save(strcat(dir_Controls_decod,sprintf('/modulators_N_%d%s.mat',N,filename_mod)),'modulators');
-save(strcat(dir_Controls_decod,sprintf('/controls_same_area_N_%d%s.mat',N,filename_mod)),'modulators');
-save(strcat(dir_Controls_decod,sprintf('/controls_other_areas_N_%d%s.mat',N,filename_mod)),'modulators');
+save(strcat(dir_Controls_decod,sprintf('/controls_same_area_N_%d%s.mat',N,filename_mod)),'ctrl_SA');
+save(strcat(dir_Controls_decod,sprintf('/controls_other_areas_N_%d%s.mat',N,filename_mod)),'ctrl_OA');
 
-    
+end    
     
     
 % keyboard 

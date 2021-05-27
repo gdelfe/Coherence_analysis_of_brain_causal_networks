@@ -32,9 +32,9 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/sess_controls_same_area_lfp_rec001.mat';
-filename = '_movie.mat'; % -- filename for sess_data_info.mat 
-recording = 'movie';
+name_struct_input = '/session_controls_same_area_lfp_rec002.mat'; % -- name file to load 
+filename = '_rec002.mat'; % -- write out filename for sess_data_info.mat 
+recording = 'rec002'; % -- write out directory
 
 freq_band = 'theta_band';
 monkey = 'Archie';
@@ -46,17 +46,17 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 % -- exclude bad sessions 
-excluded_sess = [8,22,30,31];
-excluded_idx = [2,5,8,9];
-sess_list = 1:size(sess_info{1},1);
-sess_list(excluded_idx) = [];
+% excluded_sess = [8,22,30,31];
+% excluded_idx = [2,5,8,9];
+% sess_list = 1:size(sess_info{1},1);
+% sess_list(excluded_idx) = [];
 
 
 cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
 
 
-for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one modulator
+for i = 4:11 %1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -241,20 +241,20 @@ for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one 
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
             % --- full length with artifacts
-            lfp_S_rshape = reshape(sess_control_lfp.lfp_S',[],1)';
-            lfp_R_rshape = reshape(sess_control_lfp.lfp_R',[],1)';
-            lfp_E_rshape = reshape(sq(sess_control_lfp.lfp_E(Ch,:,:))',[],1)';
-            
-            fig = figure;
-            plot(lfp_S_rshape)
-            hold on
-%             plot(lfp_R_rshape)
+%             lfp_S_rshape = reshape(sess_control_lfp.lfp_S',[],1)';
+%             lfp_R_rshape = reshape(sess_control_lfp.lfp_R',[],1)';
+%             lfp_E_rshape = reshape(sq(sess_control_lfp.lfp_E(Ch,:,:))',[],1)';
+%             
+%             fig = figure;
+%             plot(lfp_S_rshape)
 %             hold on
-            plot(lfp_E_rshape)
-            grid on
-            title(sprintf('full length - Controls modulator %d',Ch),'FontSize',11)
-            legend('Sender','Receiver','Modulator')
-            set(gcf, 'Position',  [100, 600, 1000, 500])
+% %             plot(lfp_R_rshape)
+% %             hold on
+%             plot(lfp_E_rshape)
+%             grid on
+%             title(sprintf('full length - Controls modulator %d',Ch),'FontSize',11)
+%             legend('Sender','Receiver','Modulator')
+%             set(gcf, 'Position',  [100, 600, 1000, 500])
             
             %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.fig',Ch));
             %                 saveas(fig,fig_name);
@@ -262,20 +262,20 @@ for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one 
             %                 saveas(fig,fig_name);
             
             % -- full length without artifacts
-            lfp_S_rshape = reshape(lfp_S',[],1)';
-            lfp_R_rshape = reshape(lfp_R',[],1)';
-            lfp_E_rshape = reshape(lfp_E',[],1)';
-            
-            fig = figure;
-            plot(lfp_S_rshape)
-            hold on
-            plot(lfp_R_rshape)
-            hold on
-            plot(lfp_E_rshape)
-            grid on
-            title('Cleaned version LFP Controls ','FontSize',11)
-            legend('Sender','Receiver','Modulator')
-            set(gcf, 'Position',  [100, 600, 1000, 500])
+%             lfp_S_rshape = reshape(lfp_S',[],1)';
+%             lfp_R_rshape = reshape(lfp_R',[],1)';
+%             lfp_E_rshape = reshape(lfp_E',[],1)';
+%             
+%             fig = figure;
+%             plot(lfp_S_rshape)
+%             hold on
+%             plot(lfp_R_rshape)
+%             hold on
+%             plot(lfp_E_rshape)
+%             grid on
+%             title('Cleaned version LFP Controls ','FontSize',11)
+%             legend('Sender','Receiver','Modulator')
+%             set(gcf, 'Position',  [100, 600, 1000, 500])
             
             %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
             %                 saveas(fig,fig_name);
@@ -287,18 +287,19 @@ for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one 
         cnt_m = cnt_m + 1; % counter for control within this session
 
     end    
-    
+        save(strcat(dir_Sess_Ctrl,sprintf('/sess_data_lfp_coherence_fk_%d_W_%d%s',fk,W,filename)),'sess_control_lfp');
+
 end
 
 
-dir_Ctrl = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',recording));
-if ~exist(dir_Ctrl, 'dir')
-    mkdir(dir_Ctrl)
-end   
-
-% Save coherence and spectrum data in structure format
-save(strcat(dir_Ctrl,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)),'mod');
-save(strcat(dir_Ctrl,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)),'stim');
+% dir_Ctrl = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',recording));
+% if ~exist(dir_Ctrl, 'dir')
+%     mkdir(dir_Ctrl)
+% end   
+% 
+% % Save coherence and spectrum data in structure format
+% save(strcat(dir_Ctrl,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)),'mod');
+% save(strcat(dir_Ctrl,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s',fk,W,filename)),'stim');
 
 
 % 

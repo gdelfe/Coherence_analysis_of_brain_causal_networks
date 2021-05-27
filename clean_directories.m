@@ -36,13 +36,13 @@ fclose(fid);
 % sess_list = importdata(strcat(dir_Stim,'/Sessions_list.txt'));
 % cd(dir_Stim)
 
-for i = 1:size(sess_info{1},1) % For each session with at least one modulator
+for i = 5:10 %1:size(sess_info{1},1) % For each session with at least one modulator
     
     
 %     close all
     Sess = sess_info{1}(i); % Session numberdir_Sess
 %     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
     cd(dir_Sess)
 %     dir_Controls = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
 %     dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d/Theta_band',i));
@@ -50,7 +50,9 @@ for i = 1:size(sess_info{1},1) % For each session with at least one modulator
 %         system(sprintf('rm -rf Sess_%d',i))
 %     end 
      
-    !mv sess_data_lfp_coherence_fk_200_W_5_movie.mat movie
+    !mv sess_controls_other_areas_lfp_rec002.mat session_controls_other_areas_lfp_rec002.mat 
+%     !mv sess_controls_same_area_lfp_rec002.mat session_controls_same_area_lfp_rec002.mat
+
 %     !rm -rf last_recording
 %     !rm -rf movie
 %     !mv sess_all_controls_other_areas_lfp_001.mat session_controls_other_areas_lfp_rec001.mat

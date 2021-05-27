@@ -32,9 +32,9 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/sess_controls_other_areas_lfp_movie.mat';
-filename = '_movie.mat'; % -- filename for sess_data_info.mat 
-recording = 'movie';
+name_struct_input = '/session_controls_other_areas_lfp_rec001.mat';
+filename = '_rec001.mat'; % -- filename for sess_data_info.mat 
+recording = 'rec001';
 
 freq_band = 'theta_band';
 monkey = 'Archie';
@@ -233,21 +233,21 @@ for i = 1:size(sess_info{1},1)
             %   FIGURES     %%%%%%%%%%%%%%%%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
-            % --- full length with artifacts
-            lfp_S_rshape = reshape(sess_control_lfp.lfp_S',[],1)';
-            lfp_R_rshape = reshape(sess_control_lfp.lfp_R',[],1)';
-            lfp_E_rshape = reshape(sq(sess_control_lfp.lfp_E(Ch,:,:))',[],1)';
+%             % --- full length with artifacts
+%             lfp_S_rshape = reshape(sess_control_lfp.lfp_S',[],1)';
+%             lfp_R_rshape = reshape(sess_control_lfp.lfp_R',[],1)';
+%             lfp_E_rshape = reshape(sq(sess_control_lfp.lfp_E(Ch,:,:))',[],1)';
             
-            fig = figure;
-            plot(lfp_S_rshape)
-            hold on
-            plot(lfp_R_rshape)
-            hold on
-            plot(lfp_E_rshape)
-            grid on
-            title(sprintf('full length - Controls modulator %d',Ch),'FontSize',11)
-            legend('Sender','Receiver','Modulator')
-            set(gcf, 'Position',  [100, 600, 1000, 500])
+%             fig = figure;
+%             plot(lfp_S_rshape)
+%             hold on
+%             plot(lfp_R_rshape)
+%             hold on
+%             plot(lfp_E_rshape)
+%             grid on
+%             title(sprintf('full length - Controls modulator %d',Ch),'FontSize',11)
+%             legend('Sender','Receiver','Modulator')
+%             set(gcf, 'Position',  [100, 600, 1000, 500])
             
             %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_full_length_mod_%d.fig',Ch));
             %                 saveas(fig,fig_name);
@@ -255,20 +255,20 @@ for i = 1:size(sess_info{1},1)
             %                 saveas(fig,fig_name);
             
             % -- full length without artifacts
-            lfp_S_rshape = reshape(lfp_S',[],1)';
-            lfp_R_rshape = reshape(lfp_R',[],1)';
-            lfp_E_rshape = reshape(lfp_E',[],1)';
-            
-            fig = figure;
-            plot(lfp_S_rshape)
-            hold on
-            plot(lfp_R_rshape)
-            hold on
-            plot(lfp_E_rshape)
-            grid on
-            title('Cleaned version LFP Controls ','FontSize',11)
-            legend('Sender','Receiver','Modulator')
-            set(gcf, 'Position',  [100, 600, 1000, 500])
+%             lfp_S_rshape = reshape(lfp_S',[],1)';
+%             lfp_R_rshape = reshape(lfp_R',[],1)';
+%             lfp_E_rshape = reshape(lfp_E',[],1)';
+%             
+%             fig = figure;
+%             plot(lfp_S_rshape)
+%             hold on
+%             plot(lfp_R_rshape)
+%             hold on
+%             plot(lfp_E_rshape)
+%             grid on
+%             title('Cleaned version LFP Controls ','FontSize',11)
+%             legend('Sender','Receiver','Modulator')
+%             set(gcf, 'Position',  [100, 600, 1000, 500])
             
             %                 fig_name = strcat(dir_Ctrl_all,sprintf('/LFP_Controls_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
             %                 saveas(fig,fig_name);
@@ -278,20 +278,20 @@ for i = 1:size(sess_info{1},1)
             cnt_el = cnt_el + 1; % total control counter            
         end
         cnt_m = cnt_m + 1; % counter for control within this session
-
     end    
-    
+    save(strcat(dir_Sess_Ctrl,sprintf('/sess_data_lfp_coherence_fk_%d_W_%d%s',fk,W,filename)),'sess_control_lfp');
+
 end
 
 
-dir_Ctrl = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',recording));
-if ~exist(dir_Ctrl, 'dir')
-    mkdir(dir_Ctrl)
-end    
-
-% Save coherence and spectrum data in structure format
-save(strcat(dir_Ctrl,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s',fk,W,filename)),'mod');
-save(strcat(dir_Ctrl,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d%s',fk,W,filename)),'stim');
+% dir_Ctrl = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',recording));
+% if ~exist(dir_Ctrl, 'dir')
+%     mkdir(dir_Ctrl)
+% end    
+% 
+% % Save coherence and spectrum data in structure format
+% save(strcat(dir_Ctrl,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s',fk,W,filename)),'mod');
+% save(strcat(dir_Ctrl,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d%s',fk,W,filename)),'stim');
 
 
 % keyboard

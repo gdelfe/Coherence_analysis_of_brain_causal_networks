@@ -1,14 +1,15 @@
 
 clear all; close all;
 
-set(0,'DefaultFigureVisible','off')
+set(0,'DefaultFigureVisible','on')
 set(0,'DefaultLineLineWidth',2)
 
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
+dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Maverick/Resting_state/beta_band';
+dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
 
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
@@ -34,9 +35,9 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
     % h = fread(fid,[CH,diff(bn)*FS./1e3],format);
     % ---- bipolar referencing, pairs of electrodes
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
-    if ~exist(dir_Sess, 'dir')
-        mkdir(dir_Sess)
-    end
+%     if ~exist(dir_Sess, 'dir')
+%         mkdir(dir_Sess)
+%     end
     
     % -- load list electrodes, sender, receiver
     electrode = importdata(strcat(dir_Sess,sprintf('/recorded_pairs_modulators_Sess_%d.txt',Sess))); %Data.RecordPair;   % ---- all potential modulator pairs
@@ -60,6 +61,7 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
     lfp_S = lfp_S(:,1:tot_time);
     lfp_R = lfp_R(:,1:tot_time);
     
+    dlmwrite(strcat('')
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % --------- COHERENCE-GRAM --------------%
@@ -76,6 +78,11 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
     
     % --- coherence
     [c_sr,tf,f,spec_r,spec_s] = tfcoh_GINO(lfp_R,lfp_S,tapers,1e3,dn,60,2,[],[],1);
+    
+    dlmwrite(strcat(dir_main,'/lfp_S.txt'),lfp_S,'delimiter','\t');
+    dlmwrite(strcat(dir_main,'/lfp_R.txt'),lfp_R,'delimiter','\t');
+
+
     
     % Ch = 34;
     % [c_ms,tf,f,spec_r,spec_s] = tfcoh_GINO(lfpRS(Ch,:),lfp_S,tapers,1e3,dn,60,2,[],[],1); % coherence modulator-sender
@@ -130,11 +137,11 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
         disp(['--- Sess ',num2str(Sess), '  -- Channel --> ** ',num2str(Ch),' **   out of  ',num2str(size(electrode,1)),'  tot channels'])
         
         % directory path to save files
-        dir_Ch = sprintf('/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State/Sess_%d/p_th_0.005/Ch_%d',Sess,Ch);
+        dir_Ch = sprintf(strcat(dir_RS,sprintf('/Sess_%d/p_th_0.005/Ch_%d',Sess,Ch)));
         
-        if ~exist(dir_Ch, 'dir')
-            mkdir(dir_Ch)
-        end
+%         if ~exist(dir_Ch, 'dir')
+%             mkdir(dir_Ch)
+%         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % ---- Modulator's Spectrogram
@@ -152,8 +159,8 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
         [specRS, fRS , tiRS] = tfspec_GINO(lfpRS(Ch,:),tapers,fs,dn,fk,pad,0.05,0,1);
         fig = figure; tvimage(sq(log(specRS(1:500,:)))); title(sprintf('RS - N = %.2f, W = %d, dn = %.4f, k = %d',tapers(1),tapers(2),dn,k)); colorbar;
         
-        fname = strcat(dir_Ch,sprintf('/spectrogram_Ch_%d.jpg',Ch));
-        saveas(fig,fname);
+%         fname = strcat(dir_Ch,sprintf('/spectrogram_Ch_%d.jpg',Ch));
+%         saveas(fig,fname);
         
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -366,7 +373,7 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
         % -- PERMUTATION TEST ----  %%
         % ------------------------- %%
         display(['Running permutation test...'])
-        iter = 1000; % number of iterations
+        iter = 100; % number of iterations
         diff_AM = zeros(iter,size(c_sr,2));
         diff_MA = zeros(iter,size(c_sr,2));
         for j = 1:iter
@@ -436,7 +443,10 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
         fname = strcat(dir_Ch,sprintf('/std_of_coherence_difference_fq_%d_%d_step_%d.jpg',fmin,fmax,step));
         saveas(fig,fname);
         
-        
+        freq = 60;
+        fig = figure; histogram(diff_MA(:,60),30,'Normalization','probability','FaceAlpha',.6); grid on
+        legend('diff MA')
+        title('Difference at a given frequency','FontSize',12)
         
         % ------------------------  %%
         % -----   Z-SCORES     ----  %%
@@ -468,10 +478,10 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
         
         
         % -- FIGURE: histogram of zscores across frequencies
-        % fig = figure; histogram(zscore_AM,30,'Normalization','probability','FaceAlpha',.6); grid on
-        % hold on; histogram(zscore_MA,30,'Normalization','probability','FaceAlpha',.6); grid on
-        % legend('zscore AM','zscore MA')
-        % title('z distribution across freq','FontSize',12)
+%         fig = figure; histogram(zscore_AM,30,'Normalization','probability','FaceAlpha',.6); grid on
+%         hold on; histogram(zscore_MA,30,'Normalization','probability','FaceAlpha',.6); grid on
+%         legend('zscore AM','zscore MA')
+%         title('z distribution across freq','FontSize',12)
         
         % fname = strcat(dir,sprintf('/zscore_histog_fq_%d_%d.jpg',fmin,fmax));
         % saveas(fig,fname);
@@ -552,7 +562,7 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
         
         f_lim = 246; % f bin limit: -> consider only frequencies up to 30 Hz
         
-        dir_pval = sprintf('/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State/Sess_%d/p_th_0.005/',Sess);
+        dir_pval = strcat(dir_RS,sprintf('/Sess_%d/p_th_0.005/',Sess));
         if ~exist(dir_pval, 'dir')
             mkdir(dir_pval)
         end
@@ -617,7 +627,7 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
         
         % Histogram of the z-score max
         fig = figure;
-        histogram(abs(zmaxAM_Perm),30,'Normalization','probability','FaceAlpha',.6); grid on
+        histogram(zmaxAM_Perm,30,'Normalization','probability','FaceAlpha',.6); grid on
         hold on; histogram(abs(zmaxMA_Perm),30,'Normalization','probability','FaceAlpha',.6); grid on
         legend('z-score cluster size AM','z-score cluster size MA')
         title('z-score cluster size','FontSize',12)

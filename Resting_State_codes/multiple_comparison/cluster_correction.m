@@ -53,6 +53,7 @@ if nnz(z_clust ~= 0) % if some cluster has survived the thresholding
     % Compute the sum of the z-scores in each cluster
     for i=1:length(blocks)
         zClustSum{i} = sum(abs(blocks{i}));
+%         zClustSum{i} = sum(blocks{i});
     end
     
     % Compute the max of the sum of the z-scores in each cluster

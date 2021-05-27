@@ -4,6 +4,7 @@
 % This code creates the .mat files for the mr, ms, sr coherence relative to
 % specific sessions (e.g. with no artifacts, no bad channels)
 % 
+% This is the version for the beta band 
 %
 %    @ Gino Del Ferraro, May 2021, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -21,18 +22,22 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-% name_struct_input = '/sess_data_lfp_coherence_fk_200_W_5_movie.mat';
+name_struct_input = '/sess_data_lfp_coherence_fk_200_W_5_rec001.mat';
+recording = 'rec001'; % -- session folder where to load lfp_coherence file 
+filename = '_rec001.mat'; % -- write out filename for sess_data_info.mat
+save_dir = 'rec001_all_sessions';
 
-name_struct_input_1 = '/sess_data_lfp_coherence_fk_200_W_5_rec001.mat';
-name_struct_input_2 = '/sess_data_lfp_coherence_fk_200_W_5_rec002.mat';
+
+% name_struct_input_1 = '/sess_data_lfp_coherence_fk_200_W_5_rec001.mat';
+% name_struct_input_2 = '/sess_data_lfp_coherence_fk_200_W_5_rec002.mat';
 
 
-filename = '_rec001_002_all.mat'; % -- filename for sess_data_info.mat
-recording1 = 'rec001';
-recording2 = 'rec002';
-save_dir = 'rec001_002_corrected';
+% filename = '_rec001_002.mat'; % -- filename for sess_data_info.mat
+% recording1 = 'rec001';
+% recording2 = 'rec002';
+% save_dir = 'rec001_002_corrected';
 
-freq_band = 'theta_band';
+freq_band = 'beta_band';
 monkey = 'Archie';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 fk = 200; W = 5;
@@ -42,15 +47,17 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-% theta band excluded sessions
-% excluded_sess = [8,22,30,31];
-% excluded_idx = [2,5,8,9];
+
+% % beta band excluded sessions - rec 001/002
+% excluded_sess = [14,30,41];
+% excluded_idx = [2,8,11];
 % sess_list = 1:size(sess_info{1},1);
 % sess_list(excluded_idx) = [];
 
-% % theta band excluded sessions --- modified 
-% excluded_sess = [8,30,31];
-% excluded_idx = [2,8,9];
+
+% beta band excluded sessions - rec 001/002
+% excluded_sess = [14,16,22,30,41];
+% excluded_idx = [2,3,5,8,11];
 % sess_list = 1:size(sess_info{1},1);
 % sess_list(excluded_idx) = [];
 
@@ -65,15 +72,21 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
-%     if sess_info{2}{i} == '180702' % -- if RS is available 
-    if any([4,6,7,10,11] == i) % -- if using rec 002
-        dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording2));
-        load(strcat(dir_Modulators,name_struct_input_2)); % RS LFP split into 1 sec window and artifacts removed
-    else % -- use first recording 
-        dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording1));
-        load(strcat(dir_Modulators,name_struct_input_1)); % RS LFP split into 1 sec window and artifacts removed
-    end 
+% %     if sess_info{2}{i} == '180702' % -- if RS is available 
+%     if any([6,7,9,10] == i) % -- if RS is available 
+%         dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording2));
+%         load(strcat(dir_Modulators,name_struct_input_2)); % RS LFP split into 1 sec window and artifacts removed
+%     else % -- use first recording 
+%         dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording1));
+%         load(strcat(dir_Modulators,name_struct_input_1)); % RS LFP split into 1 sec window and artifacts removed
+%     end 
     
+%     
+    % -- movie
+    dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording));
+    load(strcat(dir_Modulators,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
+
+
     
     % -- store coherence values sender-receiver and spectrums
     stim(cnt_sr).c_sr = sess_data_lfp.c_sr; % assign S-R coherence value
@@ -90,13 +103,9 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         if Ch ~= sess_data_lfp.receiver_idx            
             
-%             if Sess == 19 && Ch == 29   % Exclude bad channel
+%              if Sess == 29 && Ch == 31   % Exclude bad channel
 %                 % do nothing
-%             elseif Sess == 29 && Ch == 68 % Exclude bad channel
-%                 % do nothing
-%             elseif Sess == 41 && Ch == 8 % Exclude bad channel
-%                 % do nothing
-%             else
+%              else
                 % -- structure assignements
                 mod(cnt_el).c_ms = sess_data_lfp.mod(cnt_m).c_ms ; % assign M-S coherence value for this modulator
                 mod(cnt_el).c_mr = sess_data_lfp.mod(cnt_m).c_mr;  % M-R coherence
@@ -106,13 +115,11 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
 %             end
         end
         cnt_m = cnt_m + 1; % counter for modulators within this session
-        
-    end
+    end 
     
 end
-
-
-keyboard
+ 
+% keyboard
 
 dir_Mod_results = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',save_dir));
 if ~exist(dir_Mod_results, 'dir')

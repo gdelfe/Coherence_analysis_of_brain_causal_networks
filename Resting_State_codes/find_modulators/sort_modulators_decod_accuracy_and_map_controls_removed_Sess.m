@@ -27,11 +27,12 @@ monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_out = strcat(dir_main,sprintf('%s/Resting_state/%s/Modulators_controls',monkey,freq_band));
 
-fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); %: USE MOVIE also for Maverick (bad sess removed) load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-filename = '_AUC_rec001_all'; % -- write out file 
+filename = '_decod_accuracy_all'; % -- write out file for the modulators 
+filename_ctrl = ''; % -- write out file for the controls 
 
 % % -- exclude bad sessions 
 % excluded_sess = [8,22,30,31];
@@ -40,8 +41,8 @@ sess_list = 1:size(sess_info{1},1);
 % sess_list(excluded_idx) = [];
 
 name_structure = '/modulators_decod_accuracy.mat';
-name_struct_input_SA = '/session_controls_same_area_lfp_rec001.mat'; % -- structure controls Same Area
-name_struct_input_OA = '/session_controls_other_areas_lfp_rec001.mat'; % -- structure controls Other Areas
+name_struct_input_SA = '/session_controls_same_area_info.mat'; % -- structure controls Same Area
+name_struct_input_OA = '/session_controls_other_areas_info.mat'; % -- structure controls Other Areas
 
 
 modulators = [];
@@ -57,8 +58,8 @@ for i= sess_list  % For each session with at least one modulator
     
     rec_idx = sess_data.receiver_idx; 
     mod_list = mod_accuracy.mod_idx;
-    accuracy = mod_accuracy.auc';
-%     accuracy = mod_accuracy.Decod_Accuracy';
+%     accuracy = mod_accuracy.auc';
+    accuracy = mod_accuracy.Decod_Accuracy';
     
     idx = find(mod_list == rec_idx); % get the index for the modulator-receiver 
 
@@ -74,16 +75,21 @@ for i= sess_list  % For each session with at least one modulator
 end
 
 
-% modulators(43,:) = [];
+% modulators(37,:) = [];
+% modulators(30,:) = [];
+% modulators(9,:) = [];
+
+% modulators(37,:) = [];
 % modulators(30,:) = [];
 % modulators(9,:) = [];
 
 
-modulators = [modulators, double(1:size(modulators,1))']
+modulators = [modulators, double(1:size(modulators,1))'] % session, modulator idx, decod accuracy, order in coherence avg structure
 modulators = sortrows(modulators,3,'descend');
 
-dlmwrite(strcat(dir_out,sprintf('/modulators_sorted_decod_accuracy_removed_Sess%s.txt',filename)),modulators,'delimiter','\t'); % session, modulator idx, decod accuracy, order index i
+dlmwrite(strcat(dir_out,sprintf('/modulators_sorted%s.txt',filename)),modulators,'delimiter','\t'); % session, modulator idx, decod accuracy, order index i
 
+keyboard 
  
 %%%%%%%%%%%%%%%%%%%%%%%%
 % CONTROLS SAME AREA
@@ -97,6 +103,7 @@ for i = sess_list  % For each session with at least one modulator
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_same_area',Sess));
     load(strcat(dir_Sess,name_struct_input_SA)); % load data structure info 
     sess_controls = sess_All_controls_same_area;
+%     sess_controls = sess_control_lfp;
     clear sess_All_controls_same_area;
     
     sessions = repmat(Sess,1,size(sess_controls.ctrl_idx,2));
@@ -122,6 +129,7 @@ for i = sess_list  % For each session with at least one modulator
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
     load(strcat(dir_Sess,name_struct_input_OA)); % RS LFP split into 1 sec window and artifacts removed
     sess_controls = sess_All_controls_other_areas;
+%     sess_controls = sess_control_lfp;
     clear sess_All_controls_other_areas;
     
     sessions = repmat(Sess,1,size(sess_controls.ctrl_idx,2));
