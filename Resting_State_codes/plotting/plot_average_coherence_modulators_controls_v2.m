@@ -20,7 +20,7 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 
 sess_list_file = '/Sessions_with_modulator_info_movie.txt';
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 filename = ''; % -- loading file name for coherence averages ******************
 filename_mod = '_AUC'; % -- loading file name for the list of modulators  ***************
 filename_ctrl = ''; % -- loading file name for the list of controls 

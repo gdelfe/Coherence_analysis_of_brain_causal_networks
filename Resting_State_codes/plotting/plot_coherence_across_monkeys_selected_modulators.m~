@@ -122,12 +122,12 @@ modulators = mean_coh_and_spec_across_monkeys(struct_mod_mav,struct_stim_mav,str
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CONTROLS SAME AREA MAVERICK              %
 
-load(strcat(dir_Maverick_avg,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s',fk,W,namef_mav)));
-load(strcat(dir_Maverick_avg,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s',fk,W,namef_mav)));
+load(strcat(dir_avg_coh_Maverick,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s',fk,W,namefile)));
+load(strcat(dir_avg_coh_Maverick,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s',fk,W,namefile)));
 mod_ctrl_SA_mav = mod;
 stim_ctrl_SA_mav = stim;
 
-ctrl_list = importdata(strcat(dir_list_mav,'/control_list_same_area.txt'));
+ctrl_list = importdata(strcat(dir_ctrl_Maverick,'/control_list_same_area.txt'));
 
 % -- get the index of the controls associated with sessions where the top modulators are found 
 ctrl_idx_M = [];
@@ -142,12 +142,12 @@ stim_ctrl_SA_mav = stim_ctrl_SA_mav(sess_idx_M);
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CONTROLS SAME AREA ARCHIE              %
 
-load(strcat(dir_Archie_avg,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s',fk,W,namef_arc)));
-load(strcat(dir_Archie_avg,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s',fk,W,namef_arc)));
+load(strcat(dir_avg_coh_Archie,sprintf('/coh_spec_m_Controls_same_area_fk_%d_W_%d%s',fk,W,namefile)));
+load(strcat(dir_avg_coh_Archie,sprintf('/coh_spec_sr_Controls_same_area_fk_%d_W_%d%s',fk,W,namefile)));
 mod_ctrl_SA_arc = mod;
 stim_ctrl_SA_arc = stim;
 
-ctrl_list = importdata(strcat(dir_list_arc,'/control_list_same_area.txt'));
+ctrl_list = importdata(strcat(dir_ctrl_Archie,'/control_list_same_area.txt'));
 
 % -- get the index of the controls associated with sessions where the top modulators are found 
 ctrl_idx_A = [];
@@ -166,12 +166,12 @@ ctrl_SA = mean_coh_and_spec_across_monkeys(mod_ctrl_SA_mav,stim_ctrl_SA_mav,mod_
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CONTROLS OTHER AREAS MAVERICK              %
 
-load(strcat(dir_Maverick_avg,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s',fk,W,namef_mav)));
-load(strcat(dir_Maverick_avg,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d%s',fk,W,namef_mav)));
+load(strcat(dir_avg_coh_Maverick,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s',fk,W,namefile)));
+load(strcat(dir_avg_coh_Maverick,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d%s',fk,W,namefile)));
 mod_ctrl_OA_mav = mod;
 stim_ctrl_OA_mav = stim;
 
-ctrl_list = importdata(strcat(dir_list_mav,'/control_list_other_areas.txt'));
+ctrl_list = importdata(strcat(dir_ctrl_Maverick,'/control_list_other_areas.txt'));
 
 % -- get the index of the controls associated with sessions where the top modulators are found 
 ctrl_idx_M = [];
@@ -187,12 +187,12 @@ stim_ctrl_OA_mav = stim_ctrl_OA_mav(sess_idx_M);
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CONTROLS OTHER AREAS ARCHIE              %
 
-load(strcat(dir_Archie_avg,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s',fk,W,namef_arc)));
-load(strcat(dir_Archie_avg,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d%s',fk,W,namef_arc)));
+load(strcat(dir_avg_coh_Archie,sprintf('/coh_spec_m_Controls_other_areas_fk_%d_W_%d%s',fk,W,namefile)));
+load(strcat(dir_avg_coh_Archie,sprintf('/coh_spec_sr_Controls_other_areas_fk_%d_W_%d%s',fk,W,namefile)));
 mod_ctrl_OA_arc = mod;
 stim_ctrl_OA_arc = stim;
 
-ctrl_list = importdata(strcat(dir_list_arc,'/control_list_other_areas.txt'));
+ctrl_list = importdata(strcat(dir_ctrl_Archie,'/control_list_other_areas.txt'));
 
 % -- get the index of the controls associated with sessions where the top modulators are found 
 ctrl_idx_A = [];
