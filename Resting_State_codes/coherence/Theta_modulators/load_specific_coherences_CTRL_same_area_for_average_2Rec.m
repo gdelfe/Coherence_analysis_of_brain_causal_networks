@@ -31,7 +31,7 @@ recording1 = 'rec001';
 recording2 = 'rec002';
 save_dir = 'rec001_002_no_bad_sessions';
 
-freq_band = 'beta_band';
+freq_band = 'theta_band';
 monkey = 'Archie';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 fk = 200; W = 5;
@@ -51,15 +51,15 @@ fclose(fid);
 
 % beta band excluded sessions - rec 001/002
 % excluded_sess = [14,16,22,30,41];
-% excluded_idx = [2,3,5,8,11];
-% sess_list = 1:size(sess_info{1},1);
-% sess_list(excluded_idx) = [];
+excluded_idx = [2,5,8,9];
+sess_list = 1:size(sess_info{1},1);
+sess_list(excluded_idx) = [];
 
 
 cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
 
-for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
+for i = sess_list % 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -67,10 +67,10 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
 %     if sess_info{2}{i} == '180702' % -- if RS is available 
-    if any([6,7,9,10] == i) % -- if RS is available 
+    if any([4,6,7,10,11] == i) % -- if RS is available 
         dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area/%s',Sess,recording2));
         load(strcat(dir_Modulators,name_struct_input_2)); % RS LFP split into 1 sec window and artifacts removed
-    elseif any([1,3,4] == i) % -- use first recording 
+    elseif any([1,3,12] == i) % -- use first recording 
         dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area/%s',Sess,recording1));
         load(strcat(dir_Modulators,name_struct_input_1)); % RS LFP split into 1 sec window and artifacts removed
     end 
@@ -113,7 +113,6 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
 end
  
-keyboard
 
 dir_Mod_results = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',save_dir));
 if ~exist(dir_Mod_results, 'dir')

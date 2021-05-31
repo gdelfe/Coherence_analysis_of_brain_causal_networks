@@ -1,5 +1,4 @@
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all; close all;
@@ -16,23 +15,29 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 
 freq_band = 'theta_band';
 
-N = 10 % --- max number of modulators 
-N_mav = 10; 
-N_arc = 6;
-titleN = sprintf('%d perc top modulators - last_rec - rec001-002',N);
+N = 100 % --- max number of modulators 
+N_mav = 101; 
+N_arc = 44;
+decode = 'decod accuracy';
+decoding = 'decod_accuracy';
+titleN = sprintf('%d%% top modulators - last rec - rec001-002, %s',N,decode);
+
+arc_bad_sess = [8,22,30,31];
 
 recording_mav = 'last_recording';
-recording_arc = 'rec001_002_no_bad_sessions';
+recording_arc = 'rec001_002_all_sessions';
 
 namef_mav = '';
-namef_arc = '_rec001_002_no_bad_sess';
+namef_arc = '_rec001_002_all_sess';
 
-name = '_last_rec-rec001_002_no_bad_sess';
+name = 'last_rec-rec001_002_no_bad_sess';
 namefig = sprintf('%s.fig',name);
 namepng = sprintf('%s.png',name);
 
 recording_both = 'last_rec-rec001_002';
-decoding = 'AUC';
+
+fname_list_modulators_mav = '/modulators_sorted_decod_accuracy.txt';
+fname_list_modulators_arc = '/modulators_unsorted_decod_accuracy_all.txt';
 
 
 dir_list_mav = strcat(dir_main,sprintf('Maverick/Resting_state/%s/Modulators_controls',freq_band));
@@ -46,16 +51,20 @@ dir_Archie_avg = strcat(dir_main,sprintf('Archie/Resting_State/%s/Modulators_Con
 
 fk = 200; W = 5;
 dir_both_monkeys = strcat(dir_main,sprintf('both_monkeys/%s/modulators_vs_controls/%s/%s',freq_band,recording_both,decoding));
-
+if ~exist(dir_both_monkeys, 'dir')
+    mkdir(dir_both_monkeys)
+end
 
 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       MAVERICK              %
-mod_list = importdata(strcat(dir_list_mav,'/modulators_sorted_decod_accuracy.txt'));
+
+mod_list = importdata(strcat(dir_list_mav,sprintf('%s',fname_list_modulators_mav)));
 fid = fopen(strcat(dir_Maverick,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
+display(['Tot Maverick modulators is N = ',num2str(size(mod_list,1))])
 
 
 % -- select the first N index
@@ -82,13 +91,25 @@ struct_stim_mav = struct_stim_mav(sess_idx_M);
 
 
 
+
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %       ARCHIE                %
-mod_list = importdata(strcat(dir_list_arc,'/modulators_sorted_decod_accuracy.txt'));
+mod_list = importdata(strcat(dir_list_arc,sprintf('%s',fname_list_modulators_arc)));
 fid = fopen(strcat(dir_Archie,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
+% -- remove modulators belonging to bad sessions 
+idx_bad = [];
+for bad_s = arc_bad_sess
+    idx_bad = [idx_bad; mod_list(mod_list(:,1)== bad_s,4)]; % -- find indexes of removed modulators
+    mod_list(mod_list(:,1)==bad_s,:)=[];
+end
+
+mod_list = [mod_list(:,1:3), double(1:size(mod_list,1))']; % session, modulator idx, decod accuracy, order in coherence avg structure
+mod_list = sortrows(mod_list,3,'descend'); % sort in descending order 
+display(['Tot Archie modulators after removal bad sessions is N = ',num2str(size(mod_list,1))])
 
 % -- select the first N index
 mod_idx = mod_list(1:N_arc,4);
@@ -106,6 +127,11 @@ load(strcat(dir_Archie_avg,sprintf('/coh_spec_m_fk_%d_W_%d%s.mat',fk,W,namef_arc
 load(strcat(dir_Archie_avg,sprintf('/coh_spec_sr_fk_%d_W_%d%s.mat',fk,W,namef_arc))); % structure stim
 struct_mod_arc = mod;
 struct_stim_arc = stim;
+
+% -- remove coherence channels associated to the bad modulators 
+for idx = idx_bad
+    struct_mod_arc(idx) = [];
+end
 
 struct_mod_arc = struct_mod_arc(mod_idx);
 struct_stim_arc = struct_stim_arc(sess_idx_A);
@@ -233,16 +259,16 @@ shadedErrorBar(f,ctrl_SA.mean_coh_mr,ctrl_SA.err_mr,'lineprops',{'color',[26 198
 shadedErrorBar(f,ctrl_OA.mean_coh_mr,ctrl_OA.err_mr,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
 
 grid on
-title(sprintf('Both animals: Abs MR coherence, %s - Resting State',titleN),'FontSize',11);
+title(sprintf('Both animals: Abs MR coherence, %s - RS',titleN),'FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
 legend('Modulators-Receivers','Controls-Receivers  same area','Controls-Receiver  other areas','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-fname = strcat(dir_both_monkeys,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d_W_%d_fk_%d%s',N,W,fk,namefig));
+fname = strcat(dir_both_monkeys,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namefig));
 saveas(fig,fname)
-fname = strcat(dir_both_monkeys,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d_W_%d_fk_%d%s',N,W,fk,namepng));
+fname = strcat(dir_both_monkeys,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namepng));
 saveas(fig,fname)
 
 % --- ELECTRODE-SENDER coherence   -------%
@@ -263,9 +289,9 @@ legend('Modulators-Senders','Controls-Senders  same area','Controls-Senders  oth
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d_W_%d_fk_%d%s',N,W,fk,namefig));
+fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namefig));
 saveas(fig,fname)
-fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d_W_%d_fk_%d%s',N,W,fk,namepng));
+fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namepng));
 saveas(fig,fname)
 
 % keyboard 

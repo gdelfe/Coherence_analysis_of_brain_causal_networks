@@ -22,22 +22,13 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/sess_data_lfp_coherence_fk_200_W_5_rec001.mat';
-recording = 'rec001'; % -- session folder where to load lfp_coherence file 
-filename = '_rec001.mat'; % -- write out filename for sess_data_info.mat
-save_dir = 'rec001_all_sessions';
+name_struct_input = '/sess_data_lfp_coherence_fk_200_W_5_movie.mat';
+recording = 'movie'; % -- session folder where to load lfp_coherence file 
+filename = '_movie.mat'; % -- write out filename for sess_data_info.mat
+save_dir = 'movie_no_bad_sessions';
 
 
-% name_struct_input_1 = '/sess_data_lfp_coherence_fk_200_W_5_rec001.mat';
-% name_struct_input_2 = '/sess_data_lfp_coherence_fk_200_W_5_rec002.mat';
-
-
-% filename = '_rec001_002.mat'; % -- filename for sess_data_info.mat
-% recording1 = 'rec001';
-% recording2 = 'rec002';
-% save_dir = 'rec001_002_corrected';
-
-freq_band = 'beta_band';
+freq_band = 'theta_band';
 monkey = 'Archie';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 fk = 200; W = 5;
@@ -57,32 +48,21 @@ fclose(fid);
 
 % beta band excluded sessions - rec 001/002
 % excluded_sess = [14,16,22,30,41];
-% excluded_idx = [2,3,5,8,11];
-% sess_list = 1:size(sess_info{1},1);
-% sess_list(excluded_idx) = [];
+excluded_idx = [2,5,8,9];
+sess_list = 1:size(sess_info{1},1);
+sess_list(excluded_idx) = [];
 
 
 cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
 
-for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
+for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
-% %     if sess_info{2}{i} == '180702' % -- if RS is available 
-%     if any([6,7,9,10] == i) % -- if RS is available 
-%         dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording2));
-%         load(strcat(dir_Modulators,name_struct_input_2)); % RS LFP split into 1 sec window and artifacts removed
-%     else % -- use first recording 
-%         dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording1));
-%         load(strcat(dir_Modulators,name_struct_input_1)); % RS LFP split into 1 sec window and artifacts removed
-%     end 
-    
-%     
-    % -- movie
     dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area/%s',Sess,recording));
     load(strcat(dir_Modulators,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
 

@@ -32,7 +32,7 @@ recording1 = 'rec001';
 recording2 = 'rec002';
 save_dir = 'rec001_002_no_bad_sessions';
 
-freq_band = 'beta_band';
+freq_band = 'theta_band';
 monkey = 'Archie';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 fk = 200; W = 5;
@@ -50,26 +50,27 @@ fclose(fid);
 
 % % theta band excluded sessions --- modified 
 % excluded_sess = [8,30,31];
-% excluded_idx = [2,8,9];
-% sess_list = 1:size(sess_info{1},1);
-% sess_list(excluded_idx) = [];
+excluded_idx = [2,5,8,9];
+sess_list = 1:size(sess_info{1},1);
+sess_list(excluded_idx) = [];
 
 
 cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
 
-for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
+for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
+    clear sess_data_lfp
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     
 %     if sess_info{2}{i} == '180702' % -- if RS is available 
-    if any([6,7,9,10] == i) % -- if using rec 002
+    if any([4,6,7,10,11] == i) % -- if using rec 002
         dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording2));
         load(strcat(dir_Modulators,name_struct_input_2)); % RS LFP split into 1 sec window and artifacts removed
-    elseif any([1,3,4] == i)  % -- use first recording 
+    elseif any([1,3,12] == i)  % -- use first recording 
         dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording1));
         load(strcat(dir_Modulators,name_struct_input_1)); % RS LFP split into 1 sec window and artifacts removed
     end 

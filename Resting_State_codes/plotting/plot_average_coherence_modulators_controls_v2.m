@@ -19,22 +19,22 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Res
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 sess_list_file = '/Sessions_with_modulator_info_movie.txt';
-freq_band = 'theta_band';
+freq_band = 'beta_band';
 monkey = 'Archie';
-filename = ''; % -- loading file name for coherence averages ******************
-filename_mod = '_AUC'; % -- loading file name for the list of modulators  ***************
+filename = '_rec001_002_no_bad_sess'; % -- loading file name for coherence averages ******************
+filename_mod = '_decod_accuracy'; % -- loading file name for the list of modulators  ***************
 filename_ctrl = ''; % -- loading file name for the list of controls 
-f_ctrl = ''; % -- loading file name for the controls coherences *****************
+f_ctrl = '_rec001_002_no_bad_sess'; % -- loading file name for the controls coherences *****************
 
-save_dir = 'last_recording'; % -- saving directory *****************
+save_dir = 'rec001_002_no_bad_sessions'; % -- saving directory *****************
 
-recording = 'last_recording'; % -- folder where to load coherency files  *************
+recording = 'rec001_002_no_bad_sessions'; % -- folder where to load coherency files  *************
 % title_caption = sprintf('movie - no bad Sessions, AUC') % -- title captions    **************
 
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Controls = strcat(dir_RS,sprintf('/Modulators_Controls_avg_results/%s',recording));
-dir_Controls_decod = strcat(dir_RS,sprintf('/Modulators_Controls_avg_results/%s/AUC',save_dir)); % -- folder where to save images ************
-% dir_Controls_decod = strcat(dir_RS,sprintf('/Modulators_Controls_avg_results/%s/decod_accuracy',save_dir)); % -- folder where to save images ************
+% dir_Controls_decod = strcat(dir_RS,sprintf('/Modulators_Controls_avg_results/%s/AUC',save_dir)); % -- folder where to save images ************
+dir_Controls_decod = strcat(dir_RS,sprintf('/Modulators_Controls_avg_results/%s/decod_accuracy',save_dir)); % -- folder where to save images ************
 
 dir_mod_ctrl_list = strcat(dir_RS,'/Modulators_controls');
 
@@ -43,7 +43,7 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 % N = 10; % --- max number of modulators 
-N_list = [10,20,30,40,41];
+N_list = [10,20,30,40,60,80];
 
 % -- excluded bad beta sessions Archie 
 % excluded_sess = [14,16,22,30,41]; % --- beta
@@ -71,9 +71,9 @@ mod_remain = mod_list;
 % end
 
 N = min(N,length(mod_remain));
-title_caption = sprintf('last rec - all Sessions, AUC') % -- title captions    **************
+title_caption = sprintf('rec001-002 - no bad Sessions, decod accuracy') % -- title captions    **************
 title_caption = sprintf('%s - %d modulators',title_caption,N);
-figstr = sprintf('%d_theta_modulators%s',N,f_ctrl); % -- name figure for the coherence ************* 
+figstr = sprintf('%d_beta_modulators%s',N,f_ctrl); % -- name figure for the coherence ************* 
 
 % -- select the first N index
 mod_idx = mod_remain(1:N,4);
