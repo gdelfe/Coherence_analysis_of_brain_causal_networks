@@ -25,7 +25,7 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 name_struct_input = '/sess_data_lfp_coherence_fk_200_W_5_movie.mat';
 recording = 'movie'; % -- session folder where to load lfp_coherence file 
 filename = '_movie.mat'; % -- write out filename for sess_data_info.mat
-save_dir = 'movie_no_bad_sessions';
+save_dir = 'movie_all_sessions';
 
 
 freq_band = 'theta_band';
@@ -48,9 +48,9 @@ fclose(fid);
 
 % beta band excluded sessions - rec 001/002
 % excluded_sess = [14,16,22,30,41];
-excluded_idx = [2,5,8,9];
+excluded_idx = [2,3,5,8,11];
 sess_list = 1:size(sess_info{1},1);
-sess_list(excluded_idx) = [];
+% sess_list(excluded_idx) = [];
 
 
 cnt_sr = 1; % counter sender-receiver coherencies
@@ -67,7 +67,6 @@ for i = sess_list %1:size(sess_info{1},1)  % For each session with at least one 
     load(strcat(dir_Modulators,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
 
 
-   
     % -- store coherence values sender-receiver and spectrums
     stim(cnt_sr).c_sr = sess_data_lfp.c_sr; % assign S-R coherence value
     stim(cnt_sr).s_s = sess_data_lfp.s_s; % assign sender spectrum

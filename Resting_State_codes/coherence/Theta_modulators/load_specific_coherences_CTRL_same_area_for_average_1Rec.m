@@ -25,7 +25,7 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 name_struct_input = '/sess_data_lfp_coherence_fk_200_W_5_movie.mat';
 recording = 'movie'; % -- session folder where to load lfp_coherence file 
 filename = '_movie.mat'; % -- write out filename for sess_data_info.mat
-save_dir = 'movie_no_bad_sessions';
+save_dir = 'movie_all_sessions';
 
 
 freq_band = 'theta_band';
@@ -48,9 +48,9 @@ fclose(fid);
 
 % beta band excluded sessions - rec 001/002
 % excluded_sess = [14,16,22,30,41];
-excluded_idx = [2,5,8,9];
+excluded_idx = [2,3,5,8,11];
 sess_list = 1:size(sess_info{1},1);
-sess_list(excluded_idx) = [];
+% sess_list(excluded_idx) = [];
 
 
 cnt_sr = 1; % counter sender-receiver coherencies

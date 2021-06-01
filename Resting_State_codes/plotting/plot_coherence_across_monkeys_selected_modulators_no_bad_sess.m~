@@ -13,27 +13,36 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Res
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 
-freq_band = 'theta_band';
+freq_band = 'beta_band';
 
-N = 10 % --- max number of modulators 
-N_mav = 10; 
-N_arc = 6;
-titleN = sprintf('%d%% top modulators - last rec - rec001-002',N);
+N_list = [10,20,30,40,50,100];
+N_mav_list = [4,8,12,16,20,41];
+N_arc_list = [5,10,16,22,28,57];
 
-arc_bad_sess = [8,22,30,31];
+for i=1:length(N)
 
-recording_mav = 'last_recording';
-recording_arc = 'rec001_002_all_sessions';
+ N = N_list(i); % --- max number of modulators 
+N_mav = 4; 
+N_arc = 5;
+decode = 'AUC';
+decoding = 'AUC';
+titleN = sprintf('%d%% top modulators - movie-movie, %s',N,decode);
 
-namef_mav = '';
-namef_arc = '_rec001_002_all_sess';
+arc_bad_sess = [8,22,30,31]; % -- theta band 
+% arc_bad_sess = [14,22,30,41]; % -- beta band 
 
-name = 'last_rec-rec001_002_no_bad_sess';
+
+recording_mav = 'movie';
+recording_arc = 'movie_all_sessions';
+
+namef_mav = '_movie';
+namef_arc = '_movie';
+
+name = 'movie';
 namefig = sprintf('%s.fig',name);
 namepng = sprintf('%s.png',name);
 
-recording_both = 'last_rec-rec001_002';
-decoding = 'AUC';
+recording_both = 'movie';
 
 fname_list_modulators_mav = '/modulators_sorted_AUC.txt';
 fname_list_modulators_arc = '/modulators_unsorted_AUC_all.txt';
@@ -63,6 +72,7 @@ mod_list = importdata(strcat(dir_list_mav,sprintf('%s',fname_list_modulators_mav
 fid = fopen(strcat(dir_Maverick,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
+display(['Tot Maverick modulators is N = ',num2str(size(mod_list,1))])
 
 
 % -- select the first N index
@@ -107,7 +117,7 @@ end
 
 mod_list = [mod_list(:,1:3), double(1:size(mod_list,1))']; % session, modulator idx, decod accuracy, order in coherence avg structure
 mod_list = sortrows(mod_list,3,'descend'); % sort in descending order 
-
+display(['Tot Archie modulators after removal bad sessions is N = ',num2str(size(mod_list,1))])
 
 % -- select the first N index
 mod_idx = mod_list(1:N_arc,4);
@@ -287,11 +297,13 @@ legend('Modulators-Senders','Controls-Senders  same area','Controls-Senders  oth
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
 
-fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d_W_%d_fk_%d%s',N,W,fk,namefig));
+fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namefig));
 saveas(fig,fname)
-fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d_W_%d_fk_%d%s',N,W,fk,namepng));
+fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namepng));
 saveas(fig,fname)
 
+
+end 
 % keyboard 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -21,7 +21,7 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'beta_band';
+freq_band = 'theta_band';
 monkey = 'Archie';
 
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
@@ -31,7 +31,7 @@ fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); %: USE MO
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-filename = '_decod_accuracy_all'; % -- write out file for the modulators 
+filename = '_AUC_all'; % -- write out file for the modulators 
 filename_ctrl = ''; % -- write out file for the controls 
 
 % % -- exclude bad sessions 
@@ -58,8 +58,8 @@ for i= sess_list  % For each session with at least one modulator
     
     rec_idx = sess_data.receiver_idx; 
     mod_list = mod_accuracy.mod_idx;
-%     accuracy = mod_accuracy.auc';
-    accuracy = mod_accuracy.Decod_Accuracy';
+    accuracy = mod_accuracy.auc';
+%     accuracy = mod_accuracy.Decod_Accuracy';
     
     idx = find(mod_list == rec_idx); % get the index for the modulator-receiver 
 
@@ -88,8 +88,7 @@ modulators = [modulators, double(1:size(modulators,1))'] % session, modulator id
 % modulators = sortrows(modulators,3,'descend');
 
 dlmwrite(strcat(dir_out,sprintf('/modulators_unsorted%s.txt',filename)),modulators,'delimiter','\t'); % session, modulator idx, decod accuracy, order index i
-
-keyboard 
+ 
  
 %%%%%%%%%%%%%%%%%%%%%%%%
 % CONTROLS SAME AREA
