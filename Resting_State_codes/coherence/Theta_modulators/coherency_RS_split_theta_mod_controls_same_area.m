@@ -32,12 +32,12 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/session_controls_same_area_lfp_rec002.mat'; % -- name file to load 
-filename = '_rec002.mat'; % -- write out filename for sess_data_info.mat 
-recording = 'rec002'; % -- write out directory
+name_struct_input = '/session_controls_same_area_lfp.mat'; % -- name file to load 
+filename = '.mat'; % -- write out filename for sess_data_info.mat 
+recording = 'last_recording'; % -- write out directory
 
-freq_band = 'theta_band';
-monkey = 'Archie';
+freq_band = 'beta_band';
+monkey = 'Maverick';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
 
@@ -56,7 +56,7 @@ cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
 
 
-for i = 4:11 %1:size(sess_info{1},1)  % For each session with at least one modulator
+for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
