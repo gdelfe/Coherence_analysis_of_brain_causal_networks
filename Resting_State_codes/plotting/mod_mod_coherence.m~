@@ -21,6 +21,7 @@ sess_list_file = '/Sessions_with_modulator_info_movie.txt';
 freq_band = 'theta_band';
 freq = 'theta band';
 monkey = 'Archie';
+sess_list_idx = [7];
 
 filename_mod = '_rec002'; % -- loading file name for coherence averages ******************
 filename_ctrl = '_rec002'; % -- loading file name for the list the coherences in sess_data_lfp_coherence
@@ -36,13 +37,11 @@ if ~exist(dir_mod_network, 'dir')
     mkdir(dir_mod_network)
 end
 
-
 fid = fopen(strcat(dir_RS,sess_list_file)); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 fk = 200; W = 5;
-sess_list_idx = [7]; % session index for the specific edge considered 
 mod = [];
 ctrl_SA = [];
 ctrl_OA = [];
@@ -77,8 +76,12 @@ pad = 2;
 N = 1;
 W = 5;
 
-c_mm = zeros(length(mod.mod_idx),length(mod.mod_idx));
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MODULATOR - MODULATOR NETWORK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+c_mm = zeros(length(mod.mod_idx),length(mod.mod_idx));
 for m1 = 1:length(mod.mod_idx)
     ch1 = mod.mod_idx(m1); % channel modulator 1
     outliers_m1 = mod.outliers_E(m1).idx;
@@ -106,6 +109,7 @@ for m1 = 1:length(mod.mod_idx)
     
 end
 
+% FIGURE: modulator-modulator network
 fig = figure;
 tvimage(c_mm,'CLim',[0,1]);
 title(sprintf('%s: Theta Mod-Mod coherence, theta band, edge: %s',monkey,title_caption),'FontSize',10);
@@ -114,7 +118,9 @@ colorbar;
 fname = strcat(dir_mod_network,'/mod_mod_coherence.png');
 saveas(fig,fname)
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MODULATOR - CONTROL NETWORK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 c_mc = zeros(length(mod.mod_idx),length(mod.mod_idx));
 for m1 = 1:length(mod.mod_idx)
@@ -124,16 +130,16 @@ for m1 = 1:length(mod.mod_idx)
     for m2 = 1:length(mod.mod_idx)
         ch2 = mod.mod_idx(m2); % channel modulator 2
         
-        BrainRegM2 = ctrl_SA.RecordPairMRIlabels{ch2,1} % get brain area of modulator 2
-        brain_idx = ctrl_SA.MRIlabels.(BrainRegM2).ElecIndx % get all the indexes of channels in the same brain area
-        [val,pos]=intersect(brain_idx,ctrl_SA.ctrl_idx)  % find common channels between controls and electrodes in this brain area
+        BrainRegM2 = ctrl_SA.RecordPairMRIlabels{ch2,1}; % get brain area of modulator 2
+        brain_idx = ctrl_SA.MRIlabels.(BrainRegM2).ElecIndx; % get all the indexes of channels in the same brain area
+        [ctrl_ch,pos]=intersect(brain_idx,ctrl_SA.ctrl_idx); % find common channels between controls and electrodes in this brain area
         
-        i = 1;
-        for v = val % for all the controls in the same brain areas as m2
+        for ch_c = ctrl_ch % for all the controls in the same brain areas as m2
             
             lfp_m1 = sq(mod.lfp_E(ch1,:,:));
-            lfp_c2 = sq(mod.lfp_E(v,:,:)); % lfp control
-            outliers_c2 = mod.outliers_E(pos(i)).idx;
+            lfp_c2 = sq(ctrl_SA.lfp_E(ch_c,:,:)); % lfp control
+            i = find(ctrl_SA.ctrl_idx == ch_c); % find index of the control in that specific brain area
+            outliers_c2 = ctrl_SA.outliers_E(i).idx;
             
             % -- outliers
             outliers_mc = [outliers_m1, outliers_c2];
@@ -142,41 +148,43 @@ for m1 = 1:length(mod.mod_idx)
             lfp_m1(outliers_mc,:) = [];
             lfp_c2(outliers_mc,:) = [];
             
-            display(['Computing modulator-modulator coherence...'])
+            display(['Computing modulator-control coherence...'])
             [coh,f] = coherency(lfp_m1,lfp_c2,[N W],fs,fk,pad,0.05,1,1);
             
             c_mc(m1,m2) = c_mc(m1,m2) + mean(abs(coh(15:17)));
-            i = i + 1;
         end 
-        c_mc(m1,m2) = c_mc(m1,m2)/length(val); % normalize to get the average coherence
+        c_mc(m1,m2) = c_mc(m1,m2)/length(ctrl_ch); % normalize to get the average coherence
     end
     
 end
 
+% FIGURE: FULL MATRIX modulator-control network
 fig = figure;
 tvimage(c_mc,'CLim',[0,1]);
-title(sprintf('%s: FULL MAT: Theta Mod-Mod coherence, theta band, edge: %s',monkey,title_caption),'FontSize',10);
+title(sprintf('%s: Theta Mod-Ctrl coherence full, theta band, edge: %s',monkey,title_caption),'FontSize',10);
 colorbar;
 
 fname = strcat(dir_mod_network,'/mod_ctrl_coherence_full.png');
 saveas(fig,fname)
 
+
+% Average over modulator 1 and modulator 2
 c_mc_avg = zeros(length(mod.mod_idx),length(mod.mod_idx));
-tot = 0;
 for m1=1:length(mod.mod_idx)
-    for m2 =(m1+1):length(mod.mod_idx)
-        c_mc_avg(m1,m2) = (c_mc(m1,m2) + c_mc(m2,m1))/2;
-        tot = tot + c_mc_avg(m1,m2);
+    for m2=m1:length(mod.mod_idx)
+        c_mc_avg(m1,m2) = (c_mc(m1,m2) + c_mc(m2,m1))/2
     end
 end
 
 
+% FIGURE: modulator-control network
+
 fig = figure;
 tvimage(c_mc_avg,'CLim',[0,1]);
-title(sprintf('%s:Theta Mod-Mod coherence, theta band, edge: %s',monkey,title_caption),'FontSize',10);
+title(sprintf('%s: Theta Mod-Ctrl coherence, theta band, edge: %s',monkey,title_caption),'FontSize',10);
 colorbar;
 
-fname = strcat(dir_mod_network,'/mod_ctrl_coherence.png');
+fname = strcat(dir_mod_network,'/mod_m_coherence.png');
 saveas(fig,fname)
 
 
