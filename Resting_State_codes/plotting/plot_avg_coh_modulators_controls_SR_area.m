@@ -24,8 +24,8 @@ monkey = 'Maverick';
 
 filename_mod = ''; % -- loading file name for coherence averages ******************
 filename_ctrl = ''; % -- loading file name for the list the coherences in sess_data_lfp_coherence
-title_caption = 'S:OFC - R:CN'; % -- title caption 
-SR_brain_areas = 'OFC_CN'; % -- name of SR brain area for the figures and coherence files 
+title_caption = 'S:CN - R:CN'; % -- title caption 
+SR_brain_areas = 'CN_CN'; % -- name of SR brain area for the figures and coherence files 
 
 
 recording = 'last_recording'; % -- folder where to load coherency files  *************
@@ -37,7 +37,7 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 fk = 200; W = 5;
-sess_list_idx = [1,2,5,6,9,24];
+sess_list_idx = [15];
 mod = [];
 ctrl_SA = [];
 ctrl_OA = [];

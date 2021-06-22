@@ -20,16 +20,17 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 sess_list_file = '/Sessions_with_modulator_info_movie.txt';
 freq_band = 'theta_band';
 freq = 'theta band';
-monkey = 'Archie';
-sess_list_idx = [7];
+monkey = 'Maverick';
+sess_list_idx = [15];
+freq_range = 14:16;
 
-filename_mod = '_rec002'; % -- loading file name for coherence averages ******************
-filename_ctrl = '_rec002'; % -- loading file name for the list the coherences in sess_data_lfp_coherence
-title_caption = 'S:CN - R:ACC'; % -- title caption 
-SR_brain_areas = 'CN_ACC'; % -- name of SR brain area for the figures and coherence files 
+filename_mod = ''; % -- loading file name for coherence averages ******************
+filename_ctrl = ''; % -- loading file name for the list the coherences in sess_data_lfp_coherence
+title_caption = 'S:CN - R:CN'; % -- title caption 
+SR_brain_areas = 'CN_CN'; % -- name of SR brain area for the figures and coherence files 
 
 
-recording = 'rec002'; % -- folder where to load coherency files  *************
+recording = 'last_recording'; % -- folder where to load coherency files  *************
 
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_mod_network = strcat(dir_RS,sprintf('/Modulators_network/%s',SR_brain_areas));
@@ -103,7 +104,7 @@ for m1 = 1:length(mod.mod_idx)
         display(['Computing modulator-modulator coherence...'])
         [coh,f] = coherency(lfp_m1,lfp_m2,[N W],fs,fk,pad,0.05,1,1);
         
-        c_mm(m1,m2) = mean(abs(coh(15:17)));
+        c_mm(m1,m2) = mean(abs(coh(freq_range)));
         
     end
     
@@ -117,6 +118,7 @@ colorbar;
 
 fname = strcat(dir_mod_network,'/mod_mod_coherence.png');
 saveas(fig,fname)
+writematrix(c_mm, strcat(dir_mod_network,'/c_mm.txt'),'delimiter',' ');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MODULATOR - CONTROL NETWORK
@@ -151,7 +153,7 @@ for m1 = 1:length(mod.mod_idx)
             display(['Computing modulator-control coherence...'])
             [coh,f] = coherency(lfp_m1,lfp_c2,[N W],fs,fk,pad,0.05,1,1);
             
-            c_mc(m1,m2) = c_mc(m1,m2) + mean(abs(coh(15:17)));
+            c_mc(m1,m2) = c_mc(m1,m2) + mean(abs(coh(freq_range)));
         end 
         c_mc(m1,m2) = c_mc(m1,m2)/length(ctrl_ch); % normalize to get the average coherence
     end
@@ -184,7 +186,7 @@ tvimage(c_mc_avg,'CLim',[0,1]);
 title(sprintf('%s: Theta Mod-Ctrl coherence, theta band, edge: %s',monkey,title_caption),'FontSize',10);
 colorbar;
 
-fname = strcat(dir_mod_network,'/mod_m_coherence.png');
+fname = strcat(dir_mod_network,'/mod_ctrl_coherence.png');
 saveas(fig,fname)
 
 
