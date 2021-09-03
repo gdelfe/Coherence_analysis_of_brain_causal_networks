@@ -20,17 +20,17 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 sess_list_file = '/Sessions_with_modulator_info_movie.txt';
 freq_band = 'theta_band';
 freq = 'theta band';
-monkey = 'Maverick';
-sess_list_idx = [16];
-freq_range = 15:17;
+monkey = 'Archie';
+sess_list_idx = [7];
+freq_range = 11:13;
 
-filename_mod = ''; % -- loading file name for coherence averages ******************
-filename_ctrl = ''; % -- loading file name for the list the coherences in sess_data_lfp_coherence
-title_caption = 'S:CN - R:M1'; % -- title caption 
-SR_brain_areas = 'CN_M1'; % -- name of SR brain area for the figures and coherence files 
+filename_mod = '_rec002'; % -- loading file name for coherence averages ******************
+filename_ctrl = '_rec002'; % -- loading file name for the list the coherences in sess_data_lfp_coherence
+title_caption = 'S:CN - R:CN'; % -- title caption 
+SR_brain_areas = 'CN_CN'; % -- name of SR brain area for the figures and coherence files 
 
 
-recording = 'last_recording'; % -- folder where to load coherency files  *************
+recording = 'rec002'; % -- folder where to load coherency files  *************
 
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_mod_network = strcat(dir_RS,sprintf('/Modulators_network/%s',SR_brain_areas));
@@ -179,14 +179,15 @@ writematrix(c_mm, strcat(dir_mod_network,'/c_mm.txt'),'delimiter',' ');
 c_mc = zeros(length(mod.mod_idx),length(mod.mod_idx));
 for i = 1:length(mod.mod_idx)
     m1 = idx_order(i);
-    display(['----- m1 brain area: ',mod.mod_areas(m1)])
+%     display(['----- m1 brain area: ',mod.mod_areas(m1)])
 
     ch1 = mod.mod_idx(m1); % channel modulator 1
     outliers_m1 = mod.outliers_E(m1).idx;
 
+    display(['Computing modulator-control coherence...'])
     for j = 1:length(mod.mod_idx)
         m2 = idx_order(j);
-        display(['----- m1 brain area: ',mod.mod_areas(m2)])
+%         display(['----- m2 brain area: ',mod.mod_areas(m2)])
         ch2 = mod.mod_idx(m2); % channel modulator 2
         
         BrainRegM2 = ctrl_SA.RecordPairMRIlabels{ch2,1}; % get brain area of modulator 2
@@ -207,7 +208,6 @@ for i = 1:length(mod.mod_idx)
             lfp_m1(outliers_mc,:) = [];
             lfp_c2(outliers_mc,:) = [];
             
-            display(['Computing modulator-control coherence...'])
             [coh,f] = coherency(lfp_m1,lfp_c2,[N W],fs,fk,pad,0.05,1,1);
             
             c_mc(i,j) = c_mc(i,j) + mean(abs(coh(freq_range)));

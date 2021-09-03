@@ -131,7 +131,7 @@ for iSubject = 1% : length(subjects)
 %                         nCh_Use = numel(chs_FreqBand);
                         keyboard
                         nCh_Use = size(Data.RecordPair,1)
-                        for iCh = 30 %1 : nCh_Use
+                        for iCh = 34 %1 : nCh_Use
                             %iCh = find(chs_FreqBand(indx)==Data.RecordPair(:,1));
                             
 %                             fprintf('\n\n');

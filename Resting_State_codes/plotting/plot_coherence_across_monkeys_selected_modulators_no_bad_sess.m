@@ -13,17 +13,21 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Res
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 
-freq_band = 'beta_band';
+freq_band = 'theta_band';
 
 % -- beta
-N_list = [10,20,30,40,50,100];
-N_mav_list = [4,8,12,16,20,41];
-N_arc_list = [5,10,15,20,25,51];
+% N_list = [10,20,30,40,50,100];
+% N_mav_list = [4,8,12,16,20,41];
+% N_arc_list = [5,10,15,20,25,51];
 
 % -- theta
 % N_list = [10,20,30,40,50,100];
 % N_mav_list = [10,20,30,40,50,101];
 % N_arc_list = [4,8,12,17,22,44];
+
+N_list = [100];
+N_mav_list = [101];
+N_arc_list = [44];
 
 for i=1:length(N_list)
     
@@ -37,8 +41,8 @@ for i=1:length(N_list)
     titleN = sprintf('%d%% top modulators - last rec-rec001 002, %s',N,decode);
     
     % -- rec001-002
-%         arc_bad_sess = [8,22,30,31]; % -- theta band
-        arc_bad_sess = [14,22,30,41]; % -- beta band
+        arc_bad_sess = [8,22,30,31]; % -- theta band
+%         arc_bad_sess = [14,22,30,41]; % -- beta band
     
     % -- MOVIE
 %     arc_bad_sess = [8,22,30,31]; % -- theta band
@@ -318,6 +322,12 @@ for i=1:length(N_list)
     saveas(fig,fname)
     fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namepng));
     saveas(fig,fname)
+    
+    
+    save(strcat(dir_both_monkeys,sprintf('/modulators_N_%d.mat',N)),'modulators');
+    save(strcat(dir_both_monkeys,sprintf('/controls_same_area_N_%d.mat',N)),'ctrl_SA');
+    save(strcat(dir_both_monkeys,sprintf('/controls_other_areas_N_%d.mat',N)),'ctrl_OA');
+    
     
     
 end
