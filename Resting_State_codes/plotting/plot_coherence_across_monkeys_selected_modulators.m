@@ -17,8 +17,8 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 freq_band = 'theta_band';
 
 N = 10 % --- max number of modulators 
-N_mav = 10; 
-N_arc = 6;
+N_mav = 101; 
+N_arc = 44;
 titleN = sprintf('%d perc top modulators - last_rec - rec001-002',N);
 
 recording_mav = 'last_recording';

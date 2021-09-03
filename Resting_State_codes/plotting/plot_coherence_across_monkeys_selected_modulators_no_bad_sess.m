@@ -1,5 +1,20 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This code plots the MR and MS coherence across monkeys. It uses all the
+% last_rec sessions for Maverick (because Maverick does not have bad
+% sessions) and it uses a combination of rec001 and rec002 without bad
+% sessions for Archie.
+%
+% The code computes MS and MR for a varying number of TOP modulators, and
+% can be run also for all the modulators (N=100).
+%
+% It is flexible to both theta and beta frequency calculations
+%
+% OUTPUT: .png, .fig files and .mat files with the data for the coherence. 
+% All the output files are saved in the dir_both_monkeys path
+%
+% @Gino Del Ferraro, March 2021, NYU, Pesaran Lab 
+
 
 clear all; close all;
 
