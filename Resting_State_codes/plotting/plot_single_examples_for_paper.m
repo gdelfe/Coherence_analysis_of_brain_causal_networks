@@ -10,10 +10,10 @@
 %
 % It is flexible to both theta and beta frequency calculations
 %
-% OUTPUT: .png, .fig files and .mat files with the data for the coherence. 
+% OUTPUT: .png, .fig files and .mat files with the data for the coherence.
 % All the output files are saved in the dir_both_monkeys path
 %
-% @Gino Del Ferraro, March 2021, NYU,  
+% @Gino Del Ferraro, March 2021, NYU, Pesaran Lab
 
 
 clear all; close all;
@@ -26,7 +26,7 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
-
+dir_fig = strcat(dir_main,'Figures_paper');
 
 freq_band = 'theta_band';
 
@@ -36,13 +36,16 @@ freq_band = 'theta_band';
 % N_arc_list = [5,10,15,20,25,51];
 
 % -- theta
-% N_list = [10,20,30,40,50,100];
-% N_mav_list = [10,20,30,40,50,101];
-% N_arc_list = [4,8,12,17,22,44];
+N_list = [10,20,30,40,50,100];
+N_mav_list = [10,20,30,40,50,101];
+N_arc_list = [4,8,12,17,22,44];
 
-N_list = [100];
-N_mav_list = [101];
-N_arc_list = [44];
+% -- all of them
+% N_list = [100];
+% N_mav_list = [101];
+% N_arc_list = [44];
+
+
 
 for i=1:length(N_list)
     
@@ -56,12 +59,12 @@ for i=1:length(N_list)
     titleN = sprintf('%d%% top modulators - last rec-rec001 002, %s',N,decode);
     
     % -- rec001-002
-        arc_bad_sess = [8,22,30,31]; % -- theta band
-%         arc_bad_sess = [14,22,30,41]; % -- beta band
+    arc_bad_sess = [8,22,30,31]; % -- theta band
+    %         arc_bad_sess = [14,22,30,41]; % -- beta band
     
     % -- MOVIE
-%     arc_bad_sess = [8,22,30,31]; % -- theta band
-%         arc_bad_sess = [14,16,22,30,41]; % -- beta band
+    %     arc_bad_sess = [8,22,30,31]; % -- theta band
+    %         arc_bad_sess = [14,16,22,30,41]; % -- beta band
     
     recording_mav = 'last_recording';
     recording_arc = 'rec001_002_all_sessions';
@@ -70,14 +73,14 @@ for i=1:length(N_list)
     namef_arc = '_rec001_002_all_sess';
     
     name = 'lat_rec-rec001_002_no_bad_sess';
-    namefig = sprintf('%s.fig',name); % -- write out fig and png name 
+    namefig = sprintf('%s.fig',name); % -- write out fig and png name
     namepng = sprintf('%s.png',name);
     
-    recording_both = 'last_rec-rec001_002'; % -- output directory 
+    recording_both = 'last_rec-rec001_002'; % -- output directory
     
     % -- decod accuracy
-%     fname_list_modulators_mav = '/modulators_sorted_decod_accuracy.txt';
-%     fname_list_modulators_arc = '/modulators_unsorted_decod_accuracy_all.txt';
+    %     fname_list_modulators_mav = '/modulators_sorted_decod_accuracy.txt';
+    %     fname_list_modulators_arc = '/modulators_unsorted_decod_accuracy_all.txt';
     
     % -- AUC
     fname_list_modulators_mav = '/modulators_sorted_AUC.txt';
@@ -285,139 +288,88 @@ for i=1:length(N_list)
     
     
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %           FIGURES  COHERENCE
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % ---- Figure: Coherence MR vs CR -- single electrodes
     
-    %%%%%%%%% COHERENCES MODULATORS vs CONTROLS %%%%%%%%%%%%
+    id_fig = [1 2 3];
+    id = [6 1 7]; % index modulator
+    id_c = [31 1 28]; % index contrls
+    ytop = [0.88 0.35 0.8];
     
+    for i = 1:3
+        close all
+        fig = figure;
+        
+        plot(f,abs(struct_mod_mav(id(i)).c_mr),'color',[28 199 139]/255,'LineWidth',1.5);  hold on
+        plot(f,abs(mod_ctrl_SA_mav(id_c(i)).c_mr),'color',[50 250 93]/255,'LineWidth',1.5); hold on
+        plot(f,abs(mod_ctrl_OA_mav(id_c(i)).c_mr),'color',[19 148 92]/255,'LineWidth',1.5);
+        
+        grid on
+
+        set(gca,'FontSize',14)
+        xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+        if i == 1
+            ylabel('Coherence','FontName','Arial','FontSize',15);
+        end
+        
+        if i == 3
+            legend('Modulator - Receiver','Control-SA - Receiver','Control-OA - Receiver','FontSize',10,'FontName','Arial')
+        end
+            set(gcf, 'Position',  [100, 600, 600, 400])
+        xticks([ 10 20 30 40 50 60 70 80 90])
+        xlim([1 95])
+        ylim([0 ytop(i)])
+        
+        fname = strcat(dir_fig,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d_id_%d.pdf',N,id_fig(i)));
+        saveas(fig,fname)
+        clear fname
+          
+    end 
     
-    set(0,'DefaultFigureVisible','on')
-    % -- FIGURE: Plot average coherence across sessions for MR, CR same area, CR other areas
-    fig = figure;
-    hold all
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % ---- Figure: Coherence MS vs CS -- single electrodes
     
-    
-    shadedErrorBar(f,modulators.mean_coh_mr,modulators.err_mr,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
-    shadedErrorBar(f,ctrl_SA.mean_coh_mr,ctrl_SA.err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
-    shadedErrorBar(f,ctrl_OA.mean_coh_mr,ctrl_OA.err_mr,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
-    
-    grid on
-    title(sprintf('Both animals: Abs MR coherence, %s - RS',titleN),'FontSize',11);
-    xlabel('freq (Hz)');
-    ylabel('coherence');
-    legend('Modulators-Receivers','Controls-Receivers  same area','Controls-Receiver  other areas','FontSize',10)
-    set(gcf, 'Position',  [100, 600, 1000, 600])
-    grid on
-    
-    fname = strcat(dir_both_monkeys,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namefig));
-    saveas(fig,fname)
-    fname = strcat(dir_both_monkeys,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namepng));
-    saveas(fig,fname)
-    
-    % --- ELECTRODE-SENDER coherence   -------%
-    
-    fig = figure;
-    hold all
-    
-    
-    shadedErrorBar(f,modulators.mean_coh_ms,modulators.err_ms,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
-    shadedErrorBar(f,ctrl_SA.mean_coh_ms,ctrl_SA.err_ms,'lineprops',{'color',[255, 51, 153]/255},'patchSaturation',0.4); hold on
-    shadedErrorBar(f,ctrl_OA.mean_coh_ms,ctrl_OA.err_ms,'lineprops',{'color',[255, 128, 128]/255},'patchSaturation',0.4); hold on
-    
-    grid on
-    title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
-    xlabel('freq (Hz)');
-    ylabel('coherence');
-    legend('Modulators-Senders','Controls-Senders  same area','Controls-Senders  other areas','FontSize',10)
-    set(gcf, 'Position',  [100, 600, 1000, 600])
-    grid on
-    
-    fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namefig));
-    saveas(fig,fname)
-    fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namepng));
-    saveas(fig,fname)
+    id_fig = [1 2 3];
+    id = [9 8 3]; % index modulator
+    id_c = [1 3 10]; % index contrls
+    ytop = [0.63 0.64 0.63];
     
     
-    save(strcat(dir_both_monkeys,sprintf('/modulators_N_%d.mat',N)),'modulators');
-    save(strcat(dir_both_monkeys,sprintf('/controls_same_area_N_%d.mat',N)),'ctrl_SA');
-    save(strcat(dir_both_monkeys,sprintf('/controls_other_areas_N_%d.mat',N)),'ctrl_OA');
+    for i=1:3
+        close all
+        fig = figure;
+
+        plot(f,abs(struct_mod_mav(id(i)).c_ms),'color',[0.4940, 0.1840, 0.5560],'LineWidth',1.5);  hold on
+        plot(f,abs(mod_ctrl_SA_mav(id_c(i)).c_ms),'color',[255, 51, 153]/255,'LineWidth',1.5); hold on
+        plot(f,abs(mod_ctrl_OA_mav(id_c(i)).c_ms),'color',[255, 128, 128]/255,'LineWidth',1.5);     
+        grid on
+        
+        set(gca,'FontSize',14)
+        xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+        if i == 1
+            ylabel('Coherence','FontName','Arial','FontSize',15);
+        end
+        
+        if i == 3
+            legend('Modulator - Sender','Control-SA - Sender','Control-OA - Sender','FontSize',10,'FontName','Arial')
+        end
+        set(gcf, 'Position',  [100, 600, 600, 400])
+        xticks([ 10 20 30 40 50 60 70 80 90])
+        xlim([1 95])
+        ylim([0 ytop(i)])
+        
+            
+        fname = strcat(dir_fig,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d_id_%d.pdf',N,id_fig(i)));
+        saveas(fig,fname)
     
-    
+    end
+
+
     
 end
 % keyboard
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%      FIGURES  SPECTRUMS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%% SPECTRUMS MODULATORS vs RECEIVERS vs CONTROLS %%%%%%%%%%%%
 
 
-% set(0,'DefaultFigureVisible','on')
-% % -- FIGURE: Plot average coherence across sessions for MR, CR same area, CR other areas
-% fig = figure;
-% hAx=axes;
-% hAx.XScale='linear'
-% hAx.YScale='log'
-% hold all
-%
-%
-% shadedErrorBar(f,modulators.mean_spec_m,modulators.err_S_m,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
-% shadedErrorBar(f,modulators.mean_spec_r,modulators.err_S_r,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
-% shadedErrorBar(f,modulators.mean_spec_s,modulators.err_S_s,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
-%
-% grid on
-% title('RS: Modulators, Senders, Receivers spectrum','FontSize',11);
-% xlabel('freq (Hz)');
-% ylabel('spectrum');
-% legend('Modulators','Receiver','Sender','FontSize',10)
-% set(gcf, 'Position',  [100, 600, 1000, 600])
-% grid on
-%
-% fname = strcat(dir_Controls,sprintf('/spectrum_modulators_sender_receiver_W_%d_fk_%d.png',W,fk));
-% saveas(fig,fname)
-% fname = strcat(dir_Controls,sprintf('/spectrum_modulators_sender_receiver_W_%d_fk_%d.fig',W,fk));
-% saveas(fig,fname)
-%
-%
-% figure;
-% hAx=axes;
-% hAx.XScale='linear'
-% hAx.YScale='log'
-% hold all
-% for i=1:18
-%
-% plot(f,abs(stim_mod(i).s_s))
-% hold on
-% end
-% hold on
-% shadedErrorBar(f,modulators.mean_spec_s,modulators.err_S_s,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
-% grid on
-%
-%
-% set(0,'DefaultFigureVisible','on')
-% % -- FIGURE: Plot average coherence across sessions for MR, CR same area, CR other areas
-% fig = figure;
-% hAx=axes;
-% hAx.XScale='linear'
-% hAx.YScale='log'
-% hold all
-%
-%
-% shadedErrorBar(f,modulators.mean_spec_m,modulators.err_S_m,'lineprops',{'color',[0, 153, 255]/255},'patchSaturation',0.4); hold on
-% shadedErrorBar(f,modulators.mean_spec_r,modulators.err_S_r,'lineprops',{'color',[0255, 102, 0]/255},'patchSaturation',0.4); hold on
-% shadedErrorBar(f,modulators.mean_spec_s,modulators.err_S_s,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
-%
-% grid on
-% title('RS: Modulators, Senders, Receivers spectrum','FontSize',11);
-% xlabel('freq (Hz)');
-% ylabel('spectrum');
-% legend('Modulators','Receiver','Sender','FontSize',10)
-% set(gcf, 'Position',  [100, 600, 1000, 600])
-% grid on
-%
-% fname = strcat(dir_RS,sprintf('/spectrum_RS_modulators_sender_receiver_W_%d_fk_%d.png',W,fk));
-% saveas(fig,fname)
+
 

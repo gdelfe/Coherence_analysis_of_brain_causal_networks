@@ -23,9 +23,11 @@ set(0,'DefaultFigureVisible','on')
 set(0,'DefaultLineLineWidth',2)
 
 
+addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/toolbox/SVG_export/src')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+dir_fig = strcat(dir_main,'Figures_paper');
 
 
 freq_band = 'theta_band';
@@ -36,14 +38,17 @@ freq_band = 'theta_band';
 % N_arc_list = [5,10,15,20,25,51];
 
 % -- theta
-% N_list = [10,20,30,40,50,100];
-% N_mav_list = [10,20,30,40,50,101];
-% N_arc_list = [4,8,12,17,22,44];
+N_list = [10,20,30,40,50,100];
+N_mav_list = [10,20,30,40,50,101];
+N_arc_list = [4,8,12,17,22,44];
 
-N_list = [100];
-N_mav_list = [101];
-N_arc_list = [44];
+% -- all of them 
+% N_list = [100];
+% N_mav_list = [101];
+% N_arc_list = [44];
 
+
+N_list = 10;
 for i=1:length(N_list)
     
     close all
@@ -298,22 +303,33 @@ for i=1:length(N_list)
     hold all
     
     
-    shadedErrorBar(f,modulators.mean_coh_mr,modulators.err_mr,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
-    shadedErrorBar(f,ctrl_SA.mean_coh_mr,ctrl_SA.err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
-    shadedErrorBar(f,ctrl_OA.mean_coh_mr,ctrl_OA.err_mr,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
+%     shadedErrorBar(f,modulators.mean_coh_mr,modulators.err_mr,'lineprops',{'color',[0, 51, 0]/255},'patchSaturation',0.4); hold on
+%     shadedErrorBar(f,ctrl_SA.mean_coh_mr,ctrl_SA.err_mr,'lineprops',{'color',[26 198 1]/255},'patchSaturation',0.4); hold on
+%     shadedErrorBar(f,ctrl_OA.mean_coh_mr,ctrl_OA.err_mr,'lineprops',{'color',[102, 255, 217]/255},'patchSaturation',0.4); hold on
+%     
     
-    grid on
-    title(sprintf('Both animals: Abs MR coherence, %s - RS',titleN),'FontSize',11);
-    xlabel('freq (Hz)');
-    ylabel('coherence');
+    shadedErrorBar(f,modulators.mean_coh_mr,modulators.err_mr,'lineprops',{'color',[28 199 139]/255 },'patchSaturation',0.5); hold on
+    shadedErrorBar(f,ctrl_SA.mean_coh_mr,ctrl_SA.err_mr,'lineprops',{'color',[50 250 93]/255 },'patchSaturation',0.5); hold on
+    shadedErrorBar(f,ctrl_OA.mean_coh_mr,ctrl_OA.err_mr,'lineprops',{'color',[19 148 92]/255 },'patchSaturation',0.5);
+    
+%     title(sprintf('Both animals: Abs MR coherence, %s - RS',titleN),'FontSize',11);
+    set(gca,'FontSize',14)
+    xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+    ylabel('Coherence','FontName','Arial','FontSize',15);
     legend('Modulators-Receivers','Controls-Receivers  same area','Controls-Receiver  other areas','FontSize',10)
-    set(gcf, 'Position',  [100, 600, 1000, 600])
+    xlim([1 95])
+    ylim([0 0.63])
+    set(gcf, 'Position',  [100, 600, 900, 500])
     grid on
     
-    fname = strcat(dir_both_monkeys,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namefig));
+%     fname = strcat(dir_both_monkeys,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namefig));
+%     saveas(fig,fname)    
+    
+    namepng = '.pdf'; % remove when not saving figures for paper 
+    fname = strcat(dir_fig,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d%s',N,namepng));
     saveas(fig,fname)
-    fname = strcat(dir_both_monkeys,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namepng));
-    saveas(fig,fname)
+    
+    
     
     % --- ELECTRODE-SENDER coherence   -------%
     
@@ -326,16 +342,20 @@ for i=1:length(N_list)
     shadedErrorBar(f,ctrl_OA.mean_coh_ms,ctrl_OA.err_ms,'lineprops',{'color',[255, 128, 128]/255},'patchSaturation',0.4); hold on
     
     grid on
-    title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
-    xlabel('freq (Hz)');
-    ylabel('coherence');
+%     title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
+    set(gca,'FontSize',14)
+    xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+    ylabel('Coherence','FontName','Arial','FontSize',15);
     legend('Modulators-Senders','Controls-Senders  same area','Controls-Senders  other areas','FontSize',10)
-    set(gcf, 'Position',  [100, 600, 1000, 600])
+    xlim([1 95])
+    ylim([0 0.42])
+    set(gcf, 'Position',  [100, 600, 898, 500])
     grid on
     
-    fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namefig));
-    saveas(fig,fname)
-    fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namepng));
+%     fname = strcat(dir_both_monkeys,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d%%_%s',N,namefig));
+%     saveas(fig,fname)
+    namepng = '.pdf'; % remove when not saving figures for paper 
+    fname = strcat(dir_fig,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d%s',N,namepng));
     saveas(fig,fname)
     
     
@@ -346,7 +366,12 @@ for i=1:length(N_list)
     
     
 end
+
+
+
 % keyboard
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %      FIGURES  SPECTRUMS

@@ -11,6 +11,7 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+dir_fig = strcat(dir_main,'Figures_paper');
 
 
 freq_band = 'theta_band';
@@ -104,40 +105,61 @@ end
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ---- Figure: Coherence MR vs TOP modulators
 fig = figure;
-errorbar(N_list,mod_avg_mr,err_mod_avg_mr,'color',[0, 51, 0]/255,'LineWidth',1);
-hold on 
-errorbar(N_list,ctrl_SA_avg_mr,err_ctrl_SA_avg_mr,'color',[26 198 1]/255,'LineWidth',1);
-hold on
-errorbar(N_list,ctrl_OA_avg_mr,err_ctrl_OA_avg_mr,'color',[102, 255, 217]/255,'LineWidth',1);
-xlim([0,110])
+% errorbar(N_list,mod_avg_mr,err_mod_avg_mr,'color',[0, 51, 0]/255,'LineWidth',1); hold on 
+% errorbar(N_list,ctrl_SA_avg_mr,err_ctrl_SA_avg_mr,'color',[26 198 1]/255,'LineWidth',1); hold on
+% errorbar(N_list,ctrl_OA_avg_mr,err_ctrl_OA_avg_mr,'color',[102, 255, 217]/255,'LineWidth',1);
+
+errorbar(N_list,mod_avg_mr,err_mod_avg_mr,'color',[28 199 139]/255,'LineWidth',1); hold on 
+errorbar(N_list,ctrl_SA_avg_mr,err_ctrl_SA_avg_mr,'color',[50 250 93]/255,'LineWidth',1); hold on
+errorbar(N_list,ctrl_OA_avg_mr,err_ctrl_OA_avg_mr,'color',[19 148 92]/255,'LineWidth',1);
+
+% shadedErrorBar(f,modulators.mean_coh_mr,modulators.err_mr,'lineprops',{'color',[28 199 139]/255 },'patchSaturation',0.5); hold on
+% shadedErrorBar(f,ctrl_SA.mean_coh_mr,ctrl_SA.err_mr,'lineprops',{'color',[50 250 93]/255 },'patchSaturation',0.5); hold on
+% shadedErrorBar(f,ctrl_OA.mean_coh_mr,ctrl_OA.err_mr,'lineprops',{'color',[19 148 92]/255 },'patchSaturation',0.5); 
+
+xlim([6,105])
+ylim([0.1 0.57])
+xticks([0 10 20 30 40 50 60 80 100])
 grid on
-title('Coherence at the Theta peak vs TOP modulators','FontSize',11')
-legend('MR','CR same area','CR other areas','FontSize',10)
-xlabel('Number of TOP modulators');
-ylabel('coherence');
+set(gca,'FontSize',14)
+% title('Coherence at the Theta peak vs TOP modulators','FontSize',11')
+xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+ylabel('Theta-Coherence','FontName','Arial','FontSize',15);
+legend('Modulator - Receiver','Controls-SA - Receiver','Controls-OA - Receiver','FontSize',10)
+set(gcf, 'Position',  [100, 600, 650, 450])
 
-fname = strcat(dir_both_monkeys,'/Coherence_MR_vs_TOP_modulators_both_monkeys.png');
-saveas(fig,fname)
-
+% fname = strcat(dir_both_monkeys,'/Coherence_MR_vs_TOP_modulators_both_monkeys.png');
+fname = strcat(dir_fig,'/Coherence_MR_vs_TOP_modulators_both_monkeys.pdf');
+saveas(fig,fname);
 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ---- Figure: Coherence MS vs TOP modulators
 fig = figure;
-errorbar(N_list,mod_avg_ms,err_mod_avg_ms,'color',[0.4940, 0.1840, 0.5560],'LineWidth',1);
-hold on 
-errorbar(N_list,ctrl_SA_avg_ms,err_ctrl_SA_avg_ms,'color',[255, 51, 153]/255,'LineWidth',1);
-hold on
+errorbar(N_list,mod_avg_ms,err_mod_avg_ms,'color',[0.4940, 0.1840, 0.5560],'LineWidth',1); hold on 
+errorbar(N_list,ctrl_SA_avg_ms,err_ctrl_SA_avg_ms,'color',[255, 51, 153]/255,'LineWidth',1); hold on
 errorbar(N_list,ctrl_OA_avg_ms,err_ctrl_OA_avg_ms,'color',[255, 128, 128]/255,'LineWidth',1);
-xlim([0,110])
-grid on
-title('Coherence at the Theta peak vs TOP modulators','FontSize',11')
-legend('MS','CS same area','CS other areas','FontSize',10)
-xlabel('Number of TOP modulators');
-ylabel('coherence');
 
-fname = strcat(dir_both_monkeys,'/Coherence_MS_vs_TOP_modulators_both_monkeys.png');
-saveas(fig,fname)
+
+
+xlim([5,105])
+ylim([0.05 0.4])
+xticks([ 10 20 30 40 50 60 80 100])
+grid on
+% title('Coherence at the Theta peak vs TOP modulators','FontSize',11')
+set(gca,'FontSize',14)
+% title('Coherence at the Theta peak vs TOP modulators','FontSize',11')
+xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+ylabel('Theta-Coherence','FontName','Arial','FontSize',15);
+legend('Modulator - Receiver','Controls-SA - Receiver','Controls-OA - Receiver','FontSize',10)
+
+set(gcf, 'Position',  [100, 600, 650, 450])
+
+
+% fname = strcat(dir_both_monkeys,'/Coherence_MS_vs_TOP_modulators_both_monkeys.png');
+fname = strcat(dir_fig,'/Coherence_MS_vs_TOP_modulators_both_monkeys.pdf');
+saveas(fig,fname);
+
 
 
 

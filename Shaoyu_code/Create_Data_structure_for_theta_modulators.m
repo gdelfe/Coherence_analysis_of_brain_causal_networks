@@ -73,7 +73,7 @@ for iSubject = 2% : length(subjects)
 %         dataT.Spec = rmfield(dataT.Spec,'ROC'); % --remove ROC field 
 %         
 %         
-        %% identifying beta modulators %%%%%%
+        %% identifying theta modulators %%%%%%
         fs = Data.Fs.lfp;% lfp sampling rate
         Fs = Data.Fs.raw;% raw sampling rate
         
