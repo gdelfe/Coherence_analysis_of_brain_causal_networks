@@ -288,17 +288,49 @@ for i=1:length(N_list)
     f = linspace(1,fk,size(modulators.mean_coh_ms,2)); % frequency values (range)
     
     
+    dir_RS = strcat(dir_main,sprintf('Maverick/Resting_state/theta_band'));
     
+    fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
+    sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
+    fclose(fid);
+
+
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % ---- Figure: Coherence MR vs CR -- single electrodes
     
     id_fig = [1 2 3];
     id = [6 1 7]; % index modulator
-    id_c = [31 1 28]; % index contrls
+    id_cSA = [31 1 28]; % index contrls
+    id_cOA = [31 1 28]; % index contrls
+
     ytop = [0.88 0.35 0.8];
     
     for i = 1:3
 %         close all
+
+        Sess = mod_list_mav(id(i),1);
+        %     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
+        dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
+        dir_ctrl_SA = strcat(dir_RS,sprintf('/Sess_%d/Controls_same_area',Sess));
+        dir_ctrl_OA = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
+
+
+        load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+        sess_data
+        
+        mod_ch = mod_list_mav(id(i),2)
+
+        load(strcat(dir_ctrl_SA,'/session_controls_same_area_info.mat')); % --- dataG: all data info and LFP
+        ctrl_SA = sess_All_controls_same_area
+        
+        ctrl_SA_mav(ctrl_SA_mav(:,1) == Sess,:)
+        ctrl_SA.ctrl_idx(find(strcmp(ctrl_SA.RecordPairMRIlabels(ctrl_SA.ctrl_idx,1),'M1')))
+
+        load(strcat(dir_ctrl_OA,'/session_controls_other_areas_info.mat')); % --- dataG: all data info and LFP
+        ctrl_OA = sess_All_controls_other_areas
+    
+        ctrl_OA_mav(ctrl_SA_mav(:,1) == Sess,:)
+
         fig = figure;
         
         plot(f,abs(struct_mod_mav(id(i)).c_mr),'color',[28 199 139]/255,'LineWidth',1.5);  hold on

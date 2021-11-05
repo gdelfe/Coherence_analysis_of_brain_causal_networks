@@ -26,7 +26,7 @@ for iSubject = 1% : length(subjects)
     
     UsedSess = find(useSessIndx);
     
-    for iSess = 15%UsedSess
+    for iSess = 15 %UsedSess
         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess
         
         disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
@@ -132,14 +132,14 @@ for iSubject = 1% : length(subjects)
 %                         nCh_Use = numel(chs_FreqBand);
                         keyboard
                         nCh_Use = size(Data.RecordPair,1)
-                        for iCh = 30 %1 : nCh_Use
+                        for iCh = 34 %1 : nCh_Use
                             %iCh = find(chs_FreqBand(indx)==Data.RecordPair(:,1));
                             
-                            fprintf('\n\n');
-                            msg = sprintf('%d/%d Channels',iCh,nCh_Use);
-                            fprintf([reverseStr,msg]);
-                            reverseStr = repmat(sprintf('\b'),1,length(msg));
-                            fprintf('\n\n');
+%                             fprintf('\n\n');
+%                             msg = sprintf('%d/%d Channels',iCh,nCh_Use);
+%                             fprintf([reverseStr,msg]);
+%                             reverseStr = repmat(sprintf('\b'),1,length(msg));
+%                             fprintf('\n\n');
                             
                             stdThresh = Data.spec.lfp.stdThresh;
                             X1 = sq(lfp_Detected(:,iCh,:));
@@ -149,16 +149,17 @@ for iSubject = 1% : length(subjects)
                             [X2,goodInd2] = removeNoisyLfpTrials(X2,stdThresh);
                             
                             
-                            figure('Position',[100 100 2000 800])
-                            subplot(2,7,1)
-                            plotElectrodeLocationMRIoverlay(day,TargCh(1));
-                            title(['Receiver e' num2str(TargCh(1))])
+%                             figure('Position',[100 100 2000 800])
+%                             subplot(2,7,1)
+%                             plotElectrodeLocationMRIoverlay(day,TargCh(1));
+%                             title(['Receiver e' num2str(TargCh(1))])
                             
                             subplot(2,7,8)
 %                             plotElectrodeLocationMRIoverlay(day,chs_FreqBand(indx));
 %                             title(['Modulator e' num2str(chs_FreqBand(indx))])
                             
-                            h1 = subplot(2,7,4);
+%                             h1 = subplot(2,7,4);
+                            h1 = figure;
                             pos1 = get(h1,'Position');
                             ERPplotRange = [-round(max(abs(LPRawEvent(:))),-1) round(max(abs(LPRawEvent(:))),-1)];
                             %ERPplotRange = [-30 30];

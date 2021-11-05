@@ -12,7 +12,7 @@ close all
 addpath('/mnt/pesaranlab/Matlab/monkeys');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'Theta_band';
+freq_band = 'theta_band';
 monkey = 'Maverick';
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
@@ -42,7 +42,7 @@ for iSubject = 1% : length(subjects)
     
     UsedSess = find(useSessIndx);
     
-    for iSess = 5 %UsedSess
+    for iSess = 7 %UsedSess
         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess dir_Stim
         
         disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
@@ -63,11 +63,16 @@ for iSubject = 1% : length(subjects)
                 fileName_Pre = sprintf('%sSess%03d_%s_AccLLR_Elec%03d-Elec%03d_%s_grouped.mat',dataDir_Pre,iSess,day,RespPair(1),RespPair(2),stimName);
         end
         
-        tic
-        disp('Loading Pre data ...')
-        load(fileName_Pre)
-        disp('Done with Pre data loading')
-        toc
+%         tic
+%         disp('Loading Pre data ...')
+%         load(fileName_Pre)
+%         disp('Done with Pre data loading')
+%         toc
+      
+        dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d',iSess));
+        load(strcat(dir_Sess,'/Data_with_theta_band.mat'));
+
+
         
 %         dataB = Data;
 %         clear Data
@@ -82,7 +87,7 @@ for iSubject = 1% : length(subjects)
         AnalParams.Tapers = [0.5,2];
         AnalParams.TestSpecDiff.fk = [4 8]; 
         
-        fkNames = {'\beta'};
+        fkNames = {'\theta'};
         Data.Params.Anal = AnalParams;
         Data.Spec.ROC.fk = AnalParams.TestSpecDiff.fk;
         StimTrials = Data.StimTrials(Data.goodTrials_index);
@@ -154,7 +159,7 @@ for iSubject = 1% : length(subjects)
 % %                         nCh_Use = numel(chs_FreqBand);
                         
                         nCh_Use = size(Data.RecordPair,1)
-                        for iCh = 1 : nCh_Use
+                        for iCh = 52 %1 : nCh_Use
                             
 % %                             iCh = find(chs_FreqBand(indx)==Data.RecordPair(:,1)); %-- ask Shaoyu if we should have this line here
                             
@@ -163,15 +168,8 @@ for iSubject = 1% : length(subjects)
 %                             fprintf([reverseStr,msg]);
 %                             reverseStr = repmat(sprintf('\b'),1,length(msg));
 %                             fprintf('\n\n');
-%                             
-                            stdThresh = Data.spec.lfp.stdThresh;
-                            X1 = sq(lfp_Detected(:,iCh,:));
-                            [X1,goodInd1] = removeNoisyLfpTrials(X1,stdThresh);
-                            
-                            X2 = sq(lfp_notDetected(:,iCh,:));
-                            [X2,goodInd2] = removeNoisyLfpTrials(X2,stdThresh);
-%                             
-%                             
+
+                                                          
 %                             figure('Position',[100 100 2000 800])
 %                             subplot(2,7,1)
 %                             plotElectrodeLocationMRIoverlay(day,TargCh(1));
@@ -180,9 +178,9 @@ for iSubject = 1% : length(subjects)
 % % %                             subplot(2,7,8)
 % % %                             plotElectrodeLocationMRIoverlay(day,chs_FreqBand(indx));
 % % %                             title(['Modulator e' num2str(chs_FreqBand(indx))])
-% %                             
-                            h1 = subplot(2,7,4);
-                            
+% %                         
+
+                            % RECEIVER HITS vs MISSES ------------------
                             h1 = figure;
                             pos1 = get(h1,'Position');
                             ERPplotRange = [-round(max(abs(LPRawEvent(:))),-1) round(max(abs(LPRawEvent(:))),-1)];
@@ -195,7 +193,17 @@ for iSubject = 1% : length(subjects)
                             c = colorbar;
                             c.Label.String = 'Voltage (\muV)';
                             
-                                                        
+                            % colormap -----------------------
+                            a = [0, 17, 250]/255;
+                            b = [6, 199, 131]/255;
+%                             b = [255, 141, 7]/255;
+                            start = 5;
+                            maptop = [linspace(1,a(1),64)', linspace(1,a(2),64)', linspace(1,a(3),64)'];
+                            mapbot = [linspace(1,b(1),64)', linspace(1,b(2),64)', linspace(1,b(3),64)'];
+                            map = [flipud(maptop(start:end,:));mapbot(start:end,:)];
+                            colormap(gca,polarmap)
+                            colormap(map)
+                            % -------------------------------------                            
                             for i = 1 : nTr_CorrectDetect
                                 text(dum(i)/fs*1e3+StimArtifactBlankWin,i-0.5,'x','color','k');
                             end
@@ -208,16 +216,90 @@ for iSubject = 1% : length(subjects)
                             text(3,mean(1:nTr_CorrectDetect)+2,'Hit','Rotation',90);
                             text(3,mean(nTr_CorrectDetect+1:nTr)+3,'Miss','Rotation',90);
                             
+
+                            hitIndx = Data.spec.lfp.DetectedIndx{iCh};
+                            missIndx = Data.spec.lfp.notDetectedIndx{iCh};
                             
+                     
                             
                             %% modulator decoder hit vs miss
-                            % plot ROC curve of modulator activity in hit vs miss events
-                            subplot(2,7,2)
-
+                            % FIGURE: plot ROC curve of modulator activity in hit vs miss events
+                            
+                            stdThresh = Data.spec.lfp.stdThresh;
+                            X1 = sq(lfp_Detected(:,iCh,:));
+                            [X1,goodInd1] = removeNoisyLfpTrials(X1,stdThresh);
+                            
+                            X2 = sq(lfp_notDetected(:,iCh,:));
+                            [X2,goodInd2] = removeNoisyLfpTrials(X2,stdThresh);
+                            fig = figure;
                             [auc,se,S1,S2,roc_Thresh,maxYoudenIndex] = calcRocSpecDiff_HistAUC(X1,X2,AnalParams);                        
                             
                             Data.Spec.ROC.auc{iFreqBand}(iCh) = auc;
-                            Data.Spec.ROC.se{iFreqBand}(iCh) = se;                            
+                            Data.Spec.ROC.se{iFreqBand}(iCh) = se;    
+                            
+                            
+                            S_all = [];
+                            
+                            S_all(hitIndx) = S1;
+                            S_all(missIndx) = S2;
+                            
+                            % get different decoding rates across different ROC thresholds
+                            [modDecodeHitRate,modDecodeMissRate,rocThresh,~] = runModulatorDecoder(S1,S2,S_all,EventST,roc_Thresh);
+                                                        
+                            %find optimal decoding rate
+                            ind = modDecodeHitRate > modDecodeMissRate;
+                            if isequal(sum(ind),0) % modulator hit decoding rates across roc thresholds are all greater than miss decoding rate
+                                iThresh = find(roc_Thresh==maxYoudenIndex);
+                            elseif strcmp(subjects{iSubject},'archie') && iSess == 13
+                                [~,iThresh] = min(abs(roc_Thresh-4.277));
+                            else
+                                if ~isequal(sum(modDecodeMissRate>0.5),0)
+                                    indd = find(ind & modDecodeMissRate>0.5);
+                                    modDecodeHitPlusMissRate = modDecodeHitRate(ind & modDecodeMissRate>0.5) + modDecodeMissRate(ind & modDecodeMissRate>0.5);
+                                else
+                                    indd = find(ind);
+                                    modDecodeHitPlusMissRate = modDecodeHitRate(ind) + modDecodeMissRate(ind);
+                                end
+                                [~,modDecodeHitPlusMissRateInd] = max(modDecodeHitPlusMissRate);
+                                [~,iThresh] = min(abs(roc_Thresh-rocThresh(indd(modDecodeHitPlusMissRateInd))));
+                            end
+
+                            %iThresh = find(roc_Thresh==maxYoudenIndex);
+                            [optModDecodeHitRate,optModDecodeMissRate,optRocThresh,DecoderTrials] = runModulatorDecoder(S1,S2,S_all,EventST,roc_Thresh,iThresh);
+                            
+                            % FIGURE: Histogram hits vs misses 
+                            figure;
+                            hg1=histogram(S1,'BinMethod','fd','Normalization','count','FaceColor',[0, 17, 250]/255,'facealpha',0.7);hold on
+                            hg2=histogram(S2,'BinMethod','fd','Normalization','count','FaceColor',[6, 199, 131]/255,'facealpha',0.7); %[255, 141, 7]/255
+                            plot([optRocThresh,optRocThresh],[0,max([hg1.Values hg2.Values])+1],'b--')
+                            legend('Hit','Miss')
+                            xlabel(['Mean log ' fkNames{iFreqBand} ' power']);
+                            ylabel('Count')
+                            title('Modulator')
+                            xlim([floor(min([S1;S2])),ceil(max([S1;S2]))]);
+                            
+                            
+                            
+                            % FIGURE: Receiver evoked response 
+                            figure;
+                            avgERP_RecHit_tr = mean(LPRawEvent(hitIndx,:));
+                            semERP_RecHit_tr = std(LPRawEvent(hitIndx,:))/sqrt(numel(hitIndx));
+                            plotSTA((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin, avgERP_RecHit_tr,semERP_RecHit_tr,[0, 17, 250]/255);
+                            
+                            hold on
+                            avgERP_RecMiss_tr = mean(LPRawEvent(missIndx,:));
+                            semERP_RecMiss_tr = std(LPRawEvent(missIndx,:))/sqrt(numel(missIndx));
+%                             plotSTA((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin,avgERP_RecMiss_tr,semERP_RecMiss_tr,[255, 141, 7]/255);
+                            plotSTA((1:size(LPRawEvent,2))/fs*1e3+StimArtifactBlankWin,avgERP_RecMiss_tr,semERP_RecMiss_tr,[6, 199, 131]/255);
+                            xlabel('Time after stim onset (ms)');
+                            ylabel('Amplitude (\muV)')
+                            title('ERP')
+                            %legend('Hit',' ', 'Miss',' ','Location','SouthEast')
+                            xlim([0 StimArtifactBlankWin+AccLLRwin])
+                            %ylim([-20 10])
+                            
+                            
+                            
                             
                         end
                         

@@ -22,7 +22,7 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
-monkey = 'Archie';
+monkey = 'Maverick';
 
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_out = strcat(dir_main,sprintf('%s/Resting_state/%s/Modulators_controls',monkey,freq_band));
@@ -48,6 +48,7 @@ name_struct_input_OA = '/session_controls_other_areas_info.mat'; % -- structure 
 modulators = [];
 
 cnt_el = 1;
+cnt = 0;
 for i= sess_list  % For each session with at least one modulator
     
     Sess = sess_info{1}(i); % Session number
@@ -63,7 +64,8 @@ for i= sess_list  % For each session with at least one modulator
     
     idx = find(mod_list == rec_idx); % get the index for the modulator-receiver 
 
-    if ~isempty(idx) % remove element if it is receiver        
+    if ~isempty(idx) % remove element if it is receiver
+        cnt = cnt + 1;
         mod_list(idx) = [];
         accuracy(idx) = [];
     end 

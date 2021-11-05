@@ -4,7 +4,6 @@
 %
 % @ Gino Del Ferraro, NYU, June 2021
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all; close all;
 
@@ -12,7 +11,7 @@ clear all; close all;
 set(0,'DefaultFigureVisible','on')
 set(0,'DefaultLineLineWidth',2)
 
-
+addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/toolbox/CircularGraph')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
@@ -26,8 +25,8 @@ freq_range = 15:17;
 
 filename_mod = ''; % -- loading file name for coherence averages ******************
 filename_ctrl = ''; % -- loading file name for the list the coherences in sess_data_lfp_coherence
-title_caption = 'S:CN - R:CN'; % -- title caption 
-SR_brain_areas = 'CN_CN'; % -- name of SR brain area for the figures and coherence files 
+title_caption = 'S:CN - R:M1'; % -- title caption 
+SR_brain_areas = 'CN_M1'; % -- name of SR brain area for the figures and coherence files 
 
 
 recording = 'last_recording'; % -- folder where to load coherency files  *************
@@ -171,6 +170,17 @@ saveas(fig,fname)
 writematrix(c_mm, strcat(dir_mod_network,'/c_mm.txt'),'delimiter',' ');
 
 
+
+figure;
+h_map = heatmap(c_mm', 'MissingDataColor', 'w', 'GridVisible', 'on', 'MissingDataLabel', " ",'CellLabelColor','none','Colormap',flipud(bone))
+hHeatmap = struct(h_map).Heatmap;
+hGrid = struct(hHeatmap).Grid;
+hGrid.ColorData = uint8([238;238;238;125]);
+caxis([0 1])
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MODULATOR - CONTROL NETWORK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -245,6 +255,16 @@ title(sprintf('%s: Theta Mod-Ctrl coherence, theta band, edge: %s',monkey,title_
 colorbar;
 
 
+% FIGURE: modulator-control network
+
+figure;
+h_map = heatmap(c_mc_avg', 'MissingDataColor', 'w', 'GridVisible', 'on', 'MissingDataLabel', " ",'CellLabelColor','none','Colormap',flipud(bone))
+hHeatmap = struct(h_map).Heatmap;
+hGrid = struct(hHeatmap).Grid;
+hGrid.ColorData = uint8([238;238;238;125]);
+caxis([0 1])
+
+
 %%%%%%%%  BLOCKS LINES   %%%%%%%%
 hold on;
 x1 = 0.5 + length(area_idx{1});
@@ -313,14 +333,17 @@ saveas(fig,fname)
 pval_mm = zeros(length(c_mm),length(c_mm));
 for i=1:length(c_mm)
     for j=(i+1):length(c_mm)
-        pval_mm(i,j) = nnz(c_mc_values > c_mm(i,j))/length(c_mc_values);   
+        pval_mm(i,j) = nnz(c_mc_values > c_mm(i,j))/length(c_mc_values);
+        if pval_mm(i,j) == 0
+            pval_mm(i,j) = 1/(length(pval_mm)*(length(pval_mm)-1));
+        end
     end    
 end 
 
-% Fill empty position with pval = 1
+% Fill empty position with pval = NaN
 for j=1:length(c_mm)
     for i= j:length(c_mm)
-        pval_mm(i,j) = 1;   
+        pval_mm(i,j) = NaN;   
     end    
 end 
 
@@ -331,6 +354,16 @@ imagesc(pval_mm,[0,1]);
 title(sprintf('%s: p-values, theta band, edge: %s',monkey,title_caption),'FontSize',10);
 colormap(flipud(parula))
 colorbar;
+
+
+figure;
+h_map = heatmap(pval_mm', 'MissingDataColor', 'w', 'GridVisible', 'on', 'MissingDataLabel', " ",'CellLabelColor','none','Colormap',bone)
+hHeatmap = struct(h_map).Heatmap;
+hGrid = struct(hHeatmap).Grid;
+hGrid.ColorData = uint8([238;238;238;125]);
+caxis([0 1])
+
+
 
 %%%%%%%%  BLOCKS LINES   %%%%%%%%
 hold on;
@@ -363,21 +396,22 @@ end
 fname = strcat(dir_mod_network,'/pval_mod_mod_network.png');
 saveas(fig,fname)
 writematrix(c_mc_avg, strcat(dir_mod_network,'/pval_mod_mod_network.txt'),'delimiter',' ');
-
+pval_mm = importdata(strcat(dir_mod_network,'/pval_mod_mod_network.txt'));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Threshold p-values of the mod-mod network 
-th = 0.1;
+th = 0.05;
 pval_mm_th = pval_mm;
 pval_mm_th(pval_mm_th >= th) = 1;
 
 
 % FIGURE: pvalue mod-mod network THRESHOLDED 
-fig = figure;
-imagesc(pval_mm_th,[0,1]);
-title(sprintf('%s: th p-value = %.2f, theta band, edge: %s',monkey,th,title_caption),'FontSize',10);
-colormap(flipud(parula))
-colorbar;
+figure;
+h_map = heatmap(pval_mm_th', 'MissingDataColor', 'w', 'GridVisible', 'on', 'MissingDataLabel', " ",'CellLabelColor','none','Colormap',bone)
+hHeatmap = struct(h_map).Heatmap;
+hGrid = struct(hHeatmap).Grid;
+hGrid.ColorData = uint8([238;238;238;125]);
+caxis([0 1])
 
 %%%%%%%%  BLOCKS LINES   %%%%%%%%
 hold on;
@@ -411,10 +445,26 @@ saveas(fig,fname)
 
 
 
+Ath = pval_mm;
+for i = 1:length(Ath)
+    for j = 1:length(Ath)
+        Ath(i,j) = 1 - Ath(i,j)
+        if isnan(Ath(i,j))
+            Ath(i,j) = 0;
+        end
+    end
+end
+Ath(Ath < 0.95) = 0;
+
+figure;
+circularGraph(Ath,'ColorMap',bone(length(Ath)))
 
 
 
+Ath01 = Ath;
+Ath01(Ath01 < 0.99) = 0;
 
-
+figure;
+circularGraph(Ath01,'ColorMap',bone(length(Ath)))
 
 

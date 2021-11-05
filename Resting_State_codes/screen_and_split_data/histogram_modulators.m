@@ -27,8 +27,8 @@ set(0,'DefaultFigureVisible','on')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band_name = 'beta band';
-freq_band = 'beta_band';
+freq_band_name = 'theta band';
+freq_band = 'theta_band';
 monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
@@ -72,9 +72,10 @@ end
 fig = figure;
 histogram(mod_numb,max_mod,'FaceAlpha',.6); grid on
 legend('Numb of modulators')
-title(sprintf('%s - %s, Numb of edges',monkey,freq_band_name),'FontSize',12)
+% title(sprintf('%s - %s, Numb of edges',monkey,freq_band_name),'FontSize',12)
 ylabel('# of edges')
 xlabel('# of modulators')
+ylim([0 9.5])
 
 fig_name = strcat(dir_RS,sprintf('/%s_%s_histogram_modulators.png',monkey,freq_band));
 saveas(fig,fig_name);
