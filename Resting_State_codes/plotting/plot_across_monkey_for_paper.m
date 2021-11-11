@@ -36,6 +36,11 @@ f = linspace(1,fk,size(modulators.mean_coh_ms,2)); % frequency values (range)
 
 
 set(0,'DefaultFigureVisible','on')
+
+
+% --- ELECTRODE-RECEIVER coherence   -------%
+
+
 % -- FIGURE: Plot average coherence across sessions for MR, CR same area, CR other areas
 fig = figure;
 hold all
@@ -96,6 +101,10 @@ grid on
 fname = strcat(dir_fig,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d.pdf',N));
 saveas(fig,fname)
 
+
+
+% --- ELECTRODE-RECEIVER coherence   -------%
+% --- ELECTRODE-SENDER coherence   -------%
 
 
 fig = figure;

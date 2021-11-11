@@ -288,50 +288,132 @@ for i=1:length(N_list)
     f = linspace(1,fk,size(modulators.mean_coh_ms,2)); % frequency values (range)
     
     
+    dir_RS = strcat(dir_main,sprintf('Maverick/Resting_state/theta_band'));
     
+    fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
+    sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
+    fclose(fid);
+
+
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % ---- Figure: Coherence MR vs CR -- single electrodes
     
     id_fig = [1 2 3];
-    id = [6 1 7]; % index modulator
-    id_c = [31 1 28]; % index contrls
-    ytop = [0.88 0.35 0.8];
-    
-    for i = 1:3
-%         close all
-        fig = figure;
-        
-        plot(f,abs(struct_mod_mav(id(i)).c_mr),'color',[28 199 139]/255,'LineWidth',1.5);  hold on
-        plot(f,abs(mod_ctrl_SA_mav(id_c(i)).c_mr),'color',[50 250 93]/255,'LineWidth',1.5); hold on
-        plot(f,abs(mod_ctrl_OA_mav(id_c(i)).c_mr),'color',[19 148 92]/255,'LineWidth',1.5);
-        
-        grid on
+    id = [6 10 7]; % index modulator
 
-        set(gca,'FontSize',14)
-        xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
-        if i == 1
-            ylabel('Coherence','FontName','Arial','FontSize',15);
-        end
-        
-        if i == 3
-            legend('Modulator - Receiver','Control-SA - Receiver','Control-OA - Receiver','FontSize',10,'FontName','Arial')
-        end
-            set(gcf, 'Position',  [100, 600, 600, 400])
-        xticks([ 10 20 30 40 50 60 70 80 90])
-        xlim([1 95])
-        ylim([0 ytop(i)])
-        
-%         fname = strcat(dir_fig,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d_id_%d.pdf',N,id_fig(i)));
-%         saveas(fig,fname)
-%         clear fname
-          
+    id = 13;
+    
+    id_list = [3 6 7 9 10 23]
+    % chosen 6, 7, 10
+    
+    idr = [6 20 29]; % index modulator
+    ids = [6 10 13];
+    
+    
+    for id = 20    ytop = [0.88 0.35 0.8];
+    
+    %         close all
+    
+    Sess = mod_list_mav(id,1);
+    %     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
+    dir_ctrl_SA = strcat(dir_RS,sprintf('/Sess_%d/Controls_same_area',Sess));
+    dir_ctrl_OA = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
+    
+    
+    load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
+    sess_data
+    
+    mod_ch = mod_list_mav(id,2)
+    
+    load(strcat(dir_ctrl_SA,'/session_controls_same_area_info.mat')); % --- dataG: all data info and LFP
+    ctrl_SA = sess_All_controls_same_area
+    
+    ctrl_SA_mav(ctrl_SA_mav(:,1) == Sess,:)
+    
+    ctrl_SA.ctrl_idx(find(strcmp(ctrl_SA.RecordPairMRIlabels(ctrl_SA.ctrl_idx,1),'CN')))
+    temp = ctrl_SA_mav(ctrl_SA_mav(:,2,:) == 9,:) %%%%%%%%%%%%%%%%%
+    SA_idx = temp(temp(:,1) == Sess,3);
+    
+    load(strcat(dir_ctrl_OA,'/session_controls_other_areas_info.mat')); % --- dataG: all data info and LFP
+    ctrl_OA = sess_All_controls_other_areas
+    
+    ctrl_OA_mav(ctrl_SA_mav(:,1) == Sess,:)
+     
+    ctrl_OA.RecordPairMRIlabels(ctrl_OA.ctrl_idx,1)'
+    ctrl_OA.ctrl_idx
+    idx=28; %%%%%%%%%%%%%%%%%%%%%%%
+    
+    temp = ctrl_OA_mav(ctrl_OA_mav(:,2,:) == idx,:);
+    OA_idx = temp(temp(:,1) == Sess,3)
+    
+    
+    figMS = figure;
+    
+    plot(f,abs(struct_mod_mav(id).c_ms),'color',[0.4940, 0.1840, 0.5560],'LineWidth',1.5);  hold on
+    plot(f,abs(mod_ctrl_SA_mav(SA_idx).c_ms),'color',[255, 51, 153]/255,'LineWidth',1.5); hold on
+    plot(f,abs(mod_ctrl_OA_mav(OA_idx).c_ms),'color',[255, 128, 128]/255,'LineWidth',1.5);
+    
+    grid on
+    set(gca,'FontSize',14)
+    xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+    ylabel('Coherence','FontName','Arial','FontSize',15);
+%     title(sprintf('ID = %d',id));
+    set(gcf, 'Position',  [100, 600, 600, 400])
+    xticks([ 10 20 30 40 50 60 70 80 90])
+    xlim([1 95])
+    ylim([0 0.46])
+    
+    
+    cnt_fig = 13;
+    fname = strcat(dir_fig,sprintf('/coherency_MS_mod_vs_ctrl_both_monkeys_N_%d_id_%d.pdf',N,cnt_fig));
+    saveas(figMS,fname)
+    clear fname
+    
+    
+    
+    figMR = figure;
+    
+    plot(f,abs(struct_mod_mav(id).c_mr),'color',[28 199 139]/255,'LineWidth',1.5);  hold on
+    plot(f,abs(mod_ctrl_SA_mav(SA_idx).c_mr),'color',[50 250 93]/255,'LineWidth',1.5); hold on
+    plot(f,abs(mod_ctrl_OA_mav(OA_idx).c_mr),'color',[19 148 92]/255,'LineWidth',1.5);
+    
+    
+    grid on
+    set(gca,'FontSize',14)
+    xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+    ylabel('Coherence','FontName','Arial','FontSize',15);
+%     title(sprintf('ID = %d',id));
+    set(gcf, 'Position',  [100, 600, 600, 400])
+    xticks([ 10 20 30 40 50 60 70 80 90])
+    xlim([1 95])
+    ylim([0 0.65])
+    
+    
+    cnt_fig = 13;
+    fname = strcat(dir_fig,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d_id_%d.pdf',N,cnt_fig));
+    saveas(figMR,fname)
+    clear fname
+    
+    
+    
+    
     end 
+    
+   
+    
+    fname = strcat(dir_fig,sprintf('/coherency_MR_mod_vs_ctrl_both_monkeys_N_%d_id_%d.pdf',N,cnt_fig));
+    saveas(figMR,fname)
+    clear fname
+       
     
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % ---- Figure: Coherence MS vs CS -- single electrodes
     
     id_fig = [1 2 3];
-    id = [6 22 26 ]; % index modulator
+ 
+    
+    id_r = [1 3 10]; % index contrls
     id_c = [1 3 10]; % index contrls
     ytop = [0.65 0.46 0.46];
     
@@ -340,7 +422,7 @@ for i=1:length(N_list)
 %         close all
         fig = figure;
 
-        plot(f,abs(struct_mod_mav(id(i)).c_ms),'color',[0.4940, 0.1840, 0.5560],'LineWidth',1.5);  hold on
+        plot(f,abs(struct_mod_mav(idr(i)).c_ms),'color',[0.4940, 0.1840, 0.5560],'LineWidth',1.5);  hold on
         plot(f,abs(mod_ctrl_SA_mav(id_c(i)).c_ms),'color',[255, 51, 153]/255,'LineWidth',1.5); hold on
         plot(f,abs(mod_ctrl_OA_mav(id_c(i)).c_ms),'color',[255, 128, 128]/255,'LineWidth',1.5);     
         grid on

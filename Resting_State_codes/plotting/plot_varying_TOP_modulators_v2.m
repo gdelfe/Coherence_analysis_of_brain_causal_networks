@@ -82,31 +82,31 @@ for i=1:length(N_list)
     % >>>>> MR / CR Coherence
     
     % average of MR at the pick and error bars 
-    mod_avg_mr(i) = mean(modulators.mean_coh_mr(flist_mod_mr{i}));
-    err_mod_avg_mr(i) = mean(modulators.err_mr(flist_mod_mr{i}))/sqrt(length(flist_mod_mr{i}));
+    mod_avg_mr(i) = mean(modulators.mean_coh_mr(flist_mod_mr{1}));
+    err_mod_avg_mr(i) = sqrt(sum(modulators.err_mr(flist_mod_mr{1}).^2))/length(flist_mod_mr{1});
     
     % average of CR same area at the pick and error bars 
-    ctrl_SA_avg_mr(i) = mean(ctrl_SA.mean_coh_mr(flist_SA_mr{i}));
-    err_ctrl_SA_avg_mr(i) = mean(ctrl_SA.err_mr(flist_SA_mr{i}))/sqrt(length(flist_SA_mr{i}));
+    ctrl_SA_avg_mr(i) = mean(ctrl_SA.mean_coh_mr(flist_SA_mr{1}));
+    err_ctrl_SA_avg_mr(i) = sqrt(sum(ctrl_SA.err_mr(flist_SA_mr{1}).^2))/length(flist_mod_mr{1});
     
     % average of CR same area at the pick and error bars
-    ctrl_OA_avg_mr(i) = mean(ctrl_OA.mean_coh_mr(flist_OA_mr{i}));
-    err_ctrl_OA_avg_mr(i) = mean(ctrl_OA.err_mr(flist_OA_mr{i}))/sqrt(length(flist_OA_mr{i}));
+    ctrl_OA_avg_mr(i) = mean(ctrl_OA.mean_coh_mr(flist_OA_mr{1}));
+    err_ctrl_OA_avg_mr(i) = sqrt(sum(ctrl_OA.err_mr(flist_OA_mr{1}).^2))/length(flist_mod_mr{1});
     
     %%%%%%%%%%%%%%%%%%%
     % >>>> MS / CS Coherence
     
     % average of MS at the pick and error bars
-    mod_avg_ms(i) = mean(modulators.mean_coh_ms(flist_mod_ms{i}));
-    err_mod_avg_ms(i) = mean(modulators.err_ms(flist_mod_ms{i}))/sqrt(length(flist_mod_ms{i}));
+    mod_avg_ms(i) = mean(modulators.mean_coh_ms(flist_mod_ms{1}));
+    err_mod_avg_ms(i) = sqrt(sum(modulators.err_ms(flist_mod_ms{1}).^2))/length(flist_mod_mr{1});
     
     % average of CS same area at the pick and error bars
-    ctrl_SA_avg_ms(i) = mean(ctrl_SA.mean_coh_ms(flist_SA_ms{i}));
-    err_ctrl_SA_avg_ms(i) = mean(ctrl_SA.err_ms(flist_SA_ms{i}))/sqrt(length(flist_SA_ms{i}));
+    ctrl_SA_avg_ms(i) = mean(ctrl_SA.mean_coh_ms(flist_SA_ms{1}));
+    err_ctrl_SA_avg_ms(i) = sqrt(sum(ctrl_SA.err_ms(flist_SA_ms{1}).^2))/length(flist_mod_mr{1});
     
     % average of CS same area at the pick and error bars
-    ctrl_OA_avg_ms(i) = mean(ctrl_OA.mean_coh_ms(flist_OA_ms{i}));
-    err_ctrl_OA_avg_ms(i) = mean(ctrl_OA.err_ms(flist_OA_ms{i}))/sqrt(length(flist_OA_ms{i}));
+    ctrl_OA_avg_ms(i) = mean(ctrl_OA.mean_coh_ms(flist_OA_ms{1}));
+    err_ctrl_OA_avg_ms(i) = sqrt(sum(ctrl_OA.err_ms(flist_OA_ms{1}).^2))/length(flist_mod_mr{1});
     
  
 end
@@ -126,9 +126,10 @@ errorbar(N_list,ctrl_OA_avg_mr,err_ctrl_OA_avg_mr,'color',[19 148 92]/255,'LineW
 % shadedErrorBar(f,ctrl_SA.mean_coh_mr,ctrl_SA.err_mr,'lineprops',{'color',[50 250 93]/255 },'patchSaturation',0.5); hold on
 % shadedErrorBar(f,ctrl_OA.mean_coh_mr,ctrl_OA.err_mr,'lineprops',{'color',[19 148 92]/255 },'patchSaturation',0.5); 
 
-xlim([6,105])
+% xlim([6,105])
+xlim([85,110])
 ylim([0.1 0.57])
-xticks([0 10 20 30 40 50 60 80 100])
+% xticks([0 10 20 30 40 50 60 80 100])
 grid on
 set(gca,'FontSize',14)
 % title('Coherence at the Theta peak vs TOP modulators','FontSize',11')
@@ -138,10 +139,9 @@ legend('Modulator - Receiver','Controls-SA - Receiver','Controls-OA - Receiver',
 set(gcf, 'Position',  [100, 600, 650, 450])
 
 % fname = strcat(dir_both_monkeys,'/Coherence_MR_vs_TOP_modulators_both_monkeys.png');
-fname = strcat(dir_fig,'/Coherence_MR_all_modulators_only.pdf');
-saveas(fig,fname);
 
-fname = strcat(dir_fig,'/Coherence_MR_vs_TOP_modulators_both_monkeys.pdf');
+
+fname = strcat(dir_fig,'/Coherence_MR_vs_TOP_modulators_both_monkeys_only100.pdf');
 saveas(fig,fname);
 
 
@@ -153,10 +153,10 @@ errorbar(N_list,ctrl_SA_avg_ms,err_ctrl_SA_avg_ms,'color',[255, 51, 153]/255,'Li
 errorbar(N_list,ctrl_OA_avg_ms,err_ctrl_OA_avg_ms,'color',[255, 128, 128]/255,'LineWidth',1);
 
 
-
-xlim([5,105])
-ylim([0.05 0.4])
-xticks([ 10 20 30 40 50 60 80 100])
+xlim([85,110])
+% xlim([5,105])
+ylim([0.05 0.35])
+% xticks([ 10 20 30 40 50 60 80 100])
 grid on
 % title('Coherence at the Theta peak vs TOP modulators','FontSize',11')
 set(gca,'FontSize',14)
@@ -169,7 +169,7 @@ set(gcf, 'Position',  [100, 600, 650, 450])
 
 
 % fname = strcat(dir_both_monkeys,'/Coherence_MS_vs_TOP_modulators_both_monkeys.png');
-fname = strcat(dir_fig,'/Coherence_MS_vs_TOP_modulators_both_monkeys.pdf');
+fname = strcat(dir_fig,'/Coherence_MS_vs_TOP_modulators_both_monkeys_only100.pdf');
 saveas(fig,fname);
 
 

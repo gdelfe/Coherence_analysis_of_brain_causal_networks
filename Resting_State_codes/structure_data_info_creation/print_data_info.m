@@ -45,8 +45,8 @@ for i= list_sess
     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     sess_data
         
-%     load(strcat(dir_ctrl_SA,'/session_controls_same_area_info.mat')); % --- dataG: all data info and LFP
-%     ctrl_SA = sess_All_controls_same_area
+    load(strcat(dir_ctrl_SA,'/session_controls_same_area_info.mat')); % --- dataG: all data info and LFP
+    ctrl_SA = sess_All_controls_same_area
 % 
     load(strcat(dir_ctrl_OA,'/session_controls_other_areas_info.mat')); % --- dataG: all data info and LFP
     ctrl_OA = sess_All_controls_other_areas
