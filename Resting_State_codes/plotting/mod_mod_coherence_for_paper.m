@@ -19,17 +19,17 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 sess_list_file = '/Sessions_with_modulator_info_movie.txt';
 freq_band = 'theta_band';
 freq = 'theta band';
-monkey = 'Maverick';
-sess_list_idx = [16];
-freq_range = 15:17;
+monkey = 'Archie';
+sess_list_idx = [7];
+freq_range = 9:17;
 
-filename_mod = ''; % -- loading file name for coherence averages ******************
-filename_ctrl = ''; % -- loading file name for the list the coherences in sess_data_lfp_coherence
+filename_mod = '_rec002'; % -- loading file name for coherence averages ******************
+filename_ctrl = '_rec002'; % -- loading file name for the list the coherences in sess_data_lfp_coherence
 title_caption = 'S:CN - R:M1'; % -- title caption 
-SR_brain_areas = 'CN_M1'; % -- name of SR brain area for the figures and coherence files 
+SR_brain_areas = 'CN_ACC'; % -- name of SR brain area for the figures and coherence files 
 
 
-recording = 'last_recording'; % -- folder where to load coherency files  *************
+recording = 'rec002'; % -- folder where to load coherency files  *************
 
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_mod_network = strcat(dir_RS,sprintf('/Modulators_network/%s',SR_brain_areas));
@@ -165,13 +165,7 @@ for i=2:length(area_idx)
 end 
 
 
-fname = strcat(dir_mod_network,'/mod_mod_coherence.png');
-saveas(fig,fname)
-writematrix(c_mm, strcat(dir_mod_network,'/c_mm.txt'),'delimiter',' ');
-
-
-
-figure;
+fig = figure;
 h_map = heatmap(c_mm', 'MissingDataColor', 'w', 'GridVisible', 'on', 'MissingDataLabel', " ",'CellLabelColor','none','Colormap',flipud(bone))
 hHeatmap = struct(h_map).Heatmap;
 hGrid = struct(hHeatmap).Grid;
@@ -179,7 +173,9 @@ hGrid.ColorData = uint8([238;238;238;125]);
 caxis([0 1])
 
 
-
+fname = strcat(dir_mod_network,'/mod_mod_coherence.pdf');
+saveas(fig,fname)
+writematrix(c_mm, strcat(dir_mod_network,'/c_mm.txt'),'delimiter',' ');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MODULATOR - CONTROL NETWORK
@@ -257,7 +253,7 @@ colorbar;
 
 % FIGURE: modulator-control network
 
-figure;
+fig = figure;
 h_map = heatmap(c_mc_avg', 'MissingDataColor', 'w', 'GridVisible', 'on', 'MissingDataLabel', " ",'CellLabelColor','none','Colormap',flipud(bone))
 hHeatmap = struct(h_map).Heatmap;
 hGrid = struct(hHeatmap).Grid;
@@ -266,33 +262,33 @@ caxis([0 1])
 
 
 %%%%%%%%  BLOCKS LINES   %%%%%%%%
-hold on;
-x1 = 0.5 + length(area_idx{1});
-x2 = x1;
-y1 = 0;
-y2 = x1;
-line([x1,x2], [y1,y2], 'Color', 'w');
+% hold on;
+% x1 = 0.5 + length(area_idx{1});
+% x2 = x1;
+% y1 = 0;
+% y2 = x1;
+% line([x1,x2], [y1,y2], 'Color', 'w');
+% 
+% hx1 = x1; hx2 = x1; 
+% for i=2:length(area_idx)
+%     
+%     % horizontal lines 
+%     hx1 = hx2;
+%     hx2 = hx2 + length(area_idx{i});
+%     hy1 = hx1;
+%     hy2 = hx1;
+%     line([hx1,hx2], [hy1,hy2], 'Color', 'w');
+%     
+%     % vertical lines
+%     vx1 = hx2;
+%     vx2 = hx2;
+%     vy1 = hx1;
+%     vy2 = vy1 + length(area_idx{i});
+%     line([vx1,vx2], [vy1,vy2], 'Color', 'w');
+%     
+% end 
 
-hx1 = x1; hx2 = x1; 
-for i=2:length(area_idx)
-    
-    % horizontal lines 
-    hx1 = hx2;
-    hx2 = hx2 + length(area_idx{i});
-    hy1 = hx1;
-    hy2 = hx1;
-    line([hx1,hx2], [hy1,hy2], 'Color', 'w');
-    
-    % vertical lines
-    vx1 = hx2;
-    vx2 = hx2;
-    vy1 = hx1;
-    vy2 = vy1 + length(area_idx{i});
-    line([vx1,vx2], [vy1,vy2], 'Color', 'w');
-    
-end 
-
-fname = strcat(dir_mod_network,'/mod_ctrl_coherence.png');
+fname = strcat(dir_mod_network,'/mod_ctrl_coherence.pdf');
 saveas(fig,fname)
 writematrix(c_mc_avg, strcat(dir_mod_network,'/c_mc_avg.txt'),'delimiter',' ');
 
@@ -309,8 +305,9 @@ legend('Mod-Ctrl coh distribution')
 title(sprintf('%s - %s, Null model coh mod-ctrl',monkey,freq),'FontSize',12)
 ylabel('mod-ctrl coherency')
 xlabel('')
+ylim([0 9.5])
 
-fname = strcat(dir_mod_network,'/null_distribution.png');
+fname = strcat(dir_mod_network,'/null_distribution.pdf');
 saveas(fig,fname)
 
 
@@ -356,47 +353,46 @@ colormap(flipud(parula))
 colorbar;
 
 
-figure;
+fig = figure;
 h_map = heatmap(pval_mm', 'MissingDataColor', 'w', 'GridVisible', 'on', 'MissingDataLabel', " ",'CellLabelColor','none','Colormap',bone)
 hHeatmap = struct(h_map).Heatmap;
 hGrid = struct(hHeatmap).Grid;
 hGrid.ColorData = uint8([238;238;238;125]);
 caxis([0 1])
 
+% 
+% 
+% %%%%%%%%  BLOCKS LINES   %%%%%%%%
+% hold on;
+% x1 = 0.5 + length(area_idx{1});
+% x2 = x1;
+% y1 = 0;
+% y2 = x1;
+% line([x1,x2], [y1,y2], 'Color', 'w');
+% 
+% hx1 = x1; hx2 = x1; 
+% for i=2:length(area_idx)
+%     
+%     % horizontal lines 
+%     hx1 = hx2;
+%     hx2 = hx2 + length(area_idx{i});
+%     hy1 = hx1;
+%     hy2 = hx1;
+%     line([hx1,hx2], [hy1,hy2], 'Color', 'w');
+%     
+%     % vertical lines
+%     vx1 = hx2;
+%     vx2 = hx2;
+%     vy1 = hx1;
+%     vy2 = vy1 + length(area_idx{i});
+%     line([vx1,vx2], [vy1,vy2], 'Color', 'w');
+%     
+% end 
 
 
-%%%%%%%%  BLOCKS LINES   %%%%%%%%
-hold on;
-x1 = 0.5 + length(area_idx{1});
-x2 = x1;
-y1 = 0;
-y2 = x1;
-line([x1,x2], [y1,y2], 'Color', 'w');
-
-hx1 = x1; hx2 = x1; 
-for i=2:length(area_idx)
-    
-    % horizontal lines 
-    hx1 = hx2;
-    hx2 = hx2 + length(area_idx{i});
-    hy1 = hx1;
-    hy2 = hx1;
-    line([hx1,hx2], [hy1,hy2], 'Color', 'w');
-    
-    % vertical lines
-    vx1 = hx2;
-    vx2 = hx2;
-    vy1 = hx1;
-    vy2 = vy1 + length(area_idx{i});
-    line([vx1,vx2], [vy1,vy2], 'Color', 'w');
-    
-end 
-
-
-fname = strcat(dir_mod_network,'/pval_mod_mod_network.png');
+fname = strcat(dir_mod_network,'/pval_mod_mod_network.pdf');
 saveas(fig,fname)
-writematrix(c_mc_avg, strcat(dir_mod_network,'/pval_mod_mod_network.txt'),'delimiter',' ');
-pval_mm = importdata(strcat(dir_mod_network,'/pval_mod_mod_network.txt'));
+writematrix(pval_mm, strcat(dir_mod_network,'/pval_mod_mod_network.txt'),'delimiter',' ');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Threshold p-values of the mod-mod network 
@@ -411,7 +407,7 @@ h_map = heatmap(pval_mm_th', 'MissingDataColor', 'w', 'GridVisible', 'on', 'Miss
 hHeatmap = struct(h_map).Heatmap;
 hGrid = struct(hHeatmap).Grid;
 hGrid.ColorData = uint8([238;238;238;125]);
-caxis([0 1])
+caxis([0 0.06])
 
 %%%%%%%%  BLOCKS LINES   %%%%%%%%
 hold on;
@@ -421,10 +417,10 @@ y1 = 0;
 y2 = x1;
 line([x1,x2], [y1,y2], 'Color', 'w');
 
-hx1 = x1; hx2 = x1; 
+hx1 = x1; hx2 = x1;
 for i=2:length(area_idx)
     
-    % horizontal lines 
+    % horizontal lines
     hx1 = hx2;
     hx2 = hx2 + length(area_idx{i});
     hy1 = hx1;
@@ -438,10 +434,98 @@ for i=2:length(area_idx)
     vy2 = vy1 + length(area_idx{i});
     line([vx1,vx2], [vy1,vy2], 'Color', 'w');
     
-end 
+end
 
 fname = strcat(dir_mod_network,sprintf('/pval_mod_mod_network_p_th_%.2f.png',th));
 saveas(fig,fname)
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MULTIPLE COMPARISONS  %%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------------------- %
+% --- FDR Benjamini-Hochberg test  %
+% -------------------------------- %
+
+% -- sort p-value in ascending order
+A = reshape(pval_mm,[],1);
+[sort_pmm,idx_pmm] = sort(A);
+
+
+alpha = 0.1; % confidence level for FDR
+max_id = min(find(sort_pmm == 1)); % find the index of the last 1 element 
+m = length(sort_pmm(1:max_id)); % total number of p-values
+
+k_th = (1:m)*alpha/m; % FDR threshol p-values
+sort_p = sort_pmm(1:max_id)';
+
+idx = sort_p <= k_th; % get the index of the p-values below FDR threshold
+th_idx = strfind(idx,[1 0]); % index of the highest significant p-value
+Ch = idx_pmm(1:th_idx(2)); % channels that show significance after FDR correction, with alpha confidence interval
+
+pFDR = ones(length(pval_mm),length(pval_mm));
+pFDR(Ch) = pval_mm(Ch);
+
+
+% FIGURE: pvalue FDR mod-mod network THRESHOLDED 
+fig = figure;
+h_map = heatmap(pFDR', 'MissingDataColor', 'w', 'GridVisible', 'on', 'MissingDataLabel', " ",'CellLabelColor','none','Colormap',bone)
+hHeatmap = struct(h_map).Heatmap;
+hGrid = struct(hHeatmap).Grid;
+hGrid.ColorData = uint8([238;238;238;125]);
+caxis([0 0.05])
+
+fname = strcat(dir_mod_network,sprintf('/pval_FDR.pdf'));
+saveas(fig,fname)
+
+
+dlmwrite(strcat(dir_mod_network,sprintf('/pFDR_matrix.txt')),pFDR);
+
+
+pFDR_graph = 1-pFDR;
+for i = 1:length(pFDR);
+    for j = 1:length(pFDR)
+        if pFDR_graph(i,j) ~= 0
+            pFDR_graph(i,j) = abs(pFDR_graph(i,j) - 0.5);
+        end
+    end
+end
+
+% type 'bone' in terminal and chose the value for the color map    
+a = linspace(0,0.5833,length(pval_mm))';
+b = linspace(0,0.6823,length(pval_mm))';
+c = linspace(0,0.7083,length(pval_mm))';
+
+CMap = [a,b,c];
+
+fig = figure;
+circularGraph(pFDR_graph,'ColorMap',CMap)
+
+fname = strcat(dir_mod_network,sprintf('/Network_pval_FDR.pdf'));
+saveas(fig,fname)
+
+% -- FIGURE: FDR plot
+fig = figure;
+plot(1:m,k_th)
+hold on
+plot(1:m,sort_p)
+grid on
+ylabel('p-values')
+xlabel('k')
+legend('k*alpha/m','p-values','Location','northwest')
+title('FDR Benjamini-Hochberg test, alpha=0.05','FontSize',11)
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -458,7 +542,6 @@ Ath(Ath < 0.95) = 0;
 
 figure;
 circularGraph(Ath,'ColorMap',bone(length(Ath)))
-
 
 
 Ath01 = Ath;
