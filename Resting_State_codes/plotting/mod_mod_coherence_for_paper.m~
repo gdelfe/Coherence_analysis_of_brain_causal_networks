@@ -75,7 +75,8 @@ mod_areas = unique(mod.mod_areas);
 area_idx = {}; % -- structure to store indexes 
 cnt = 1;
 for area = mod_areas
-    area_idx{cnt} = find(ismember(mod.mod_areas,area));
+    area
+    area_idx{cnt} = find(ismember(mod.mod_areas,area))
     cnt =cnt +1;
 end 
 
