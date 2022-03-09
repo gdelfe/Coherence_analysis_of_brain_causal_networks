@@ -30,7 +30,7 @@ UsedSess = find(useSessIndx);
 
 
 
-for iSess = 6 %UsedSess
+for iSess = 62 %UsedSess
     %         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess
     
     disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])

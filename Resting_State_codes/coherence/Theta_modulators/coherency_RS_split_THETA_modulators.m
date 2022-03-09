@@ -35,7 +35,7 @@ name_struct_input = '/session_data_lfp.mat';
 filename = '.mat'; % -- filename for sess_data_info.mat 
 recording = 'last_recording';
 
-freq_band = 'beta_band';
+freq_band = 'theta_band';
 monkey = 'Maverick';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
@@ -48,7 +48,7 @@ cnt_sr = 1; % counter sender-receiver coherencies
 cnt_el = 1; % counter for how many modulators excluding the receivers modulators
 % sess_list = [1,3,4,5]
 
-for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
+for i = 16 %1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all

@@ -120,7 +120,7 @@ display(['Permutation test DONE'])
 
 % ----- FIGURE: Pemuted Difference: coh(high) - coh(low)
 fig = figure;
-plot(f,diff_MA(10:15,:))
+plot(f,diff_MA(10,:))
 title('Coh diff permuted: H val - L val')
 legend('permuted diff choerence')
 ylabel('coherence');

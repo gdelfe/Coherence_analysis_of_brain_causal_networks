@@ -5,6 +5,7 @@
 clear all;
 close all
 
+addpath('/mnt/pesaranlab/Matlab/monkeys')
 subjects = {'maverick','archie'};
 
 %for
@@ -30,7 +31,7 @@ UsedSess = find(useSessIndx);
 
 
 
-for iSess = 1 %UsedSess
+for iSess = 16 %UsedSess
     %         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess
     
     disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])

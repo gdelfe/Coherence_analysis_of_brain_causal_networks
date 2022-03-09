@@ -40,7 +40,7 @@ Summary = {};
 cnt_sess = 1;
  
 
-for iSess = sess_list % For all the sessions 
+for iSess = 62 %sess_list % For all the sessions 
     %         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess
     disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
     
