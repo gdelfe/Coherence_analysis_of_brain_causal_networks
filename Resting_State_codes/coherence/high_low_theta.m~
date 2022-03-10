@@ -47,29 +47,21 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
     
-    load(strcat(dir_Modulators,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
+    load(strcat(dir_Modulators,name_struct_input)); % load sess_data_lfp, structure with session modulator info 
 
     %     % ---  time parameter
     tot_time = 150001;
     
+    % outliers time series in sender and receiver 
     outliers_S = sess_data_lfp.outliers_S;
     outliers_R = sess_data_lfp.outliers_R;
     
 
-    
-    % Parameters
-    %     tapers = [0.5 5];
-    %     fk = 60;
-    %     pad = 2
-    %     fs = 1000; %Data.Fs.lfp;
-    %     dn = 0.005;
-    %
-    %     % Spectrogram analysis - All
-    %     [spec, f , ti] = tfspec_GINO(lfp_S,tapers,fs,dn,fk,pad,0.05,0,1);
-    %
+    % number of modulators in that session 
     n_mod = size(sess_data_lfp.mod_idx,2);
     cnt_m = 1; % counter for numb of modulators checked for the outlier trials remover
     
+    % matrices to store high/low coherence wrt sender and receiver 
     coh_all_mod_ms_high = zeros(n_mod,409);
     coh_all_mod_ms_low = zeros(n_mod,409);
     coh_all_mod_mr_high = zeros(n_mod,409);
@@ -80,6 +72,10 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         display(['-- Modulator ',num2str(m),'  --- ',num2str(cnt_m),' out of ', num2str(n_mod)]);
         
+        
+        % When computing MS and MR coherence we have to remove the outliers
+        % for the sender/receiver, and this are different time series for
+        % the sender and the receiver 
         
         
         % %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,13 +95,16 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         % Compute the spectrum for each trial. Format: iTrial x times
         W = 3;
         [spec, f, err] = dmtspec(lfp_E,[1000/1e3,W],1e3,200);
+        
+        % Find low and high theta from the spectrum 
         theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
-        theta_pow_mean = mean(theta_pow);
-        theta_pow = theta_pow - theta_pow_mean;
+        theta_pow_mean = mean(theta_pow); % get the average theta power
+        theta_pow = theta_pow - theta_pow_mean; % rescale the theta power by removing the mean value
         
         [sort_theta, trial_idx] = sort(theta_pow); % sort theta power in ascending order
         cut = fix(length(theta_pow)/3); % find the index of 1/3 of the distribution
         
+        % low and high theta power indexes 
         low_theta_pow = sort_theta(1:cut);
         low_idx = trial_idx(1:cut);
         
@@ -394,10 +393,18 @@ end
 
 
 
-save(strcat(dir_high_low_theta,'coh_all_sess_ms_high.mat','coh_all_c_ms_high'))
-save(strcat(dir_high_low_theta,'coh_all_sess_ms_low.mat','coh_all_c_ms_low'))
-save(strcat(dir_high_low_theta,'coh_all_sess_mr_high.mat','coh_all_c_mr_high'))
-save(strcat(dir_high_low_theta,'coh_all_sess_mr_low.mat','coh_all_c_mr_low'))
+save(strcat(dir_high_low_theta,'/coh_all_sess_ms_high.mat'),'coh_all_c_ms_high')
+save(strcat(dir_high_low_theta,'/coh_all_sess_ms_low.mat'),'coh_all_c_ms_low')
+save(strcat(dir_high_low_theta,'/coh_all_sess_mr_high.mat'),'coh_all_c_mr_high')
+save(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'),'coh_all_c_mr_low')
+
+
+load(strcat(dir_high_low_theta,'/coh_all_sess_ms_high.mat'))
+load(strcat(dir_high_low_theta,'/coh_all_sess_ms_low.mat'))
+load(strcat(dir_high_low_theta,'/coh_all_sess_mr_high.mat'))
+load(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'))
+
+
 
 
 
@@ -410,6 +417,67 @@ err_all_coh_ms_high = std(abs(coh_all_c_ms_high),0,1)/sqrt(size(coh_all_c_ms_hig
 err_all_coh_ms_low = std(abs(coh_all_c_ms_low),0,1)/sqrt(size(coh_all_c_ms_low,1));
 err_all_coh_mr_high = std(abs(coh_all_c_mr_high),0,1)/sqrt(size(coh_all_c_mr_high,1));
 err_all_coh_mr_low = std(abs(coh_all_c_mr_low),0,1)/sqrt(size(coh_all_c_mr_low,1));
+
+
+zscore_ms_high = (abs(coh_all_c_ms_high) - mean_all_coh_ms_high)%./std(abs(coh_all_c_ms_high),0,1);
+zscore_ms_low = (abs(coh_all_c_ms_low) - mean_all_coh_ms_low)./std(abs(coh_all_c_ms_low),0,1);
+zscore_mr_high = (abs(coh_all_c_mr_high) - mean_all_coh_mr_high)./std(abs(coh_all_c_mr_high),0,1);
+zscore_mr_low = (abs(coh_all_c_mr_low) - mean_all_coh_mr_low)./std(abs(coh_all_c_mr_low),0,1);
+
+
+
+mean_zscore_ms_high = mean(zscore_ms_high,1);
+figure;
+plot(f,mean_all_coh_ms_high)
+hold on
+plot(f,abs(coh_all_c_ms_high))
+
+
+
+set(0,'DefaultFigureVisible','on')
+%     load(strcat(dir_high_low_theta,sprintf('/Sess_%d/coherence_all.mat')));
+
+fig = figure;
+shadedErrorBar(f,mean_all_coh_mr_high,err_all_coh_mr_high,'lineprops',{'color',[28 199 139]/255 },'patchSaturation',0.5); hold on
+shadedErrorBar(f,mean_all_coh_mr_low,err_all_coh_mr_low,'lineprops',{'color',[50 250 93]/255 },'patchSaturation',0.5);
+
+grid on
+% title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
+set(gca,'FontSize',14)
+xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+ylabel('Coherence','FontName','Arial','FontSize',15);
+title('Coherence MR high vs low theta power trial','FontSize',12)
+legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
+set(gcf, 'Position',  [100, 600, 898, 500])
+xlim([1 95])
+% ylim([0 0.25])
+grid on
+
+
+fname = strcat(dir_high_low_theta,sprintf('/MR_all_coherence_mean.jpg',cnt_m));
+saveas(fig,fname);
+
+
+
+fig = figure;
+hold all
+shadedErrorBar(f,mean_all_coh_ms_high,err_all_coh_ms_high,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.5);
+shadedErrorBar(f,mean_all_coh_ms_low,err_all_coh_ms_low,'lineprops',{'color',[255, 51, 153]/255},'patchSaturation',0.5);
+
+
+set(gca,'FontSize',14)
+xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+ylabel('Coherence','FontName','Arial','FontSize',15);
+title('Coherence MS high vs low theta power trial','FontSize',12)
+legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
+set(gcf, 'Position',  [100, 600, 898, 500])
+xlim([1 95])
+% ylim([0 0.25])
+grid on
+
+fname = strcat(dir_high_low_theta,sprintf('/MS_all_coherence_mean.jpg',cnt_m));
+saveas(fig,fname);
+
 
 
 
@@ -458,3 +526,6 @@ grid on
 
 fname = strcat(dir_high_low_theta,sprintf('/MS_all_coherence_mean.jpg',cnt_m));
 saveas(fig,fname);
+
+
+

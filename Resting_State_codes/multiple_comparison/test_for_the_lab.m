@@ -14,8 +14,9 @@ dn = 0.01;
 fs = 1000;
 
 
-% --- coherence-gram
-[c_sr,tf,f,spec_r,spec_s] = tfcoh_GINO(lfp_S,lfp_R,tapers,1e3,dn,60,2,[],[],1);
+% --- coherence-gram --- UNCOMMENT if you want to recalculate
+
+% [c_sr,tf,f,spec_r,spec_s] = tfcoh_GINO(lfp_S,lfp_R,tapers,1e3,dn,60,2,[],[],1);
 % 
 % data.c_sr = c_sr;
 % data.f = f;
