@@ -1,7 +1,10 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code ..
-%
+% This code computes the theta coherence between the modulator-sender and
+% modulator-receiver for modulators having high/low theta power and
+% comppermutation test used to
+% create a null distribution for the zero-coherence hypothesis 
+
 %    @ Gino Del Ferraro, November 2020, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -32,7 +35,7 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-num_iter = 10; % number of iteration for permutation test
+num_iter = 1000; % number of iteration for permutation test
 
 % ---- parameters for the coherence-gram
 % ---  time parameter
@@ -47,7 +50,7 @@ W = 5;
 coh_all_c_ms = [];
 coh_all_c_mr = [];
 
-for s = 1:3 %size(sess_info{1},1)  % For each session with at least one modulator
+for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -134,13 +137,14 @@ for s = 1:3 %size(sess_info{1},1)  % For each session with at least one modulato
         lfp_E(outliers_ER,:) = [];
         lfp_R(outliers_ER,:) = [];
         
+        n_trial = size(lfp_R,1);
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % % Coherency Modulator-Receiver permutation test 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         display(['-- MR coherence permutation test ',num2str(m),'  --- ',num2str(cnt_m),' out of ', num2str(n_mod)]);
-
+        
         for iter = 1:num_iter
             
             perm_idx = randperm(n_trial);
@@ -160,19 +164,26 @@ for s = 1:3 %size(sess_info{1},1)  % For each session with at least one modulato
             mkdir(dir_Sess)
         end
         
-        save(strcat(dir_Sess,sprintf('/permuted_coh_all_mod_in_sess',cnt_m)),'coh_sess');
+        save(strcat(dir_Sess,'/permuted_coh_all_mod_in_sess'),'coh_sess');
         
-        % store MS and MR permuted-coherences for all the session into matrix
-        coh_all_c_ms = [coh_all_c_ms; coh_ms_sess];
-        coh_all_c_mr = [coh_all_c_mr; coh_mr_sess];
+
         
         cnt_m = cnt_m +1;
         
     end % end of for cycle for all the modulators in a given session
+    
+    % store MS and MR permuted-coherences for all the session into matrix
+    coh_all_c_ms = [coh_all_c_ms; coh_ms_sess];
+    coh_all_c_mr = [coh_all_c_mr; coh_mr_sess];
+    
+    
 end % end for all the sessions  
     
-save(strcat(dir_high_low_theta,'/coh_all_permuted_c_ms.mat'),'coh_all_c_ms')
-save(strcat(dir_high_low_theta,'/coh_all_permuted_c_mr.mat'),'coh_all_c_mr')
+save(strcat(dir_high_low_theta,'/coh_all_permuted_c_ms.mat'),'coh_all_c_ms','-v7.3')
+save(strcat(dir_high_low_theta,'/coh_all_permuted_c_mr.mat'),'coh_all_c_mr','-v7.3')
+
+% load(strcat(dir_high_low_theta,'/coh_all_permuted_c_ms.mat'));
+% load(strcat(dir_high_low_theta,'/coh_all_permuted_c_mr.mat'));
 
 
     

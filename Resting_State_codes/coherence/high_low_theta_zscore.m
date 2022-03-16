@@ -1,6 +1,9 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code ..
+% This code computes the theta coherence between the modulator-sender and
+% modulator-receiver for modulators having high/low theta power and
+% z-scores the results by using the data from the  permutation test used to
+% create a null distribution for the zero-coherence hypothesis 
 %
 %    @ Gino Del Ferraro, November 2020, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -32,151 +35,152 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-num_iter = 1000; % number of iteration for permutation test
 
-% ---- parameters for the coherence-gram
-% ---  time parameter
-tot_time = 150001;
-nt = tot_time;
-fs = 1000;
-fk = 200;
-pad = 2;
-N = 1;
-W = 5;
+% load MR and MS coherence for low and high theta power 
+load(strcat(dir_high_low_theta,'/coh_all_sess_ms_high.mat'))
+load(strcat(dir_high_low_theta,'/coh_all_sess_ms_low.mat'))
+load(strcat(dir_high_low_theta,'/coh_all_sess_mr_high.mat'))
+load(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'))
 
-coh_all_c_ms = [];
-coh_all_c_mr = [];
+% load MR and MS permuted coherences for all the sessions and all the modulators
+load(strcat(dir_high_low_theta,'/coh_all_permuted_c_ms.mat'))
+load(strcat(dir_high_low_theta,'/coh_all_permuted_c_mr.mat'))
 
-for s = 1:3 %size(sess_info{1},1)  % For each session with at least one modulator
-    
-    
-    close all
-    clear mod_rec mod_send coh_all sess_data_lfp
-    
-    Sess = sess_info{1}(s); % Session number
-    display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
-    
-    load(strcat(dir_Modulators,name_struct_input)); % load sess_data_lfp, structure with session modulator info 
-    
-    % outliers time series in sender and receiver 
-    outliers_S = sess_data_lfp.outliers_S;
-    outliers_R = sess_data_lfp.outliers_R;
-    
-
-    % number of modulators in that session 
-    n_mod = size(sess_data_lfp.mod_idx,2);
-    cnt_m = 1; % counter for numb of modulators checked for the outlier trials remover
-    
-    % matrices to store high/low coherence wrt sender and receiver 
-    coh_ms_sess = zeros(n_mod,num_iter,409);
-    coh_mr_sess = zeros(n_mod,num_iter,409);
-
-    
-    for m = sess_data_lfp.mod_idx
-        
-        display(['-- Modulator ',num2str(m),'  --- ',num2str(cnt_m),' out of ', num2str(n_mod)]);
-        
-        
-        % When computing MS and MR coherence we have to remove the outliers
-        % for the sender/receiver, and this are different time series for
-        % the sender and the receiver 
-        
-        
-        % %%%%%%%%%%%%%%%%%%%%%%%%%
-        % In relation to the sender
-        
-        lfp_E = sq(sess_data_lfp.lfp_E(m,:,:));
-        lfp_S = sess_data_lfp.lfp_S;
-        
-        outliers_E = sess_data_lfp.outliers_E(cnt_m).idx;
-        
-        outliers_ES = [outliers_S, outliers_E];
-        outliers_ES = unique(outliers_ES);  % -- remove repeated entries in outliers
-        
-        lfp_E(outliers_ES,:) = [];
-        lfp_S(outliers_ES,:) = [];
-        
-        n_trial = size(lfp_S,1);
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % % Coherency Modulator-Sender permutation test 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        display(['-- MS coherence permutation test ',num2str(m),'  --- ',num2str(cnt_m),' out of ', num2str(n_mod)]);
-
-        for iter = 1:num_iter
-            
-            perm_idx = randperm(n_trial);
-            % -- coherence calculation via coherency()
-            [c_ms,f] = coherency(lfp_S(perm_idx,:),lfp_E,[N W],fs,fk,pad,0.05,1,1);
-            
-            coh_ms_sess(cnt_m,iter,:) = c_ms;
-            
-        end
-        
-        % assign coherence MS values (permuted) to structure 
-        coh_sess.ms = coh_ms_sess;
-        
-        
-        
-        % %%%%%%%%%%%%%%%%%%%%%%%%%%
-        % In relation to the receiver
-        
-        lfp_E = sq(sess_data_lfp.lfp_E(m,:,:));
-        lfp_R = sess_data_lfp.lfp_R;
-        
-        outliers_E = sess_data_lfp.outliers_E(cnt_m).idx;
-        
-        outliers_ER = [outliers_R, outliers_E];
-        outliers_ER = unique(outliers_ER);  % -- remove repeated entries in outliers
-        
-        lfp_E(outliers_ER,:) = [];
-        lfp_R(outliers_ER,:) = [];
-        
-        n_trial = size(lfp_R,1);
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % % Coherency Modulator-Receiver permutation test 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        display(['-- MR coherence permutation test ',num2str(m),'  --- ',num2str(cnt_m),' out of ', num2str(n_mod)]);
-        
-        for iter = 1:num_iter
-            
-            perm_idx = randperm(n_trial);
-            % -- coherence calculation via coherency()
-            [c_mr,f] = coherency(lfp_R(perm_idx,:),lfp_E,[N W],fs,fk,pad,0.05,1,1);
-            
-            coh_mr_sess(cnt_m,iter,:) = c_mr;
-            
-        end
-
-        % assign coherence MR values (permuted) to structure 
-        coh_sess.mr = coh_mr_sess;
-        
-        
-        dir_Sess = strcat(dir_high_low_theta,sprintf('/Sess_%d',Sess));
-        if ~exist(dir_Sess, 'dir')
-            mkdir(dir_Sess)
-        end
-        
-        save(strcat(dir_Sess,sprintf('/permuted_coh_all_mod_in_sess',cnt_m)),'coh_sess');
-        
-        % store MS and MR permuted-coherences for all the session into matrix
-        coh_all_c_ms = [coh_all_c_ms; coh_ms_sess];
-        coh_all_c_mr = [coh_all_c_mr; coh_mr_sess];
-        
-        cnt_m = cnt_m +1;
-        
-    end % end of for cycle for all the modulators in a given session
-end % end for all the sessions  
-    
-save(strcat(dir_high_low_theta,'/coh_all_permuted_c_ms.mat'),'coh_all_c_ms')
-save(strcat(dir_high_low_theta,'/coh_all_permuted_c_mr.mat'),'coh_all_c_mr')
-
-% load(strcat(dir_high_low_theta,'/coh_all_permuted_c_ms.mat'));
-% load(strcat(dir_high_low_theta,'/coh_all_permuted_c_mr.mat'));
+% mean of the null distributions for MR and MS
+% mean_c_ms_null = sq(mean(mean(cc)))';
+% mean_c_mr_null = sq(mean(mean(abs(coh_all_c_mr))))';
+% 
+% coh_ms_reshape = reshape(coh_all_c_ms,[],409);
+% coh_mr_reshape = reshape(coh_all_c_mr,[],409);
+% 
+% mean_c_ms_null = mean(abs(coh_ms_reshape));
+% mean_c_mr_null = mean(abs(coh_mr_reshape));
+% 
+% std_c_ms_null = std(abs(coh_ms_reshape));
+% std_c_mr_null = std(abs(coh_mr_reshape));
 
 
-    
+
+% mean of the null distribution for MS and MR for each mod separately
+mean_c_ms_null = sq(mean(abs(coh_all_c_ms),2)); % 109x409  = #mod x freq
+mean_c_mr_null = sq(mean(abs(coh_all_c_mr),2));
+
+% std of the null distribution for MS and MR for each mod separately
+std_c_ms_null = sq(std(abs(coh_all_c_ms),0,2));
+std_c_mr_null = sq(std(abs(coh_all_c_mr),0,2));
+
+% One unique mean and std for the null distribution 
+mean_all_null_c_ms = mean(mean_c_ms_null,1);
+mean_all_null_c_mr = mean(mean_c_mr_null,1);
+std_all_null_c_ms = mean(std_c_ms_null,1);
+std_all_null_c_mr = mean(std_c_mr_null,1);
+
+
+zscore_c_ms_high = (abs(coh_all_c_ms_high) - mean_all_null_c_ms)./std_all_null_c_ms;
+zscore_c_ms_low = (abs(coh_all_c_ms_low) - mean_all_null_c_ms)./std_all_null_c_ms;
+zscore_c_mr_high = (abs(coh_all_c_mr_high) - mean_all_null_c_mr)./std_all_null_c_mr;
+zscore_c_mr_low = (abs(coh_all_c_mr_low) - mean_all_null_c_mr)./std_all_null_c_mr;
+
+% zscore_c_ms_high = (abs(coh_all_c_ms_high) - mean_c_ms_null)./std_c_ms_null;
+% zscore_c_ms_low = (abs(coh_all_c_ms_low) - mean_c_ms_null)./std_c_ms_null;
+% zscore_c_mr_high = (abs(coh_all_c_mr_high) - mean_c_mr_null)./std_c_mr_null;
+% zscore_c_mr_low = (abs(coh_all_c_mr_low) - mean_c_mr_null)./std_c_mr_null;
+
+
+err_coh_ms_high = std(zscore_c_ms_high)/sqrt(size(coh_all_c_ms_high,1));
+err_coh_ms_low = std(zscore_c_ms_low)/sqrt(size(coh_all_c_ms_low,1));
+err_coh_mr_high = std(zscore_c_mr_high)/sqrt(size(coh_all_c_mr_high,1));
+err_coh_mr_low = std(zscore_c_mr_low)/sqrt(size(coh_all_c_mr_low,1));
+
+f = linspace(0,200,409);
+
+fig = figure;
+plot(f,mean_all_null_c_ms)
+hold on
+plot(f,mean_all_null_c_mr)
+hold on
+plot(f,mean(abs(coh_all_c_mr_high)))
+hold on
+plot(f,mean(abs(coh_all_c_mr_low)))
+hold on
+plot(f,mean(abs(coh_all_c_ms_high)))
+hold on
+plot(f,mean(abs(coh_all_c_ms_low)))
+legend('null MS', 'null MR','MR high theta','MR low theta','MS high theta','MS low theta');
+title('coherence vs frequency - high/low theta and null')
+grid on 
+set(gcf, 'Position',  [100, 600, 898, 500])
+
+fname = strcat(dir_high_low_theta,'/All_high_low_coherences_and_null.jpg');
+saveas(fig,fname);
+
+
+figure;
+plot(f,mean(zscore_c_ms_high))
+hold on 
+plot(f,mean(zscore_c_ms_low))
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+% FIGURES %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%
+
+
+% %%%% RECEIVER %%%%%%%%%%%%%%%%%%%%%%
+
+set(0,'DefaultFigureVisible','on')
+%     load(strcat(dir_high_low_theta,sprintf('/Sess_%d/coherence_all.mat')));
+
+fig = figure;
+shadedErrorBar(f,mean(zscore_c_mr_high),err_coh_mr_high,'lineprops',{'color',[28 199 139]/255 },'patchSaturation',0.5); hold on
+shadedErrorBar(f,mean(zscore_c_mr_low),err_coh_mr_low,'lineprops',{'color',[50 250 93]/255 },'patchSaturation',0.5);
+
+
+grid on
+% title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
+set(gca,'FontSize',14)
+xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+ylabel('z-scored Coherence','FontName','Arial','FontSize',15);
+title('Coherence MR high vs low theta power trial','FontSize',12)
+legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
+set(gcf, 'Position',  [100, 600, 898, 500])
+xlim([1 95])
+% ylim([0 0.25])
+grid on
+
+
+fname = strcat(dir_high_low_theta,'/MR_zscored_coherence_mean.jpg');
+saveas(fig,fname);
+
+
+% %%%% SENDER %%%%%%%%%%%%%%%%%%%%%%
+
+
+fig = figure;
+hold all
+
+shadedErrorBar(f,mean(zscore_c_ms_high),err_coh_ms_high,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.5); hold on
+shadedErrorBar(f,mean(zscore_c_ms_low),err_coh_ms_low,'lineprops',{'color',[255, 51, 153]/255},'patchSaturation',0.4); hold on
+
+grid on
+% title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
+set(gca,'FontSize',14)
+xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+ylabel('z-scored Coherence','FontName','Arial','FontSize',15);
+legend('Modulator - Receiver','Modulator - Sender','FontSize',10,'FontName','Arial')
+set(gcf, 'Position',  [100, 600, 898, 500])
+xlim([1 95])
+% ylim([0 0.36])
+grid on
+
+
+fname = strcat(dir_high_low_theta,'/MS_zscored_coherence_mean.jpg');
+saveas(fig,fname);
+
+
+
+
+
+

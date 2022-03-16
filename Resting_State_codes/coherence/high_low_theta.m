@@ -1,8 +1,9 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code ..
+% This code compute the theta coherence between the modulator-sender and
+% modulator-receiver for modulators having high/low theta power.
 %
-%    @ Gino Del Ferraro, November 2020, Pesaran lab, NYU
+%    @ Gino Del Ferraro, March 2022, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all; close all;
@@ -339,6 +340,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     coh_all_c_mr_low = [coh_all_c_mr_low; coh_all_mod_mr_low];
    
     
+    % save high/low theta MR and MS coherence for a given session
     save(strcat(dir_high_low_theta,sprintf('/Sess_%d/coherence_all.mat',Sess)),'coh_all_mod');
     
     
@@ -431,6 +433,12 @@ err_all_coh_mr_low = std(abs(coh_all_c_mr_low),0,1)/sqrt(size(coh_all_c_mr_low,1
 % plot(f,abs(coh_all_c_ms_high))
 % 
 
+%%%%%%%%%%%%%%%%%%%%%%
+% FIGURES %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%
+
+
+% %%%% RECEIVER %%%%%%%%%%%%%%%%%%%%%%
 
 set(0,'DefaultFigureVisible','on')
 %     load(strcat(dir_high_low_theta,sprintf('/Sess_%d/coherence_all.mat')));
@@ -454,4 +462,25 @@ grid on
 
 fname = strcat(dir_high_low_theta,sprintf('/MR_all_coherence_mean.jpg',cnt_m));
 saveas(fig,fname);
+
+
+% %%%% SENDER %%%%%%%%%%%%%%%%%%%%%%
+
+
+fig = figure;
+hold all
+
+shadedErrorBar(f,mean_all_coh_ms_high,err_all_coh_ms_high,'lineprops',{'color',[28 199 139]/255 },'patchSaturation',0.5); hold on
+shadedErrorBar(f,mean_all_coh_ms_low,err_all_coh_ms_low,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+
+grid on
+% title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
+set(gca,'FontSize',14)
+xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
+ylabel('Coherence','FontName','Arial','FontSize',15);
+legend('Modulator - Receiver','Modulator - Sender','FontSize',10,'FontName','Arial')
+set(gcf, 'Position',  [100, 600, 898, 500])
+xlim([1 95])
+% ylim([0 0.36])
+grid on
 

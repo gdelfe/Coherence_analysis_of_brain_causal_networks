@@ -17,6 +17,11 @@ clear all;
 close all
 
 set(0,'DefaultLineLineWidth',2)
+addpath('/mnt/pesaranlab/Matlab/monkeys')
+addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
+
+freq_band = 'theta_band';
+monkey = 'Maverick';
 
 subjects = {'maverick','archie'};
 
@@ -42,12 +47,13 @@ end
 UsedSess = find(useSessIndx);
 
 %%%%%%%%%%%%%%%%%%%
-% - LOAD DATA --- %
+% - PATHS --- %
 %%%%%%%%%%%%%%%%%%%
 
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
-dir_Stim = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data';
+dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
+dir_RS = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
+dir_Stim = strcat(dir_main,sprintf('/%s/Stim_data/%s',monkey,freq_band));
+
 step = 110;
 
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
@@ -55,11 +61,11 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 % -- load structure files
-newAM = load(strcat(dir_RS,'/session_AM.mat'))
-session_AM = newAM.session_AM;
-
-newMA = load(strcat(dir_RS,'/session_MA.mat'))
-session_MA = newMA.session_MA;
+% newAM = load(strcat(dir_RS,'/session_AM.mat'))
+% session_AM = newAM.session_AM;
+% 
+% newMA = load(strcat(dir_RS,'/session_MA.mat'))
+% session_MA = newMA.session_MA;
 
 
 % % -- print structures on stdout
@@ -198,8 +204,8 @@ for i=1:size(sess_info{1},1)  % For all the session with a modulator
     
     
     % ---- bipolar referencing, pairs of electrodes
-    dir_Sess = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Stim_data/Sess_%d',Sess);
-    dir_RS_Sess = sprintf('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state/Sess_%d',Sess);
+    dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d',Sess));
+    dir_RS_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
     
     if ~exist(dir_Sess, 'dir')
         mkdir(dir_Sess)

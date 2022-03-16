@@ -1,4 +1,4 @@
-f
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code performs the permutation test for the coherence: it shuffles 
 % the trail of one of the two channels when computing the MR, SR, MS

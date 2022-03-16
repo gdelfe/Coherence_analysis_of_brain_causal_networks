@@ -26,7 +26,7 @@ for iSubject = 1% : length(subjects)
     
     UsedSess = find(useSessIndx);
     
-    for iSess = 15 %UsedSess
+    for iSess = 5 %UsedSess
         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess
         
         disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
@@ -121,7 +121,7 @@ for iSubject = 1% : length(subjects)
                                 clear Raw_Pre lfp_Pre
                             end
                         end
-                        keyboard
+                        
                         fprintf('\n');
                         disp(['Start ROC on PSDs @ ' num2str(AnalParams.TestSpecDiff.fk(iFreqBand,1)) '-' num2str(AnalParams.TestSpecDiff.fk(iFreqBand,2)) ' Hz'])
                         fprintf('\n\n');
@@ -371,3 +371,12 @@ for iSubject = 1% : length(subjects)
         clear Data
     end
 end
+
+
+
+    
+    
+    
+    
+    
+    
