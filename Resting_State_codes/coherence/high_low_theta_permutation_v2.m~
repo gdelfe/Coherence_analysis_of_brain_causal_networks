@@ -45,17 +45,9 @@ N = 1;
 W = 5;
 
 
-coh_all_c_ms_high = [];
-coh_all_c_ms_low = [];
-coh_all_c_mr_high = [];
-coh_all_c_mr_low = [];
-
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
-    
-    close all
-    clear mod_rec mod_send coh_all sess_data_lfp
-    
+        
     Sess = sess_info{1}(s); % Session number
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
@@ -74,10 +66,13 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     n_mod = size(sess_data_lfp.mod_idx,2);
     cnt_m = 1; % counter for numb of modulators checked for the outlier trials remover
     
+    mod_send_perm.sess_idx = sess_data_lfp.sess_idx;
+    mod_rec_perm.sess_idx = sess_data_lfp.sess_idx;
 
-    mod_send_perm.mod_idx = sess_data_lfp.mod_idx;
+    mod_send_perm.mod_idx = sess_data_lfp.mod_idx; 
+    mod_rec_perm.mod_idx = sess_data_lfp.mod_idx;
     
-    for m = sess_data_lfp.mod_idx
+    for m = sess_data_lfp.mod_idx % for each modulator 
         
         display(['-- Modulator ',num2str(m),'  --- ',num2str(cnt_m),' out of ', num2str(n_mod)]);
         
@@ -96,7 +91,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         
         % %%%%%%%%%%%%%%%%%%%%%%%%%
-        % In relation to the sender
+        % In relation to the sender -- LFPs
         
         lfp_E = sq(sess_data_lfp.lfp_E(m,:,:));
         lfp_S = sess_data_lfp.lfp_S;
@@ -131,10 +126,11 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         mod_send_perm.mod(cnt_m).m = m;
                
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % % Coherency Modulator-Sender        %%%%%%%%%%%%%
+        % % Coherency Modulator-Sender Permutation test
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         low_high_idx = [low_idx; high_idx]; % indexes for the high/low theta wrt sender 
+        W = 5;
         
         for iter = 1:n_iter
             
@@ -146,7 +142,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             [c_ms_low_perm,f] = coherency(lfp_S(perm_idx_low,:),lfp_E(perm_idx_low,:),[N W],fs,fk,pad,0.05,1,1);
             [c_ms_high_perm,f] = coherency(lfp_S(perm_idx_high,:),lfp_E(perm_idx_high,:),[N W],fs,fk,pad,0.05,1,1);
             
-            coh_perm_ms_low(iter,:) = c_ms_low_perm;
+            coh_perm_ms_low(iter,:) = c_ms_low_perm;  % n iteration x frequency
             coh_perm_ms_high(iter,:) = c_ms_high_perm;
             
         end 
@@ -155,20 +151,11 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         mod_send_perm.mod(cnt_m).c_ms_low = coh_perm_ms_low;
         mod_send_perm.mod(cnt_m).c_ms_high = coh_perm_ms_high;
         
-
-        dir_Sess_mod_send_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_send/Data',Sess));
-        if ~exist(dir_Sess_mod_send_data, 'dir')
-            mkdir(dir_Sess_mod_send_data)
-        end
-               
-        save(strcat(dir_Sess_mod_send_data,sprintf('/mod_send_perm.mat',cnt_m)),'mod_send_perm');
-        
-        
         
         
         
         % %%%%%%%%%%%%%%%%%%%%%%%%%%
-        % In relation to the receiver
+        % In relation to the receiver -- LFPs
         
         lfp_E = sq(sess_data_lfp.lfp_E(m,:,:));
         lfp_R = sess_data_lfp.lfp_R;
@@ -197,16 +184,15 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         high_theta = sort_theta(end-cut+1:end);
         high_idx = trial_idx(end-cut+1:end);
-        
-       
-        
+      
         mod_rec_perm.mod(cnt_m).m = m;
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % % Coherency Modulator-Sender        %%%%%%%%%%%%%
+        % % Coherency Modulator-Receiver Permutation Test 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         low_high_idx = [low_idx; high_idx]; % indexes for the high/low theta wrt sender
+        W = 5;
         
         for iter = 1:n_iter
             
@@ -215,8 +201,8 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             perm_idx_high = perm_idx(cut+1:end);
             
             % -- coherence calculation via coherency()
-            [c_mr_low_perm,f] = coherency(lfp_S(perm_idx_low,:),lfp_E(perm_idx_low,:),[N W],fs,fk,pad,0.05,1,1);
-            [c_mr_high_perm,f] = coherency(lfp_S(perm_idx_high,:),lfp_E(perm_idx_high,:),[N W],fs,fk,pad,0.05,1,1);
+            [c_mr_low_perm,f] = coherency(lfp_R(perm_idx_low,:),lfp_E(perm_idx_low,:),[N W],fs,fk,pad,0.05,1,1);
+            [c_mr_high_perm,f] = coherency(lfp_R(perm_idx_high,:),lfp_E(perm_idx_high,:),[N W],fs,fk,pad,0.05,1,1);
             
             coh_perm_mr_low(iter,:) = c_mr_low_perm;
             coh_perm_mr_high(iter,:) = c_mr_high_perm;
@@ -225,55 +211,8 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         
         mod_rec_perm.mod(cnt_m).c_mr_low = coh_perm_mr_low;
-        mod_rec_perm.mod(cnt_m).c_mr_high = coh_perm_mr_high;
-        
-        
-        dir_Sess_mod_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_rec/Data',Sess));
-        if ~exist(dir_Sess_mod_rec_data, 'dir')
-            mkdir(dir_Sess_mod_rec_data)
-        end
-        
-        save(strcat(dir_Sess_mod_rec_data,sprintf('/mod_rec_perm.mat',cnt_m)),'mod_rec_perm');
-        
-        
-        
-        
-        fig_coh = figure;
-
-        plot(f,abs(coh_perm_mr_low));
-        hold on
-        plot(f,abs(coh_perm_mr_high));
-        title('coherence MR - trials with high and low theta pow')
-        legend('all trials','high pow trials','low pow trials')
-        ylabel('cohernece')
-        xlabel('frequency')
-        grid on
-        
-        
-        dir_Sess_mod_rec_fig = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_rec/Figures',Sess));
-        if ~exist(dir_Sess_mod_rec_fig, 'dir')
-            mkdir(dir_Sess_mod_rec_fig)
-        end
-        
-        dir_Sess_mod_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_rec/Data',Sess));
-        if ~exist(dir_Sess_mod_rec_data, 'dir')
-            mkdir(dir_Sess_mod_rec_data)
-        end
-        
-        
-        fname = strcat(dir_Sess_mod_rec_fig,sprintf('/modulator_%d_theta_pow_histo_R.jpg',cnt_m));
-        saveas(fig_histo,fname);
-        fname = strcat(dir_Sess_mod_rec_fig,sprintf('/modulator_%d_receiver_coherence.jpg',cnt_m));
-        saveas(fig_coh,fname);
-        
-        save(strcat(dir_Sess_mod_rec_data,sprintf('/modulator_%d_rec',cnt_m)),'mod_rec');
-        
-        
-        coh_perm_ms_high(cnt_m,:) = mod_send.coh_ms_high;
-        coh_perm_ms_low(cnt_m,:) = mod_send.coh_ms_low;
-        
-        coh_perm_mr_high(cnt_m,:) = mod_rec.coh_mr_high;
-        coh_perm_mr_low(cnt_m,:) = mod_rec.coh_mr_low;
+        mod_rec_perm.mod(cnt_m).c_mr_high = coh_perm_mr_high;        
+   
         
         cnt_m = cnt_m +1;
         
@@ -281,172 +220,25 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     
-    mean_coh_ms_high = mean(abs(coh_perm_ms_high),1);
-    mean_coh_ms_low = mean(abs(coh_perm_ms_low),1);
-    mean_coh_mr_high = mean(abs(coh_perm_mr_high),1);
-    mean_coh_mr_low = mean(abs(coh_perm_mr_low),1);
+    dir_Sess_mod_send_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_send/Data',Sess));
+    if ~exist(dir_Sess_mod_send_data, 'dir')
+        mkdir(dir_Sess_mod_send_data)
+    end
     
-    err_coh_ms_high = std(abs(coh_perm_ms_high),0,1)/sqrt(n_mod);
-    err_coh_ms_low = std(abs(coh_perm_ms_low),0,1)/sqrt(n_mod);
-    err_coh_mr_high = std(abs(coh_perm_mr_high),0,1)/sqrt(n_mod);
-    err_coh_mr_low = std(abs(coh_perm_mr_low),0,1)/sqrt(n_mod);
+    save(strcat(dir_Sess_mod_send_data,'/mod_send_perm.mat'),'mod_send_perm');
     
     
-    % Coherence of all the modulators for a given session 
-    coh_all_mod.c_ms_high = coh_perm_ms_high;
-    coh_all_mod.c_ms_low = coh_perm_ms_low;
-    coh_all_mod.c_mr_high = coh_perm_mr_high;
-    coh_all_mod.c_mr_low = coh_perm_mr_low;
+    dir_Sess_mod_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_rec/Data',Sess));
+    if ~exist(dir_Sess_mod_rec_data, 'dir')
+        mkdir(dir_Sess_mod_rec_data)
+    end
     
+    save(strcat(dir_Sess_mod_rec_data,'/mod_rec_perm.mat'),'mod_rec_perm');
     
-    % Store coherence for all the modulators 
-    coh_all_c_ms_high = [coh_all_c_ms_high; coh_perm_ms_high];
-    coh_all_c_ms_low = [coh_all_c_ms_low; coh_perm_ms_low];
-    coh_all_c_mr_high = [coh_all_c_mr_high; coh_perm_mr_high];
-    coh_all_c_mr_low = [coh_all_c_mr_low; coh_perm_mr_low];
-   
-    
-    % save high/low theta MR and MS coherence for a given session
-    save(strcat(dir_high_low_theta,sprintf('/Sess_%d/coherence_all.mat',Sess)),'coh_all_mod');
-    
-    
-    set(0,'DefaultFigureVisible','off')
-%     load(strcat(dir_high_low_theta,sprintf('/Sess_%d/coherence_all.mat')));
-    
-    
-    
-    fig = figure;
-    shadedErrorBar(f,mean_coh_ms_high,err_coh_ms_high,'lineprops',{'color',[28 199 139]/255 },'patchSaturation',0.5); hold on
-    shadedErrorBar(f,mean_coh_ms_low,err_coh_ms_low,'lineprops',{'color',[50 250 93]/255 },'patchSaturation',0.5);
-    
-    grid on
-    % title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
-    set(gca,'FontSize',14)
-    xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
-    ylabel('Coherence','FontName','Arial','FontSize',15);
-    title('Coherence MS high vs low theta power trial','FontSize',12)
-    legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
-    set(gcf, 'Position',  [100, 600, 898, 500])
-    xlim([1 95])
-    % ylim([0 0.25])
-    grid on
-    
-    
-    fname = strcat(dir_Sess_mod_rec_fig,sprintf('/MS_coherence_mod_mean.jpg',cnt_m));
-    saveas(fig,fname);
-    
-    
-    
-    fig = figure;
-    hold all
-    shadedErrorBar(f,mean_coh_mr_high,err_coh_mr_high,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.5);
-    shadedErrorBar(f,mean_coh_mr_low,err_coh_mr_low,'lineprops',{'color',[255, 51, 153]/255},'patchSaturation',0.5);
-    
-    grid on
-    % title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
-    set(gca,'FontSize',14)
-    xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
-    ylabel('Coherence','FontName','Arial','FontSize',15);
-    title('Coherence MS high vs low theta power trial','FontSize',12)
-    legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
-    set(gcf, 'Position',  [100, 600, 898, 500])
-    xlim([1 95])
-    % ylim([0 0.25])
-    grid on
-    
-    fname = strcat(dir_Sess_mod_rec_fig,sprintf('/MR_coherence_mod_mean.jpg',cnt_m));
-    saveas(fig,fname);
-    
-   
-    
-end
+    clear mod_send_perm mod_rec_perm
+  
+end % end of for cycle for all the sessions 
 
 
 
-save(strcat(dir_high_low_theta,'/coh_all_sess_ms_high.mat'),'coh_all_c_ms_high')
-save(strcat(dir_high_low_theta,'/coh_all_sess_ms_low.mat'),'coh_all_c_ms_low')
-save(strcat(dir_high_low_theta,'/coh_all_sess_mr_high.mat'),'coh_all_c_mr_high')
-save(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'),'coh_all_c_mr_low')
-
-
-% load(strcat(dir_high_low_theta,'/coh_all_sess_ms_high.mat'))
-% load(strcat(dir_high_low_theta,'/coh_all_sess_ms_low.mat'))
-% load(strcat(dir_high_low_theta,'/coh_all_sess_mr_high.mat'))
-% load(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'))
-
-
-mean_all_coh_ms_high = mean(abs(coh_all_c_ms_high),1);
-mean_all_coh_ms_low = mean(abs(coh_all_c_ms_low),1);
-mean_all_coh_mr_high = mean(abs(coh_all_c_mr_high),1);
-mean_all_coh_mr_low = mean(abs(coh_all_c_mr_low),1);
-
-err_all_coh_ms_high = std(abs(coh_all_c_ms_high),0,1)/sqrt(size(coh_all_c_ms_high,1));
-err_all_coh_ms_low = std(abs(coh_all_c_ms_low),0,1)/sqrt(size(coh_all_c_ms_low,1));
-err_all_coh_mr_high = std(abs(coh_all_c_mr_high),0,1)/sqrt(size(coh_all_c_mr_high,1));
-err_all_coh_mr_low = std(abs(coh_all_c_mr_low),0,1)/sqrt(size(coh_all_c_mr_low,1));
-
-
-% zscore_ms_high = (abs(coh_all_c_ms_high) - mean_all_coh_ms_high)./std(abs(coh_all_c_ms_high),0,1);
-% zscore_ms_low = (abs(coh_all_c_ms_low) - mean_all_coh_ms_low)./std(abs(coh_all_c_ms_low),0,1);
-% zscore_mr_high = (abs(coh_all_c_mr_high) - mean_all_coh_mr_high)./std(abs(coh_all_c_mr_high),0,1);
-% zscore_mr_low = (abs(coh_all_c_mr_low) - mean_all_coh_mr_low)./std(abs(coh_all_c_mr_low),0,1);
-
-
-% mean_zscore_ms_high = mean(zscore_ms_high,1);
-% figure;
-% plot(f,mean_all_coh_ms_high)
-% hold on
-% plot(f,abs(coh_all_c_ms_high))
-% 
-
-%%%%%%%%%%%%%%%%%%%%%%
-% FIGURES %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%
-
-
-% %%%% RECEIVER %%%%%%%%%%%%%%%%%%%%%%
-
-set(0,'DefaultFigureVisible','on')
-%     load(strcat(dir_high_low_theta,sprintf('/Sess_%d/coherence_all.mat')));
-
-fig = figure;
-shadedErrorBar(f,mean_all_coh_mr_high,err_all_coh_mr_high,'lineprops',{'color',[28 199 139]/255 },'patchSaturation',0.5); hold on
-shadedErrorBar(f,mean_all_coh_mr_low,err_all_coh_mr_low,'lineprops',{'color',[50 250 93]/255 },'patchSaturation',0.5);
-
-grid on
-% title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
-set(gca,'FontSize',14)
-xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
-ylabel('Coherence','FontName','Arial','FontSize',15);
-title('Coherence MR high vs low theta power trial','FontSize',12)
-legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
-set(gcf, 'Position',  [100, 600, 898, 500])
-xlim([1 95])
-% ylim([0 0.25])
-grid on
-
-
-fname = strcat(dir_high_low_theta,sprintf('/MR_all_coherence_mean.jpg',cnt_m));
-saveas(fig,fname);
-
-
-% %%%% SENDER %%%%%%%%%%%%%%%%%%%%%%
-
-
-fig = figure;
-hold all
-
-shadedErrorBar(f,mean_all_coh_ms_high,err_all_coh_ms_high,'lineprops',{'color',[28 199 139]/255 },'patchSaturation',0.5); hold on
-shadedErrorBar(f,mean_all_coh_ms_low,err_all_coh_ms_low,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
-
-grid on
-% title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
-set(gca,'FontSize',14)
-xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
-ylabel('Coherence','FontName','Arial','FontSize',15);
-legend('Modulator - Receiver','Modulator - Sender','FontSize',10,'FontName','Arial')
-set(gcf, 'Position',  [100, 600, 898, 500])
-xlim([1 95])
-% ylim([0 0.36])
-grid on
 

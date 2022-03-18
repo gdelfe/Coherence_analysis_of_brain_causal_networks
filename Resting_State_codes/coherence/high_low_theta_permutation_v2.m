@@ -47,10 +47,7 @@ W = 5;
 
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
-    
-    close all
-    clear mod_rec mod_send coh_all sess_data_lfp
-    
+        
     Sess = sess_info{1}(s); % Session number
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
@@ -69,11 +66,13 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     n_mod = size(sess_data_lfp.mod_idx,2);
     cnt_m = 1; % counter for numb of modulators checked for the outlier trials remover
     
+    mod_send_perm.sess_idx = sess_data_lfp.sess_idx;
+    mod_rec_perm.sess_idx = sess_data_lfp.sess_idx;
 
     mod_send_perm.mod_idx = sess_data_lfp.mod_idx; 
     mod_rec_perm.mod_idx = sess_data_lfp.mod_idx;
     
-    for m = sess_data_lfp.mod_idx
+    for m = sess_data_lfp.mod_idx % for each modulator 
         
         display(['-- Modulator ',num2str(m),'  --- ',num2str(cnt_m),' out of ', num2str(n_mod)]);
         
@@ -143,7 +142,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             [c_ms_low_perm,f] = coherency(lfp_S(perm_idx_low,:),lfp_E(perm_idx_low,:),[N W],fs,fk,pad,0.05,1,1);
             [c_ms_high_perm,f] = coherency(lfp_S(perm_idx_high,:),lfp_E(perm_idx_high,:),[N W],fs,fk,pad,0.05,1,1);
             
-            coh_perm_ms_low(iter,:) = c_ms_low_perm;
+            coh_perm_ms_low(iter,:) = c_ms_low_perm;  % n iteration x frequency
             coh_perm_ms_high(iter,:) = c_ms_high_perm;
             
         end 
@@ -151,15 +150,6 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         mod_send_perm.mod(cnt_m).c_ms_low = coh_perm_ms_low;
         mod_send_perm.mod(cnt_m).c_ms_high = coh_perm_ms_high;
-        
-
-        dir_Sess_mod_send_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_send/Data',Sess));
-        if ~exist(dir_Sess_mod_send_data, 'dir')
-            mkdir(dir_Sess_mod_send_data)
-        end
-               
-        save(strcat(dir_Sess_mod_send_data,sprintf('/mod_send_perm.mat',cnt_m)),'mod_send_perm');
-        
         
         
         
@@ -221,21 +211,31 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         
         mod_rec_perm.mod(cnt_m).c_mr_low = coh_perm_mr_low;
-        mod_rec_perm.mod(cnt_m).c_mr_high = coh_perm_mr_high;
-        
-        
-        dir_Sess_mod_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_rec/Data',Sess));
-        if ~exist(dir_Sess_mod_rec_data, 'dir')
-            mkdir(dir_Sess_mod_rec_data)
-        end
-        
-        save(strcat(dir_Sess_mod_rec_data,sprintf('/mod_rec_perm.mat',cnt_m)),'mod_rec_perm');
-        
+        mod_rec_perm.mod(cnt_m).c_mr_high = coh_perm_mr_high;        
    
         
         cnt_m = cnt_m +1;
         
     end % end of for cycle for all the modulators in a given session 
+    
+    
+    
+    dir_Sess_mod_send_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_send/Data',Sess));
+    if ~exist(dir_Sess_mod_send_data, 'dir')
+        mkdir(dir_Sess_mod_send_data)
+    end
+    
+    save(strcat(dir_Sess_mod_send_data,'/mod_send_perm.mat'),'mod_send_perm');
+    
+    
+    dir_Sess_mod_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_rec/Data',Sess));
+    if ~exist(dir_Sess_mod_rec_data, 'dir')
+        mkdir(dir_Sess_mod_rec_data)
+    end
+    
+    save(strcat(dir_Sess_mod_rec_data,'/mod_rec_perm.mat'),'mod_rec_perm');
+    
+    clear mod_send_perm mod_rec_perm
   
 end % end of for cycle for all the sessions 
 
