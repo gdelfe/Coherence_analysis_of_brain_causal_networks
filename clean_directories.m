@@ -45,14 +45,11 @@ for i = 1:size(sess_info{1},1) % For each session with at least one modulator
     Sess = sess_info{1}(i); % Session numberdir_Sess
 %     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
-    dir_Sess_mod_send_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_send/Data',Sess));
-    dir_Sess_mod_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_rec/Data',Sess));
+    dir_Sess_mod_rec = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/',Sess));
     
 
-    cd(dir_Sess_mod_send_data)
-    !rm mod_send_perm.mat
-    cd(dir_Sess_mod_rec_data)
-    !rm mod_rec_perm.mat
+    cd(dir_Sess_mod_rec)
+    !rm -rf Data
     
 %     dir_Controls = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
 %     dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d/Theta_band',i));

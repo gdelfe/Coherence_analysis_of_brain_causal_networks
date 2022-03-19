@@ -181,15 +181,14 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         saveas(fig_histo,fname);
         fname = strcat(dir_Sess_send_rec_fig,sprintf('/SR_coherence_for_mod_%d_high_low_theta.jpg',cnt_m));
         saveas(fig_coh,fname);
-        
-        save(strcat(dir_Sess_send_rec_data,sprintf('/send_rec_coh_for_modulator_%d.mat',cnt_m)),'send_rec');
-       
+               
         
         cnt_m = cnt_m +1;
         
     end % end of for cycle for all the modulators in a given session 
     
-   
+    save(strcat(dir_Sess_send_rec_data,sprintf('/send_rec_coh_for_modulator_%d.mat',c),'send_rec');
+
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    % 2nd APPROACH: remove trial artifacts which are common across
    % modulators and then compute the SR coherence 

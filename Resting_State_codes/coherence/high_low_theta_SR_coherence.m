@@ -66,6 +66,8 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     n_mod = size(sess_data_lfp.mod_idx,2);
     cnt_m = 1; % counter for numb of modulators checked for the outlier trials remover
     
+    send_rec.sess_idx = sess_data_lfp.sess_idx;
+    send_rec.mod_idx = sess_data_lfp.mod_idx;
     
     for m = sess_data_lfp.mod_idx
         
@@ -171,25 +173,26 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             mkdir(dir_Sess_send_rec_fig)
         end
         
-        dir_Sess_send_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Data',Sess));
-        if ~exist(dir_Sess_send_rec_data, 'dir')
-            mkdir(dir_Sess_send_rec_data)
-        end
-        
         
         fname = strcat(dir_Sess_send_rec_fig,sprintf('/modulator_%d_theta_pow_histo_S.jpg',cnt_m));
         saveas(fig_histo,fname);
         fname = strcat(dir_Sess_send_rec_fig,sprintf('/SR_coherence_for_mod_%d_high_low_theta.jpg',cnt_m));
         saveas(fig_coh,fname);
-        
-        save(strcat(dir_Sess_send_rec_data,sprintf('/send_rec_coh_for_modulator_%d.mat',cnt_m)),'send_rec');
-       
+               
         
         cnt_m = cnt_m +1;
         
     end % end of for cycle for all the modulators in a given session 
     
-   
+    
+    dir_Sess_send_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Data',Sess));
+    if ~exist(dir_Sess_send_rec_data, 'dir')
+        mkdir(dir_Sess_send_rec_data)
+    end
+        
+    save(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session.mat','send_rec'));
+
+    
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    % 2nd APPROACH: remove trial artifacts which are common across
    % modulators and then compute the SR coherence 
@@ -217,8 +220,6 @@ end
 
 save(strcat(dir_high_low_theta,'/coh_all_sess_sr_high.mat'),'coh_all_c_sr_high')
 save(strcat(dir_high_low_theta,'/coh_all_sess_sr_low.mat'),'coh_all_c_sr_low')
-
-keyboard
 
 
 % save(strcat(dir_high_low_theta,'/coh_all_sess_mr_high.mat'),'coh_all_c_mr_high')
