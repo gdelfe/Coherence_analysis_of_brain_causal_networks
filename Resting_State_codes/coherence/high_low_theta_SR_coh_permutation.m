@@ -51,76 +51,39 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     Sess = sess_info{1}(s); % Session number
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
-    
-    load(strcat(dir_Modulators,name_struct_input)); % load sess_data_lfp, structure with session modulator info 
+    dir_Sess_send_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Data',Sess));
 
-    %     % ---  time parameter
-    tot_time = 150001;
     
-    % outliers time series in sender and receiver 
-    outliers_S = sess_data_lfp.outliers_S;
-    outliers_R = sess_data_lfp.outliers_R;
+    load(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session.mat'));
+
+        
+%     load(strcat(dir_Modulators,name_struct_input)); % load sess_data_lfp, structure with session modulator info 
     
 
     % number of modulators in that session 
-    n_mod = size(sess_data_lfp.mod_idx,2);
+    n_mod = size(send_rec.mod_idx,2);
     cnt_m = 1; % counter for numb of modulators checked for the outlier trials remover
     
-    send_rec_perm.sess_idx = sess_data_lfp.sess_idx;
-
-    send_rec_perm.mod_idx = sess_data_lfp.mod_idx; 
+    send_rec_perm.sess_idx = send_rec.sess_idx;
+    send_rec_perm.mod_idx = send_rec.mod_idx; 
     
     cnt_m = 1;
-    for m = sess_data_lfp.mod_idx % for each modulator 
+    for m = send_rec.mod_idx % for each modulator 
         
         display(['-- Modulator ',num2str(m),'  --- ',num2str(cnt_m),' out of ', num2str(n_mod)]);
-        
-        
-        % matrices to store high/low coherence wrt sender and receiver for the
-        % permuted data for each modulator
+        send_rec_perm.mod(cnt_m).m = m;
+
+        % matrices to store high/low coherence for permuted data for each modulator
         coh_perm_sr_high = zeros(n_iter,409);
         coh_perm_sr_low = zeros(n_iter,409);
-    
-        load(strcat(dir_Sess_send_rec_data,sprintf('/send_rec_coh_for_modulator_%d.mat',cnt_m)));
+  
+       
+        low_idx = send_rec.mod(cnt_m).low_pow_idx;
+        high_idx = send_rec.mod(cnt_m).high_pow_idx;
+        
+        lfp_S = send_rec.mod(cnt_m).lfp_S_clean;
+        lfp_R = send_rec.mod(cnt_m).lfp_R_clean;
 
-
-        
-        
-        % %%%%%%%%%%%%%%%%%%%%%%%%%
-        % In relation to the sender -- LFPs
-        
-        lfp_E = sq(sess_data_lfp.lfp_E(m,:,:));
-        lfp_S = sess_data_lfp.lfp_S;
-        
-        outliers_E = sess_data_lfp.outliers_E(cnt_m).idx;
-        
-        outliers_ES = [outliers_S, outliers_E];
-        outliers_ES = unique(outliers_ES);  % -- remove repeated entries in outliers
-        
-        lfp_E(outliers_ES,:) = [];
-        lfp_S(outliers_ES,:) = [];
-        
-        % Compute the spectrum for each trial. Format: iTrial x times
-        W = 3;
-        [spec, f, err] = dmtspec(lfp_E,[1000/1e3,W],1e3,200);
-        
-        % Find low and high theta from the spectrum 
-        theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
-        theta_pow_mean = mean(theta_pow); % get the average theta power
-        theta_pow = theta_pow - theta_pow_mean; % rescale the theta power by removing the mean value
-        
-        [sort_theta, trial_idx] = sort(theta_pow); % sort theta power in ascending order
-        cut = fix(length(theta_pow)/3); % find the index of 1/3 of the distribution
-        
-        % low and high theta power indexes 
-        low_theta_pow = sort_theta(1:cut);
-        low_idx = trial_idx(1:cut);
-        
-        high_theta = sort_theta(end-cut+1:end);
-        high_idx = trial_idx(end-cut+1:end);
-        
-        send_rec_perm.mod(cnt_m).m = m;
-               
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % % Coherency Modulator-Sender Permutation test
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -131,15 +94,16 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         for iter = 1:n_iter
             
             perm_idx = low_high_idx(randperm(length(low_high_idx)));
+            cut = length(perm_idx)/2;
             perm_idx_low = perm_idx(1:cut);
             perm_idx_high = perm_idx(cut+1:end);
             
             % -- coherence calculation via coherency()
-            [c_ms_low_perm,f] = coherency(lfp_S(perm_idx_low,:),lfp_E(perm_idx_low,:),[N W],fs,fk,pad,0.05,1,1);
-            [c_ms_high_perm,f] = coherency(lfp_S(perm_idx_high,:),lfp_E(perm_idx_high,:),[N W],fs,fk,pad,0.05,1,1);
+            [c_sr_low_perm,f] = coherency(lfp_S(perm_idx_low,:),lfp_R(perm_idx_low,:),[N W],fs,fk,pad,0.05,1,1);
+            [c_sr_high_perm,f] = coherency(lfp_S(perm_idx_high,:),lfp_R(perm_idx_high,:),[N W],fs,fk,pad,0.05,1,1);
             
-            coh_perm_sr_low(iter,:) = c_ms_low_perm;  % n iteration x frequency
-            coh_perm_sr_high(iter,:) = c_ms_high_perm;
+            coh_perm_sr_low(iter,:) = c_sr_low_perm;  % n iteration x frequency
+            coh_perm_sr_high(iter,:) = c_sr_high_perm;
             
         end 
         
@@ -147,91 +111,18 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         send_rec_perm.mod(cnt_m).c_ms_low = coh_perm_sr_low;
         send_rec_perm.mod(cnt_m).c_ms_high = coh_perm_sr_high;
         
-        
-        
-        
-        % %%%%%%%%%%%%%%%%%%%%%%%%%%
-        % In relation to the receiver -- LFPs
-        
-        lfp_E = sq(sess_data_lfp.lfp_E(m,:,:));
-        lfp_R = sess_data_lfp.lfp_R;
-        
-        outliers_E = sess_data_lfp.outliers_E(cnt_m).idx;
-        
-        outliers_ER = [outliers_R, outliers_E];
-        outliers_ER = unique(outliers_ER);  % -- remove repeated entries in outliers
-        
-        lfp_E(outliers_ER,:) = [];
-        lfp_R(outliers_ER,:) = [];
-        
-        
-        % Compute the spectrum for each trial. Format: iTrial x times
-        W = 3;
-        [spec, f, err] = dmtspec(lfp_E,[1000/1e3,W],1e3,200);
-        theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
-        theta_pow_mean = mean(theta_pow);
-        theta_pow = theta_pow - theta_pow_mean;
-        
-        [sort_theta, trial_idx] = sort(theta_pow); % sort theta power in ascending order
-        cut = fix(length(theta_pow)/3); % find the index of 1/3 of the distribution
-        
-        low_theta_pow = sort_theta(1:cut);
-        low_idx = trial_idx(1:cut);
-        
-        high_theta = sort_theta(end-cut+1:end);
-        high_idx = trial_idx(end-cut+1:end);
-      
-        mod_rec_perm.mod(cnt_m).m = m;
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % % Coherency Modulator-Receiver Permutation Test 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        low_high_idx = [low_idx; high_idx]; % indexes for the high/low theta wrt sender
-        W = 5;
-        
-        for iter = 1:n_iter
-            
-            perm_idx = low_high_idx(randperm(length(low_high_idx)));
-            perm_idx_low = perm_idx(1:cut);
-            perm_idx_high = perm_idx(cut+1:end);
-            
-            % -- coherence calculation via coherency()
-            [c_mr_low_perm,f] = coherency(lfp_R(perm_idx_low,:),lfp_E(perm_idx_low,:),[N W],fs,fk,pad,0.05,1,1);
-            [c_mr_high_perm,f] = coherency(lfp_R(perm_idx_high,:),lfp_E(perm_idx_high,:),[N W],fs,fk,pad,0.05,1,1);
-            
-            coh_perm_mr_low(iter,:) = c_mr_low_perm;
-            coh_perm_mr_high(iter,:) = c_mr_high_perm;
-            
-        end
-        
-        
-        mod_rec_perm.mod(cnt_m).c_mr_low = coh_perm_mr_low;
-        mod_rec_perm.mod(cnt_m).c_mr_high = coh_perm_mr_high;        
-   
-        
+           
+  
         cnt_m = cnt_m +1;
         
     end % end of for cycle for all the modulators in a given session 
     
+      
+    dir_Sess_send_rec = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Data',Sess));
+    save(strcat(dir_Sess_send_rec,'/mod_send_perm.mat'),'send_rec_perm');
     
     
-    dir_Sess_mod_send_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_send/Data',Sess));
-    if ~exist(dir_Sess_mod_send_data, 'dir')
-        mkdir(dir_Sess_mod_send_data)
-    end
-    
-    save(strcat(dir_Sess_mod_send_data,'/mod_send_perm.mat'),'mod_send_perm');
-    
-    
-    dir_Sess_mod_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_rec/Data',Sess));
-    if ~exist(dir_Sess_mod_rec_data, 'dir')
-        mkdir(dir_Sess_mod_rec_data)
-    end
-    
-    save(strcat(dir_Sess_mod_rec_data,'/mod_rec_perm.mat'),'mod_rec_perm');
-    
-    clear mod_send_perm mod_rec_perm
+    clear send_rec_perm 
   
 end % end of for cycle for all the sessions 
 
