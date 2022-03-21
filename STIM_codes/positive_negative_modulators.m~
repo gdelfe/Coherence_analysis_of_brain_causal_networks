@@ -56,7 +56,7 @@ PreStimSess = PreStimResponseAll_Database_NetworkEdge;
 % positive and negative modulators 
 positive = 0;
 negative = 0;
-tot_m  = 0; % total number of modulators across sessions
+tot_m  = 1; % total number of modulators across sessions
 
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
@@ -174,8 +174,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         end
         
         tot_m = tot_m + 1;
-        cnt_m = cnt_m + 1;
-
+        
     end %  for each modulator within session 
       
     save(strcat(dir_Sess,'/sess_data_stim.mat'),'sess_data_stim');

@@ -31,7 +31,7 @@ fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); %: USE MO
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-filename = '_AUC_all'; % -- write out file for the modulators 
+filename = '_AUC'; % -- write out file for the modulators 
 filename_ctrl = ''; % -- write out file for the controls 
 
 % % -- exclude bad sessions 
