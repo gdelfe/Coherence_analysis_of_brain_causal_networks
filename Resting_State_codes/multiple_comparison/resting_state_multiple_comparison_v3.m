@@ -524,30 +524,30 @@ for i=1:size(sess_info{1},1) % for all the sessions with modulator
         
         
         % % --- Empirical P-VALUE
-        % pcount_AM = zeros(1,size(diff_AM,2));
-        % pcount_MA = zeros(1,size(diff_MA,2));
-        % for freq = 1:size(diff_AM,2)
-        %
-        %     % -- two tailed, symmetric
-        %     pcount_AM(freq) = nnz(diff_AM(:,freq) > abs(result_AM(freq)) | diff_AM(:,freq) < -abs(result_AM(freq)) )/iter;
-        %     pcount_MA(freq) = nnz(diff_MA(:,freq) > abs(result_MA(freq)) | diff_MA(:,freq) < -abs(result_MA(freq)) )/iter;
-        %
-        % end
-        %
-        % %-- FIGURE: p-value vs frequency, empirical
-        % fig = figure;
-        % semilogy(f,pcount_AM)
-        % hold on
-        % semilogy(f,pcount_MA)
-        % grid on
-        % title(sprintf('p-val vs frequency, empirical, step = %.2f',step/200),'FontSize',12)
-        % legend({'p-val AM','p-val MA'},'Location','southeast')
-        % xlim([0,30])
-        % % ylim([0.0005,1])
-        %
-        %
-        % fname = strcat(dir,sprintf('/pval_vs_freq_empirical_fq_%d_%d_step_%d.jpg',fmin,fmax,step));
-        % saveas(fig,fname);
+        pcount_AM = zeros(1,size(diff_AM,2));
+        pcount_MA = zeros(1,size(diff_MA,2));
+        for freq = 1:size(diff_AM,2)
+        
+            % -- two tailed, symmetric
+            pcount_AM(freq) = nnz(diff_AM(:,freq) > abs(result_AM(freq)) | diff_AM(:,freq) < -abs(result_AM(freq)) )/iter;
+            pcount_MA(freq) = nnz(diff_MA(:,freq) > abs(result_MA(freq)) | diff_MA(:,freq) < -abs(result_MA(freq)) )/iter;
+        
+        end
+        
+        %-- FIGURE: p-value vs frequency, empirical
+        fig = figure;
+        semilogy(f,pcount_AM)
+        hold on
+        semilogy(f,pcount_MA)
+        grid on
+        title(sprintf('p-val vs frequency, empirical, step = %.2f',step/200),'FontSize',12)
+        legend({'p-val AM','p-val MA'},'Location','southeast')
+        xlim([0,30])
+        % ylim([0.0005,1])
+        
+        
+        fname = strcat(dir,sprintf('/pval_vs_freq_empirical_fq_%d_%d_step_%d.jpg',fmin,fmax,step));
+        saveas(fig,fname);
         
         
         

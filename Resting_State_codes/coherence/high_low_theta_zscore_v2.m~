@@ -79,52 +79,8 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
 end % for each session 
 
-% for the p-values which are exactly zero, replace with 1/n_iter
-p_ms_tot(p_ms_tot == 0) = 1/5e3;
-p_mr_tot(p_mr_tot == 0) = 1/5e3;
 
-z_ms = norminv(p_ms_tot);
-z_mr = norminv(p_mr_tot);
-
-
-z_ms_mean = mean(z_ms);
-z_mr_mean = mean(z_mr);
-
-err_zms = std(z_ms)/sqrt(size(z_ms,1));
-err_zmr = std(z_mr)/sqrt(size(z_mr,1));
-
-f = mod_send.freq;
-
-%%%%%%%%%%%%%%%%%%%%%%
-% FIGURES %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%
-
-
-% %%%% COHERENCE DIFFERENCE %%%%%%%%%%%%%%%%%%%%%%
-
-set(0,'DefaultFigureVisible','on')
-%     load(strcat(dir_high_low_theta,sprintf('/Sess_%d/coherence_all.mat')));
-
-fig = figure;
-shadedErrorBar(f,z_mr_mean,err_zmr,'lineprops',{'color',[28 199 139]/255 },'patchSaturation',0.5); hold on
-shadedErrorBar(f,z_ms_mean,err_zms,'lineprops',{'color',[0.4940, 0.1840, 0.5560] },'patchSaturation',0.5); 
-
-grid on
-% title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
-set(gca,'FontSize',14)
-xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
-ylabel('z-scored coh diff','FontName','Arial','FontSize',15);
-title('Z-scored Coherence diff MR and MS - high and low pow theta trial','FontSize',10)
-legend('MR coh diff','MS coh diff','FontSize',10,'FontName','Arial')
-set(gcf, 'Position',  [100, 600, 898, 500])
-xlim([1 95])
-% ylim([0 0.25])
-grid on
-
-
-fname = strcat(dir_high_low_theta,sprintf('/z-scored_coh_diff.jpg',cnt_m));
-saveas(fig,fname);
-
+z = norminv(.95);
 
 
 
