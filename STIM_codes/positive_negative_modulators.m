@@ -67,9 +67,9 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     load(strcat(dir_Modulators,name_structure))
     load(strcat(dir_Sess,'/Data_with_theta_band.mat')); % load stim data for info about hits/misses
-    load(strcat(dir_Modulators,'/session_data_lfp.mat')); % load RS data for info about the modulators 
+    load(strcat(dir_Modulators,'/session_data_lfp.mat')); % load RS data for info about the modulators
     
-    
+
     % hit and miss trials -- they are the same for each modulator within the same session
     hit = Data.spec.lfp.DetectedIndx{1};
     miss = Data.spec.lfp.notDetectedIndx{1};
@@ -108,6 +108,8 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     sess_data_stim.MRIlabels = sess_data_lfp.MRIlabels;
     sess_data_stim.RecordPairMRIlabels = sess_data_lfp.RecordPairMRIlabels;
     sess_data_stim.Spec = sess_data_lfp.Spec;
+    sess_data_stim.hits = hit;
+    sess_data_stim.misses = miss;
     sess_data_stim.sender_pair = sess_data_lfp.sender_pair;
     sess_data_stim.sender_area = sess_data_lfp.sender_area;
     sess_data_stim.receiver_pair = sess_data_lfp.receiver_pair;
@@ -166,40 +168,168 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         sess_data_stim.mod(cnt_m).high_idx = high_idx;
         sess_data_stim.mod(cnt_m).confusion = confusion;
         
-        % count number of positive and negative modulators 
-        if HH_rate + ML_rate > HL_rate + MH_rate
-            positive = positive + 1;
-        else 
-            negative = negative + 1;
+        if sess_data_stim.receiver_idx ~= m % exclude modulators which are receivers 
+            % count number of positive and negative modulators
+            
+            if HH_rate + ML_rate > HL_rate + MH_rate
+                positive = positive + 1;
+            else
+                negative = negative + 1;
+            end 
+            tot_m = tot_m + 1;
         end
         
-        tot_m = tot_m + 1;
         cnt_m = cnt_m + 1;
 
     end %  for each modulator within session 
       
     save(strcat(dir_Sess,'/sess_data_stim.mat'),'sess_data_stim');
+    clear sess_data_stim
     
 end  % for each session
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% COUNT number of positive/negative modulators 
+% with receivers which are not modulators themselves
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% tot_m = 0;
+% positive = 0;
+% negative = 0;
+% for s = 1:size(sess_info{1},1)
+% 
+%     Sess = sess_info{1}(s); % Session number
+%     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
+%     dir_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
+%     
+%     load(strcat(dir_Sess,'/sess_data_stim.mat'));
+%     
+%     cnt_m = 1;
+%     for m = sess_data_stim.mod_idx
+%                 
+%         if sess_data_stim.receiver_idx ~= m % exclude modulators which are receivers 
+%             % count number of positive and negative modulators
+%             
+%             HH_rate = sess_data_stim.mod(cnt_m).confusion(1,1);
+%             ML_rate = sess_data_stim.mod(cnt_m).confusion(2,2);
+%             HL_rate = sess_data_stim.mod(cnt_m).confusion(1,2);
+%             MH_rate = sess_data_stim.mod(cnt_m).confusion(2,1);
+%             
+%             if HH_rate + ML_rate > HL_rate + MH_rate
+%                 positive = positive + 1;
+%             else
+%                 negative = negative + 1;
+%             end 
+%             tot_m = tot_m + 1;
+%         end
+%         
+%         cnt_m = cnt_m + 1;
+%     end 
+%     
+% 
+% end 
+
+
+score = [];
+score_hit = [];
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     Sess = sess_info{1}(s); % Session number
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
-    dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
     
     load(strcat(dir_Sess,'/sess_data_stim.mat'));
-    load(strcat(dir_Modulators,name_structure))
+    load(strcat(dir_Sess,'/Data_with_theta_band.mat')); % load stim data for info about hits/misses
+    
 
+    % hit and miss trials -- they are the same for each modulator within the same session
+    hit = Data.spec.lfp.DetectedIndx{1};
+    miss = Data.spec.lfp.notDetectedIndx{1};
     
-    sess_data_stim.Decod_Accuracy = mod_accuracy.Decod_Accuracy;
-    sess_data_stim.auc = mod_accuracy.auc;
-    sess_data_stim.se = mod_accuracy.se;
-    
-    
-end 
+    sess_data_stim.hits = hit;
+    sess_data_stim.misses = miss;
+
+    cnt_m = 1;
+    for m = sess_data_stim.mod_idx
+        
+        if sess_data_stim.receiver_idx ~= m % exclude modulators which are receivers
+            % count number of positive and negative modulators
+            
+            HH_rate = sess_data_stim.mod(cnt_m).confusion(1,1);
+            ML_rate = sess_data_stim.mod(cnt_m).confusion(2,2);
+            HL_rate = sess_data_stim.mod(cnt_m).confusion(1,2);
+            MH_rate = sess_data_stim.mod(cnt_m).confusion(2,1);
+            
+            conf_score = HH_rate + ML_rate - HL_rate - MH_rate;
+            AUC_score = sess_data_stim.auc(cnt_m);
+            dec_score = sess_data_stim.Decod_Accuracy(cnt_m);
+            score = [score; conf_score, AUC_score, dec_score];
+            score_hit = [score_hit; HH_rate, length(hit)];
+            
+        end
+    end % for each modulators
+     
+    save(strcat(dir_Sess,'/sess_data_stim.mat'),'sess_data_stim');
+
+end
+   
+scores.conf_score = score(:,1);
+scores.AUC_score = score(:,2);
+scores.dec_score = score(:,3);
+scores.HH_rate = score_hit(:,1);
+scores.n_hits = score_hit(:,2);
+
+save(strcat(dir_high_low_theta,'/modulators_scores.mat'),'scores');
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FIGURES 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% AUC vs Confusion score
+fig = figure;
+scatter(score(:,1),score(:,2),'filled','b');
+grid on 
+ylabel('AUC score')
+xlabel('Confusion matrix score')
+mdl = fitlm(score(:,1),score(:,2))
+R2 = mdl.Rsquared.Ordinary
+str = sprintf('R2 = %.2f',R2);
+text(0,0.6,str)
+
+fname = strcat(dir_high_low_theta,'/scatter_score_AUC.jpg');
+saveas(fig,fname);
+
+
+% Decoding accuracy vs Confusion score 
+fig = figure;
+scatter(score(:,1),score(:,3),'filled','r');
+grid on 
+ylabel('Decoding accuracy score')
+xlabel('Confusion matrix score')
+mdl = fitlm(score(:,1),score(:,3))
+R2 = mdl.Rsquared.Ordinary
+str = sprintf('R2 = %.2f',R2);
+text(0,0.75,str)
+
+fname = strcat(dir_high_low_theta,'/scatter_score_decod_acc.jpg');
+saveas(fig,fname);
+
+
+% HH_score vs numb of hits 
+fig = figure;
+scatter(score_hit(:,1),score_hit(:,2),'filled','k');
+grid on 
+xlabel('High pow - Hits rate')
+ylabel('# of hits trials')
+mdl = fitlm(score(:,1),score(:,3))
+R2 = mdl.Rsquared.Ordinary
+str = sprintf('R2 = %.2f',R2);
+text(0.3,120,str)
+
+fname = strcat(dir_high_low_theta,'/scatter_HH_rate_vs_hits.jpg');
+saveas(fig,fname);
+
 
 

@@ -120,7 +120,7 @@ f = mod_send.freq;
 %%%%%%%%%%%%%%%%%%%%%%
 
 
-% %%%% COHERENCE DIFFERENCE %%%%%%%%%%%%%%%%%%%%%%
+% %%%% COHERENCE DIFFERENCE Z-SCORE %%%%%%%%%%%%%%%%%%%%%%
 
 set(0,'DefaultFigureVisible','on')
 %     load(strcat(dir_high_low_theta,sprintf('/Sess_%d/coherence_all.mat')));
