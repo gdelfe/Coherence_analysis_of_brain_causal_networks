@@ -142,18 +142,17 @@ for s = 1:size(sess_info{1},1)
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Stim_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
     
-    load(strcat(dir_Stim_Sess,'/mod_rec_stim.mat'));
+    load(strcat(dir_Stim_Sess,'/mod_rec_stim_500ms_spec.mat'));
     
     cnt_m = 1;
     for m = mod_rec_stim.mod_idx
         
-        if mod_rec_stim.receiver_idx ~= m
+        if mod_rec_stim.receiver_idx
         
-            c_mr_high = [c_mr_high; mod_rec_stim.mod(cnt_m).c_mr_high];
-            c_mr_low = [c_mr_low; mod_rec_stim.mod(cnt_m).c_mr_low];
-            c_mr_hit = [c_mr_hit; mod_rec_stim.mod(cnt_m).c_mr_hit];
-            c_mr_miss = [c_mr_miss; mod_rec_stim.mod(cnt_m).c_mr_miss];
-        end
+        c_mr_high = [c_mr_high; mod_rec_stim.mod(cnt_m).c_mr_high];
+        c_mr_low = [c_mr_low; mod_rec_stim.mod(cnt_m).c_mr_low];
+        c_mr_hit = [c_mr_hit; mod_rec_stim.mod(cnt_m).c_mr_hit];
+        c_mr_miss = [c_mr_miss; mod_rec_stim.mod(cnt_m).c_mr_miss];
     
         cnt_m = cnt_m + 1;
     end 
@@ -192,7 +191,7 @@ grid on
 set(gca,'FontSize',14)
 xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
 ylabel('Coherence','FontName','Arial','FontSize',15);
-title('STIM Coherence MR high vs low theta power trial - high/low pow [0,1000]ms','FontSize',10)
+title('STIM Coherence MR high vs low theta power trial - high/low pow [0,500]ms','FontSize',10)
 legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
 set(gcf, 'Position',  [100, 600, 898, 500])
 xlim([1 95])
@@ -200,7 +199,7 @@ xlim([1 95])
 grid on
 
 
-fname = strcat(dir_Stim_Theta,sprintf('/MR_all_coherence_mean_stim_1000ms.jpg',cnt_m));
+fname = strcat(dir_Stim_Theta,sprintf('/MR_all_coherence_mean_stim_500ms.jpg',cnt_m));
 saveas(fig,fname);
 
 
