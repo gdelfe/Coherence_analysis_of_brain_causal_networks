@@ -6,7 +6,7 @@
 % receiver response are considered "positive", modulators with low theta 
 % power for receiver response are considered "negative". 
 %
-% NOTE: in this code we use LFP baseline length 500 ms before stimulation
+% NOTE: in this code we use LFP baseline length 1000 ms before stimulation 
 %
 %    @ Gino Del Ferraro, March 2022, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,18 +42,7 @@ fclose(fid);
 name_structure = '/modulators_decod_accuracy.mat';
 
 
-% STIM paths and names %%%%%%%%%%%%%%%%%
-subjects = {'maverick','archie'};
 
-%for
-iSubject = 1% : length(subjects) % Loop on the animals
-%     clearvars -except subjects iSubject
-if strcmp(subjects{iSubject},'archie')
-    archie_vSUBNETS220_rig3
-else
-    maverick_vSUBNETS220_rig3
-end
-PreStimSess = PreStimResponseAll_Database_NetworkEdge;
 
 % positive and negative modulators 
 positive = 0;
@@ -66,74 +55,24 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
     dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
-    
-    load(strcat(dir_Modulators,name_structure))
-    load(strcat(dir_Sess,'/Data_with_theta_band.mat')); % load stim data for info about hits/misses
-    load(strcat(dir_Modulators,'/session_data_lfp.mat')); % load RS data for info about the modulators
-    
+    dir_Stim_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
 
-    % hit and miss trials -- they are the same for each modulator within the same session
-    hit = Data.spec.lfp.DetectedIndx{1};
-    miss = Data.spec.lfp.notDetectedIndx{1};
-    
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % LOAD LFP STIM ...                %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    StimTrials = Data.StimTrials(Data.goodTrials_index);
-    sys = StimTrials(1).MT;
-    bn_Pre = [-1005 -5]; % ms
-    
-    % load all the channel LFPs for that given session 
-    [Lfp_Pre] = trialStimPulseLfp(StimTrials, sys, [], [], 'PulseStarts', bn_Pre); % returns monopolar recording
 
-    % %%%%%%%%%%%%%%%%% --->>> LFP data loaded at this point
+    load(strcat(dir_Stim_Sess,'/sess_data_stim.mat'));
     
-    
-    % -- load list electrodes, sender, receiver
-    electrode = sess_data_lfp.RecordPair; % ---- all electrode pairs
-    receiver = sess_data_lfp.receiver_pair;  % ---- receiver pair
-    sender = sess_data_lfp.sender_pair; % ---- sender pair
-    
-    % %%%%%% Assign LFP %%%%%%
-    lfp_E = sq(Lfp_Pre(:,electrode(:,1),:) - Lfp_Pre(:,electrode(:,2),:)); % all electrodes lfp
-    lfp_R = sq(Lfp_Pre(:,receiver(1),:) - Lfp_Pre(:,receiver(2),:)); % receiver lfp
-    lfp_S = sq(Lfp_Pre(:,sender(1),:) - Lfp_Pre(:,sender(2),:)); % sender lfp
-    
-    
-    sess_data_stim.sess_idx = sess_data_lfp.sess_idx;
-    sess_data_stim.day = sess_data_lfp.day;
-    sess_data_stim.rec_STIM = sess_data_lfp.rec_STIM;
-    sess_data_stim.rec_RS = sess_data_lfp.rec_RS;
-    sess_data_stim.RecordPair = sess_data_lfp.RecordPair;
-    
-    sess_data_stim.MRIlabels = sess_data_lfp.MRIlabels;
-    sess_data_stim.RecordPairMRIlabels = sess_data_lfp.RecordPairMRIlabels;
-    sess_data_stim.Spec = sess_data_lfp.Spec;
-    sess_data_stim.hits = hit;
-    sess_data_stim.misses = miss;
-    sess_data_stim.sender_pair = sess_data_lfp.sender_pair;
-    sess_data_stim.sender_area = sess_data_lfp.sender_area;
-    sess_data_stim.receiver_pair = sess_data_lfp.receiver_pair;
-    sess_data_stim.receiver_idx = sess_data_lfp.receiver_idx;
-    sess_data_stim.receiver_area = sess_data_lfp.receiver_area;
-    sess_data_stim.mod_idx = sess_data_lfp.mod_idx;
-    sess_data_stim.mod_areas = sess_data_lfp.mod_areas;
-    sess_data_stim.Decod_Accuracy = mod_accuracy.Decod_Accuracy;
-    sess_data_stim.auc = mod_accuracy.auc;
-    sess_data_stim.se = mod_accuracy.se;
-    
-    sess_data_stim.lfp_E = lfp_E;
-    
+    hit = sess_data_stim.hits;
+    miss = sess_data_stim.misses;
+
+    lfp_E = sess_data_stim.lfp_E;
     cnt_m = 1;
-    for m = sess_data_lfp.mod_idx
+    for m = sess_data_stim.mod_idx
         
-        display(['-- Modulator ',num2str(m),' --  ',num2str(cnt_m),', out of tot  ',num2str(length(sess_data_lfp.mod_idx)),' '])
+        display(['-- Modulator ',num2str(m),' --  ',num2str(cnt_m),', out of tot  ',num2str(length(sess_data_stim.mod_idx)),' '])
 
         lfp_m = sq(lfp_E(:,m,:)); % modulator lfp
         % Compute the spectrum for each trial. Format: iTrial x times
         W = 3; % frequency smoothing 
-        [spec, f,err] = dmtspec(lfp_m(:,501:end),[500/1e3,W],1e3,200); % spectrum 500 ms before onset 
+        [spec, f,err] = dmtspec(lfp_m,[1000/1e3,W],1e3,200); % spectrum 500 ms before onset 
         
         % Find low and high theta from the spectrum 
         theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
@@ -185,7 +124,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
     end %  for each modulator within session 
       
-    save(strcat(dir_Sess,'/sess_data_stim.mat'),'sess_data_stim');
+%     save(strcat(dir_Sess,'/sess_data_stim.mat'),'sess_data_stim');
     clear sess_data_stim
     
 end  % for each session
@@ -233,6 +172,7 @@ end  % for each session
 % 
 % end 
 
+keyboard 
 
 score = [];
 score_hit = [];
