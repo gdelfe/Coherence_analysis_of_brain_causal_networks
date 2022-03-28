@@ -50,91 +50,91 @@ W = 5;
 t_i = 1;
 t_f = 1000;
 
-% for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
-% 
-%     Sess = sess_info{1}(s); % Session number
-%     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-%     dir_Stim_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
-%     
-%     load(strcat(dir_Stim_Sess,'/sess_data_stim.mat'));
-%     
-%     mod_rec_stim = sess_data_stim;
-%     hit = mod_rec_stim.hits;
-%     miss = mod_rec_stim.misses;
-%      
-%     % receiver idx and LFP
-%     r = mod_rec_stim.receiver_idx;
-%     lfp_R = sq(mod_rec_stim.lfp_E(:,r,:));
-%         
-%     cnt_m = 1;
-%     for m = mod_rec_stim.mod_idx
-%     
-%         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%         % % Coherency Modulator-Receiver high/low theta         
-%         
-%         % modulator's LFP
-%         lfp_M = sq(mod_rec_stim.lfp_E(:,m,:));
-%         
-%         % high/low power indexes 
-% %         high_idx = mod_rec_stim.mod(cnt_m).high_idx;
-% %         low_idx = mod_rec_stim.mod(cnt_m).low_idx;
-%         
-%         
-%         % Compute the spectrum for each trial. Format: iTrial x times
-%         W = 3;
-%         [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[1000/1e3,W],1e3,200);
-%         
-%         % Find low and high theta from the spectrum 
-%         theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
-%         theta_pow_mean = mean(theta_pow); % get the average theta power
-%         theta_pow = theta_pow - theta_pow_mean; % rescale the theta power by removing the mean value
-%         
-%         [sort_theta, trial_idx] = sort(theta_pow); % sort theta power in ascending order
-%         cut = fix(length(theta_pow)/3); % find the index of 1/3 of the distribution
-%         
-%         % low and high theta power indexes 
-%         low_theta_pow = sort_theta(1:cut);
-%         low_idx = trial_idx(1:cut);
-%         
-%         high_theta = sort_theta(end-cut+1:end);
-%         high_idx = trial_idx(end-cut+1:end);
-%         
-%         mod_rec_stim.mod(cnt_m).low_theta_pow = low_theta_pow;
-%         mod_rec_stim.mod(cnt_m).low_idx = low_idx;
-%         mod_rec_stim.mod(cnt_m).high_theta = high_theta;
-%         mod_rec_stim.mod(cnt_m).high_idx = high_idx;
-%         
-%         
-%         W = 5;
-%         % high/low theta power coherency
-%         [c_mr,f] = coherency(lfp_M,lfp_R,[N W],fs,fk,pad,0.05,1,1);
-%         [c_mr_high,f] = coherency(lfp_M(high_idx,:),lfp_R(high_idx,:),[N W],fs,fk,pad,0.05,1,1);
-%         [c_mr_low,f] = coherency(lfp_M(low_idx,:),lfp_R(low_idx,:),[N W],fs,fk,pad,0.05,1,1);
-%         
-%         % hits/misses coherences
-%         [c_mr_hit,f] = coherency(lfp_M(hit,:),lfp_R(hit,:),[N W],fs,fk,pad,0.05,1,1);
-%         [c_mr_miss,f] = coherency(lfp_M(miss,:),lfp_R(miss,:),[N W],fs,fk,pad,0.05,1,1);
-%         
-%         % high/low theta power coherency
-%         mod_rec_stim.mod(cnt_m).c_mr = c_mr;
-%         mod_rec_stim.mod(cnt_m).c_mr_high = c_mr_high;
-%         mod_rec_stim.mod(cnt_m).c_mr_low = c_mr_low;
-%         
-%         % hits/misses coherences
-%         mod_rec_stim.mod(cnt_m).c_mr_hit = c_mr_hit;
-%         mod_rec_stim.mod(cnt_m).c_mr_miss = c_mr_miss;
-%         
-%         mod_rec_stim.freq = f;
-%         
-%         cnt_m = cnt_m +1;
-%     end 
-%     
-%     save(strcat(dir_Stim_Sess,'/mod_rec_stim.mat'),'mod_rec_stim');
-%     
-%     clear mod_rec_stim
-%     
-%     
-% end 
+for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
+
+    Sess = sess_info{1}(s); % Session number
+    display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
+    dir_Stim_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
+    
+    load(strcat(dir_Stim_Sess,'/sess_data_stim.mat'));
+    
+    mod_rec_stim = sess_data_stim;
+    hit = mod_rec_stim.hits;
+    miss = mod_rec_stim.misses;
+     
+    % receiver idx and LFP
+    r = mod_rec_stim.receiver_idx;
+    lfp_R = sq(mod_rec_stim.lfp_E(:,r,:));
+        
+    cnt_m = 1;
+    for m = mod_rec_stim.mod_idx
+    
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % % Coherency Modulator-Receiver high/low theta         
+        
+        % modulator's LFP
+        lfp_M = sq(mod_rec_stim.lfp_E(:,m,:));
+        
+        % high/low power indexes 
+%         high_idx = mod_rec_stim.mod(cnt_m).high_idx;
+%         low_idx = mod_rec_stim.mod(cnt_m).low_idx;
+        
+        
+        % Compute the spectrum for each trial. Format: iTrial x times
+        W = 3;
+        [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[1000/1e3,W],1e3,200);
+        
+        % Find low and high theta from the spectrum 
+        theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
+        theta_pow_mean = mean(theta_pow); % get the average theta power
+        theta_pow = theta_pow - theta_pow_mean; % rescale the theta power by removing the mean value
+        
+        [sort_theta, trial_idx] = sort(theta_pow); % sort theta power in ascending order
+        cut = fix(length(theta_pow)/3); % find the index of 1/3 of the distribution
+        
+        % low and high theta power indexes 
+        low_theta_pow = sort_theta(1:cut);
+        low_idx = trial_idx(1:cut);
+        
+        high_theta = sort_theta(end-cut+1:end);
+        high_idx = trial_idx(end-cut+1:end);
+        
+        mod_rec_stim.mod(cnt_m).low_theta_pow = low_theta_pow;
+        mod_rec_stim.mod(cnt_m).low_idx = low_idx;
+        mod_rec_stim.mod(cnt_m).high_theta = high_theta;
+        mod_rec_stim.mod(cnt_m).high_idx = high_idx;
+        
+        
+        W = 5;
+        % high/low theta power coherency
+        [c_mr,f] = coherency(lfp_M,lfp_R,[N W],fs,fk,pad,0.05,1,1);
+        [c_mr_high,f] = coherency(lfp_M(high_idx,:),lfp_R(high_idx,:),[N W],fs,fk,pad,0.05,1,1);
+        [c_mr_low,f] = coherency(lfp_M(low_idx,:),lfp_R(low_idx,:),[N W],fs,fk,pad,0.05,1,1);
+        
+        % hits/misses coherences
+        [c_mr_hit,f] = coherency(lfp_M(hit,:),lfp_R(hit,:),[N W],fs,fk,pad,0.05,1,1);
+        [c_mr_miss,f] = coherency(lfp_M(miss,:),lfp_R(miss,:),[N W],fs,fk,pad,0.05,1,1);
+        
+        % high/low theta power coherency
+        mod_rec_stim.mod(cnt_m).c_mr = c_mr;
+        mod_rec_stim.mod(cnt_m).c_mr_high = c_mr_high;
+        mod_rec_stim.mod(cnt_m).c_mr_low = c_mr_low;
+        
+        % hits/misses coherences
+        mod_rec_stim.mod(cnt_m).c_mr_hit = c_mr_hit;
+        mod_rec_stim.mod(cnt_m).c_mr_miss = c_mr_miss;
+        
+        mod_rec_stim.freq = f;
+        
+        cnt_m = cnt_m +1;
+    end 
+    
+    save(strcat(dir_Stim_Sess,'/mod_rec_stim.mat'),'mod_rec_stim');
+    
+    clear mod_rec_stim
+    
+    
+end 
 
 
 keyboard;

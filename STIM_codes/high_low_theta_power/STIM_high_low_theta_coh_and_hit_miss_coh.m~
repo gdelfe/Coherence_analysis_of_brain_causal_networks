@@ -47,8 +47,8 @@ W = 5;
 
 % time parameters: beginning and end of lfp signal used to determine the
 % high/low modulator theta power for each trial 
-t_i = 496;
-t_f = 995;
+t_i = 1;
+t_f = 1000;
 
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
@@ -82,7 +82,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         % Compute the spectrum for each trial. Format: iTrial x times
         W = 3;
-        [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[500/1e3,W],1e3,200);
+        [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[1000/1e3,W],1e3,200);
         
         % Find low and high theta from the spectrum 
         theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
@@ -98,6 +98,12 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         high_theta = sort_theta(end-cut+1:end);
         high_idx = trial_idx(end-cut+1:end);
+        
+        mod_rec_stim.mod(cnt_m).low_theta_pow = low_theta_pow;
+        mod_rec_stim.mod(cnt_m).low_idx = low_idx;
+        mod_rec_stim.mod(cnt_m).high_theta = high_theta;
+        mod_rec_stim.mod(cnt_m).high_idx = high_idx;
+        
         
         W = 5;
         % high/low theta power coherency
@@ -123,7 +129,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m +1;
     end 
     
-    save(strcat(dir_Stim_Sess,'/mod_rec_stim_500_1000_ms_spec.mat'),'mod_rec_stim');
+    save(strcat(dir_Stim_Sess,'/mod_rec_stim.mat'),'mod_rec_stim');
     
     clear mod_rec_stim
     
@@ -131,7 +137,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 end 
 
 
-
+keyboard;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2nd part, to be run independently
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -147,14 +153,15 @@ for s = 1:size(sess_info{1},1)
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Stim_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
     
-    beg = load(strcat(dir_Stim_Sess,'/mod_rec_stim_500ms_spec.mat'));
-    beg = beg.mod_rec_stim;
-    last = load(strcat(dir_Stim_Sess,'/mod_rec_stim_500_1000_ms_spec.mat'));
-    last = last.mod_rec_stim;
-    all = load(strcat(dir_Stim_Sess,'/mod_rec_stim.mat'));
-    all = all.mod_rec_stim;
-
-
+    load(strcat(dir_Stim_Sess,'/mod_rec_stim.mat'));
+%     beg = beg.mod_rec_stim;
+%     last = load(strcat(dir_Stim_Sess,'/mod_rec_stim_500_1000_ms_spec.mat'));
+%     last = last.mod_rec_stim;
+%     all = load(strcat(dir_Stim_Sess,'/mod_rec_stim.mat'));
+%     all = all.mod_rec_stim;
+% 
+%     mod_rec_stim = beg;
+    
     cnt_m = 1;
     for m = mod_rec_stim.mod_idx
         
@@ -165,40 +172,40 @@ for s = 1:size(sess_info{1},1)
             c_mr_hit = [c_mr_hit; mod_rec_stim.mod(cnt_m).c_mr_hit]; 
             c_mr_miss = [c_mr_miss; mod_rec_stim.mod(cnt_m).c_mr_miss];
             
-            b = beg.mod(cnt_m).low_idx;
-            l = last.mod(cnt_m).low_idx;
-            a = all.mod(cnt_m).low_idx;
-            common.sess(s).mod(cnt_m).low_idx_beg_last = setxor(b,l);
-            common.sess(s).mod(cnt_m).low_idx_beg_all = setxor(b,a);
-            common.sess(s).mod(cnt_m).low_idx_all_last = setxor(a,l);
-            
-            if ~isempty(setxor(b,l))
-                display(['sess low',num2str(s)])
-            end
-            if ~isempty(setxor(b,a))
-                display(['sess low',num2str(s)])
-            end
-            if ~isempty(setxor(a,l))
-                display(['sess low',num2str(s)])
-            end
-            
-            b = beg.mod(cnt_m).high_idx;
-            l = last.mod(cnt_m).high_idx;
-            a = all.mod(cnt_m).high_idx;
-            common.sess(s).mod(cnt_m).high_idx_beg_last = setxor(b,l);
-            common.sess(s).mod(cnt_m).high_idx_beg_all = setxor(b,a);
-            common.sess(s).mod(cnt_m).high_idx_all_last = setxor(a,l);
-            
-            if ~isempty(setxor(b,l))
-                display(['sess high',num2str(s)])
-            end
-            if ~isempty(setxor(b,a))
-                display(['sess high',num2str(s)])
-            end
-            if ~isempty(setxor(a,l))
-                display(['sess high',num2str(s)])
-            end
-            
+%             b = beg.mod(cnt_m).low_idx;
+%             l = last.mod(cnt_m).low_idx;
+%             a = all.mod(cnt_m).low_idx;
+%             common.sess(s).mod(cnt_m).low_idx_beg_last = setxor(b,l);
+%             common.sess(s).mod(cnt_m).low_idx_beg_all = setxor(b,a);
+%             common.sess(s).mod(cnt_m).low_idx_all_last = setxor(a,l);
+%             
+%             if ~isempty(setxor(b,l))
+%                 display(['sess low',num2str(s)])
+%             end
+%             if ~isempty(setxor(b,a))
+%                 display(['sess low',num2str(s)])
+%             end
+%             if ~isempty(setxor(a,l))
+%                 display(['sess low',num2str(s)])
+%             end
+%             
+%             b = beg.mod(cnt_m).high_idx;
+%             l = last.mod(cnt_m).high_idx;
+%             a = all.mod(cnt_m).high_idx;
+%             common.sess(s).mod(cnt_m).high_idx_beg_last = setxor(b,l);
+%             common.sess(s).mod(cnt_m).high_idx_beg_all = setxor(b,a);
+%             common.sess(s).mod(cnt_m).high_idx_all_last = setxor(a,l);
+%             
+%             if ~isempty(setxor(b,l))
+%                 display(['sess high',num2str(s)])
+%             end
+%             if ~isempty(setxor(b,a))
+%                 display(['sess high',num2str(s)])
+%             end
+%             if ~isempty(setxor(a,l))
+%                 display(['sess high',num2str(s)])
+%             end
+%             
         end
     
         cnt_m = cnt_m + 1;
@@ -242,7 +249,7 @@ grid on
 set(gca,'FontSize',14)
 xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
 ylabel('Coherence','FontName','Arial','FontSize',15);
-title('STIM Coherence MR high vs low theta power trial - high/low pow [0,1000]ms','FontSize',10)
+title('STIM Coherence MR high vs low theta power trial - high/low pow [-1000,0]ms','FontSize',10)
 legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
 set(gcf, 'Position',  [100, 600, 898, 500])
 xlim([1 95])
@@ -250,7 +257,7 @@ xlim([1 95])
 grid on
 
 
-fname = strcat(dir_Stim_Theta,sprintf('/MR_all_coherence_mean_stim_1000ms.jpg',cnt_m));
+fname = strcat(dir_Stim_Theta,sprintf('/MR_all_coherence_mean_stim_1000_ms.jpg',cnt_m));
 saveas(fig,fname);
 
 
