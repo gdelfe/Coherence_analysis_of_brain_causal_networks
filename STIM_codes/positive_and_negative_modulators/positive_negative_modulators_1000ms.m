@@ -48,6 +48,7 @@ name_structure = '/modulators_decod_accuracy.mat';
 positive = 0;
 negative = 0;
 tot_m  = 0; % total number of modulators across sessions
+tot_conf = [0 0; 0 0];
 
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
@@ -100,7 +101,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         MH_rate = length(MH)/cut;
         
         confusion = [HH_rate, HL_rate; MH_rate, ML_rate]; % confusion matrix 
-        
+        tot_conf = tot_conf + confusion;
         % store theta power, idx, and confusion matrix for each modulator 
         sess_data_stim.mod(cnt_m).theta_pow = theta_pow;
         sess_data_stim.mod(cnt_m).low_theta_pow = low_theta_pow;
@@ -129,7 +130,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
 end  % for each session
 
-
+tot_conf = tot_conf./tot_m;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % COUNT number of positive/negative modulators 
