@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This function picks a control electrode (index) in the same 
+% This function picks control electrodes (indexes) in the same 
 % brain area as the modulator (all the available electrodes)
 %
 % OUTPUT: indexes of the controls

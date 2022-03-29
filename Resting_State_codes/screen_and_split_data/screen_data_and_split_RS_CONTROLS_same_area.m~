@@ -58,9 +58,9 @@ for i= list_sess  % For each session with at least one modulator
 %     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick recording 001
 
    
-    file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick
+%     file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick
 %     file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie
-%     file = 'rec001.Frontal.lfp.dat'
+    file = 'rec001.Frontal.lfp.dat'
     fid = fopen(file);
     format = 'float=>single';
     

@@ -22,8 +22,8 @@ set(0,'DefaultFigureVisible','on')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'beta_band';
-monkey = 'Archie';
+freq_band = 'theta_band';
+monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
@@ -61,7 +61,7 @@ for s=1:size(sess_info{1},1)
         mkdir(dir_Ctrl)
     end
     
-    save(strcat(dir_Ctrl,'/session_all_controls_same_area_info.mat'),'sess_All_controls_same_area');
+%     save(strcat(dir_Ctrl,'/session_all_controls_same_area_info.mat'),'sess_All_controls_same_area');
    
     
 end
