@@ -166,16 +166,14 @@ keyboard;
 save(strcat(dir_high_low_theta,'/coh_all_sess_controls_SA.mat'),'ctrl_coh')
 
 
-load(strcat(dir_high_low_theta,'/coh_all_sess_controls_SA.mat'))
-
-f = linspace(0,200,409);
-
-
-
-coh_cs_high = ctrl_coh.cs_high; 
-coh_cs_low = ctrl_coh.cs_low;
-coh_cr_high = ctrl_coh.cr_high;
-coh_cr_low = ctrl_coh.cr_low;
+% load(strcat(dir_high_low_theta,'/coh_all_sess_controls_SA.mat'))
+% 
+% f = linspace(0,200,409);
+% 
+% coh_cs_high = ctrl_coh.cs_high; 
+% coh_cs_low = ctrl_coh.cs_low;
+% coh_cr_high = ctrl_coh.cr_high;
+% coh_cr_low = ctrl_coh.cr_low;
 
 
 
