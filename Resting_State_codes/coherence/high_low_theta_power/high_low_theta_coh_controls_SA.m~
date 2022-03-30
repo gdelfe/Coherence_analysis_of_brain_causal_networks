@@ -1,7 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code compute the theta coherence between the controls (Other Area) and
-% sender/receiver for modulators having high/low theta power.
+% This code compute the theta coherence between the modulator-sender and
+% modulator-receiver for modulators having high/low theta power.
 %
 %    @ Gino Del Ferraro, March 2022, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -56,10 +56,10 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
     dir_Sess_mod_send_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_send/Data',Sess));
-    dir_Ctrl =  strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_other_areas',Sess));
+    dir_Ctrl =  strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area',Sess));
     
     load(strcat(dir_Modulators,name_struct_input)); % load sess_data_lfp, structure with session modulator info
-    load(strcat(dir_Ctrl,'/sess_controls_other_areas_lfp_movie.mat')); % load controls lfp and data
+    load(strcat(dir_Ctrl,'/sess_controls_same_area_lfp_movie.mat')); % load controls lfp and data
     
     % outliers time series in sender and receiver
     outliers_S = sess_data_lfp.outliers_S;
@@ -102,10 +102,8 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             high_theta = sort_theta(end-cut+1:end);
             high_idx = trial_idx(end-cut+1:end);
             
-            % get control other area index: for the case of other areas,
-            % the controls are shared across modulators. This is because given a modulator, its region and the other modulators' region
-            % are also escluded from the counting of the controls' region 
-            ctrl_idx = sess_control_lfp.ctrl_idx;
+            % get control same area index
+            [ctrl_idx,ctrlReg] = choose_ALL_control_same_Region_one_mod(RecordPairMRIlabels,MRIlabels,receiver_idx,m,mod_Ch);
             
             % %%%%%%%%%%%%%%%%%%%%%%%%%
             % In relation to the sender
@@ -163,17 +161,21 @@ ctrl_coh.cs_low = coh_cs_low;
 ctrl_coh.cr_high = coh_cr_high;
 ctrl_coh.cr_low = coh_cr_low;
 
-
-
-
-
-
 keyboard;
 
+save(strcat(dir_high_low_theta,'/coh_all_sess_controls_SA.mat'),'ctrl_coh')
 
 
-save(strcat(dir_high_low_theta,'/coh_all_sess_controls_OA.mat'),'ctrl_coh')
+load(strcat(dir_high_low_theta,'/coh_all_sess_controls_SA.mat'))
 
+f = linspace(0,200,409);
+
+
+
+coh_cs_high = ctrl_coh.cs_high; 
+coh_cs_low = ctrl_coh.cs_low;
+coh_cr_high = ctrl_coh.cr_high;
+coh_cr_low = ctrl_coh.cr_low;
 
 
 % load(strcat(dir_high_low_theta,'/coh_all_sess_ms_high.mat'))
@@ -233,7 +235,7 @@ xlim([1 95])
 grid on
 
 
-fname = strcat(dir_high_low_theta,sprintf('/MR_controls_OA_coherence_mean.jpg',cnt_m));
+fname = strcat(dir_high_low_theta,'/MR_controls_SA_coherence_mean.jpg');
 saveas(fig,fname);
 
 
@@ -243,7 +245,7 @@ saveas(fig,fname);
 fig = figure;
 hold all
 
-shadedErrorBar(f,mean_all_coh_ms_high,err_all_coh_ms_high,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.5); hold on
+shadedErrorBar(f,mean_all_coh_ms_high,err_all_coh_ms_high,'lineprops',{'color',[0.4940, 0.1840, 0.5560] },'patchSaturation',0.5); hold on
 shadedErrorBar(f,mean_all_coh_ms_low,err_all_coh_ms_low,'lineprops',{'color',[255, 51, 153]/255},'patchSaturation',0.4); hold on
 
 grid on
@@ -257,4 +259,9 @@ set(gcf, 'Position',  [100, 600, 898, 500])
 xlim([1 95])
 % ylim([0 0.36])
 grid on
+
+fname = strcat(dir_high_low_theta,'/MS_controls_SA_coherence_mean.jpg');
+saveas(fig,fname);
+
+
 

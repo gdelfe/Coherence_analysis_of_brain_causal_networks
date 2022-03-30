@@ -161,23 +161,22 @@ ctrl_coh.cs_low = coh_cs_low;
 ctrl_coh.cr_high = coh_cr_high;
 ctrl_coh.cr_low = coh_cr_low;
 
-
-
-
-
-
 keyboard;
-
-
 
 save(strcat(dir_high_low_theta,'/coh_all_sess_controls_SA.mat'),'ctrl_coh')
 
 
+load(strcat(dir_high_low_theta,'/coh_all_sess_controls_SA.mat'))
 
-% load(strcat(dir_high_low_theta,'/coh_all_sess_ms_high.mat'))
-% load(strcat(dir_high_low_theta,'/coh_all_sess_ms_low.mat'))
-% load(strcat(dir_high_low_theta,'/coh_all_sess_mr_high.mat'))
-% load(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'))
+f = linspace(0,200,409);
+
+
+
+coh_cs_high = ctrl_coh.cs_high; 
+coh_cs_low = ctrl_coh.cs_low;
+coh_cr_high = ctrl_coh.cr_high;
+coh_cr_low = ctrl_coh.cr_low;
+
 
 
 mean_all_coh_ms_high = mean(abs(coh_cs_high),1);
@@ -191,18 +190,6 @@ err_all_coh_mr_high = std(abs(coh_cr_high),0,1)/sqrt(size(coh_cr_high,1));
 err_all_coh_mr_low = std(abs(coh_cr_low),0,1)/sqrt(size(coh_cr_low,1));
 
 
-% zscore_ms_high = (abs(coh_all_c_ms_high) - mean_all_coh_ms_high)./std(abs(coh_all_c_ms_high),0,1);
-% zscore_ms_low = (abs(coh_all_c_ms_low) - mean_all_coh_ms_low)./std(abs(coh_all_c_ms_low),0,1);
-% zscore_mr_high = (abs(coh_all_c_mr_high) - mean_all_coh_mr_high)./std(abs(coh_all_c_mr_high),0,1);
-% zscore_mr_low = (abs(coh_all_c_mr_low) - mean_all_coh_mr_low)./std(abs(coh_all_c_mr_low),0,1);
-
-
-% mean_zscore_ms_high = mean(zscore_ms_high,1);
-% figure;
-% plot(f,mean_all_coh_ms_high)
-% hold on
-% plot(f,abs(coh_all_c_ms_high))
-%
 
 %%%%%%%%%%%%%%%%%%%%%%
 % FIGURES %%%%%%%%%%%%
@@ -231,8 +218,8 @@ xlim([1 95])
 grid on
 
 
-% fname = strcat(dir_high_low_theta,sprintf('/MR_all_coherence_mean.jpg',cnt_m));
-% saveas(fig,fname);
+fname = strcat(dir_high_low_theta,'/MR_controls_SA_coherence_mean.jpg');
+saveas(fig,fname);
 
 
 % %%%% SENDER %%%%%%%%%%%%%%%%%%%%%%
@@ -241,8 +228,8 @@ grid on
 fig = figure;
 hold all
 
-shadedErrorBar(f,mean_all_coh_ms_high,err_all_coh_ms_high,'lineprops',{'color',[28 199 139]/255 },'patchSaturation',0.5); hold on
-shadedErrorBar(f,mean_all_coh_ms_low,err_all_coh_ms_low,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_all_coh_ms_high,err_all_coh_ms_high,'lineprops',{'color',[0.4940, 0.1840, 0.5560] },'patchSaturation',0.5); hold on
+shadedErrorBar(f,mean_all_coh_ms_low,err_all_coh_ms_low,'lineprops',{'color',[255, 51, 153]/255},'patchSaturation',0.4); hold on
 
 grid on
 % title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
@@ -255,4 +242,9 @@ set(gcf, 'Position',  [100, 600, 898, 500])
 xlim([1 95])
 % ylim([0 0.36])
 grid on
+
+fname = strcat(dir_high_low_theta,'/MS_controls_SA_coherence_mean.jpg');
+saveas(fig,fname);
+
+
 
