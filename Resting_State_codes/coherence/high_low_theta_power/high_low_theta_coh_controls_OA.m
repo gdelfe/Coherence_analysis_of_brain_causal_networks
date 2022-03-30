@@ -56,10 +56,10 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
     dir_Sess_mod_send_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_send/Data',Sess));
-    dir_Ctrl =  strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area',Sess));
+    dir_Ctrl =  strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_other_areas',Sess));
     
     load(strcat(dir_Modulators,name_struct_input)); % load sess_data_lfp, structure with session modulator info
-    load(strcat(dir_Ctrl,'/sess_controls_same_area_lfp_movie.mat')); % load controls lfp and data
+    load(strcat(dir_Ctrl,'/sess_controls_other_areas_lfp_movie.mat')); % load controls lfp and data
     
     % outliers time series in sender and receiver
     outliers_S = sess_data_lfp.outliers_S;
@@ -77,7 +77,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     cnt_m = 1;
     for m = sess_data_lfp.mod_idx % for each modulator
         
-%         if m ~= receiver_idx % if modulator is not receiver
+        if m ~= receiver_idx % if modulator is not receiver
             display(['-- Modulator ',num2str(m),' -- : ',num2str(cnt_m),', out of tot  ',num2str(size(sess_data_lfp.mod_idx,2)),'  '])
             
             lfp_E = sq(sess_data_lfp.lfp_E(m,:,:));
@@ -102,8 +102,10 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             high_theta = sort_theta(end-cut+1:end);
             high_idx = trial_idx(end-cut+1:end);
             
-            % get control same area index
-            [ctrl_idx,ctrlReg] = choose_ALL_control_same_Region_one_mod(RecordPairMRIlabels,MRIlabels,receiver_idx,m,mod_Ch);
+            % get control other area index: for the case of other areas,
+            % the controls are shared across modulators. This is because given a modulator, its region and the other modulators' region
+            % are also escluded from the counting of the controls' region 
+            ctrl_idx = sess_control_lfp.ctrl_idx;
             
             % %%%%%%%%%%%%%%%%%%%%%%%%%
             % In relation to the sender
@@ -151,7 +153,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             end
             
             cnt_m = cnt_m + 1;
-%         end
+        end
     end
 end
 
@@ -170,10 +172,8 @@ keyboard;
 
 
 
-save(strcat(dir_high_low_theta,'/coh_all_sess_ms_high.mat'),'coh_all_c_ms_high')
-save(strcat(dir_high_low_theta,'/coh_all_sess_ms_low.mat'),'coh_all_c_ms_low')
-save(strcat(dir_high_low_theta,'/coh_all_sess_mr_high.mat'),'coh_all_c_mr_high')
-save(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'),'coh_all_c_mr_low')
+save(strcat(dir_high_low_theta,'/coh_all_sess_controls_OA.mat'),'ctrl_coh')
+
 
 
 % load(strcat(dir_high_low_theta,'/coh_all_sess_ms_high.mat'))
@@ -182,15 +182,15 @@ save(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'),'coh_all_c_mr_low')
 % load(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'))
 
 
-mean_all_coh_ms_high = mean(abs(coh_all_c_ms_high),1);
-mean_all_coh_ms_low = mean(abs(coh_all_c_ms_low),1);
-mean_all_coh_mr_high = mean(abs(coh_all_c_mr_high),1);
-mean_all_coh_mr_low = mean(abs(coh_all_c_mr_low),1);
+mean_all_coh_ms_high = mean(abs(coh_cs_high),1);
+mean_all_coh_ms_low = mean(abs(coh_cs_low),1);
+mean_all_coh_mr_high = mean(abs(coh_cr_high),1);
+mean_all_coh_mr_low = mean(abs(coh_cr_low),1);
 
-err_all_coh_ms_high = std(abs(coh_all_c_ms_high),0,1)/sqrt(size(coh_all_c_ms_high,1));
-err_all_coh_ms_low = std(abs(coh_all_c_ms_low),0,1)/sqrt(size(coh_all_c_ms_low,1));
-err_all_coh_mr_high = std(abs(coh_all_c_mr_high),0,1)/sqrt(size(coh_all_c_mr_high,1));
-err_all_coh_mr_low = std(abs(coh_all_c_mr_low),0,1)/sqrt(size(coh_all_c_mr_low,1));
+err_all_coh_ms_high = std(abs(coh_cs_high),0,1)/sqrt(size(coh_cs_high,1));
+err_all_coh_ms_low = std(abs(coh_cs_low),0,1)/sqrt(size(coh_cs_low,1));
+err_all_coh_mr_high = std(abs(coh_cr_high),0,1)/sqrt(size(coh_cr_high,1));
+err_all_coh_mr_low = std(abs(coh_cr_low),0,1)/sqrt(size(coh_cr_low,1));
 
 
 % zscore_ms_high = (abs(coh_all_c_ms_high) - mean_all_coh_ms_high)./std(abs(coh_all_c_ms_high),0,1);
@@ -233,8 +233,8 @@ xlim([1 95])
 grid on
 
 
-fname = strcat(dir_high_low_theta,sprintf('/MR_all_coherence_mean.jpg',cnt_m));
-saveas(fig,fname);
+% fname = strcat(dir_high_low_theta,sprintf('/MR_all_coherence_mean.jpg',cnt_m));
+% saveas(fig,fname);
 
 
 % %%%% SENDER %%%%%%%%%%%%%%%%%%%%%%
@@ -251,7 +251,8 @@ grid on
 set(gca,'FontSize',14)
 xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
 ylabel('Coherence','FontName','Arial','FontSize',15);
-legend('Modulator - Receiver','Modulator - Sender','FontSize',10,'FontName','Arial')
+title('Coherence MS high vs low theta power trial','FontSize',12)
+legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
 set(gcf, 'Position',  [100, 600, 898, 500])
 xlim([1 95])
 % ylim([0 0.36])
