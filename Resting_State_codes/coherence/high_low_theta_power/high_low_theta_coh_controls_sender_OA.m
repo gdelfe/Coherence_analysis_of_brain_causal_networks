@@ -62,9 +62,16 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     cnt_m = 1; % counter for numb of modulators checked for the outlier trials remover
     
     lfp_R = sess_data_lfp.lfp_R; % receiver lfp
-
+    outliers_R = sess_data_lfp.outliers_R;
+    
     send_rec.sess_idx = sess_data_lfp.sess_idx;
     send_rec.mod_idx = sess_data_lfp.mod_idx;
+    
+    mod_Ch = sess_data_lfp.mod_idx;
+    s_area = sess_data_lfp.sender_area;
+    RecordPairMRIlabels = sess_data_lfp.RecordPairMRIlabels; % -- MRI labels of the recorder pars
+    MRIlabels = sess_data_lfp.MRIlabels; % -- all the available MRI labels
+    receiver_idx = sess_data_lfp.receiver_idx; % -- receiver idx
     
     for m = sess_data_lfp.mod_idx % for each modulator 
         
@@ -96,11 +103,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         high_theta = sort_theta(end-cut+1:end);
         high_idx = trial_idx(end-cut+1:end);
         
-        mod_Ch = sess_data_lfp.mod_idx;
-        s_area = sess_data_lfp.sender_area;
-        RecordPairMRIlabels = sess_data_lfp.RecordPairMRIlabels; % -- MRI labels of the recorder pars
-        MRIlabels = sess_data_lfp.MRIlabels; % -- all the available MRI labels
-        receiver_idx = sess_data_lfp.receiver_idx; % -- receiver idx
+        
         
         
         % get control for the sender same area index
@@ -110,18 +113,28 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             
             
             lfp_C = sq(sess_data_lfp.lfp_E(ctrl,:,:)); % load control lfp
-            
+            lfp_C_ns = reshape(lfp_C,1,size(lfp_C,1)*size(lfp_C,2)); % RS control lfp as a unique time series 
                         
+            % -- outliers Controls
+            th_C = 4*std(lfp_C_ns,[],2); % -- threshold for LFP Sender
+            max_C_split = max(abs(lfp_C),[],2);  % -- max of LFP for each time window
+            outliers_C = find(max_C_split > th_C)'; % outliers controls
+            
+            outliers_CR = [outliers_C, outliers_R];
+            outliers_CR = unique(outliers_CR);  % -- remove repeated entries in outliers
+            
+            high = setdiff(high_idx,outliers_CR); % remove trials with artifacts from high power trials
+            low = setdiff(low_idx,outliers_CR);    % remove trials with artifacts from low power trials
+            
             % compute coherence between sender-control and the receiver for high/low theta power trials
             W = 5;
-            [c_cr_high,f] = coherency(lfp_R(high_idx,:),lfp_C(high_idx,:),[N W],fs,fk,pad,0.05,1,1);
-            [c_cr_low,f] = coherency(lfp_R(low_idx,:),lfp_C(low_idx,:),[N W],fs,fk,pad,0.05,1,1);
+            [c_cr_high,f] = coherency(lfp_R(high,:),lfp_C(high,:),[N W],fs,fk,pad,0.05,1,1);
+            [c_cr_low,f] = coherency(lfp_R(low,:),lfp_C(low,:),[N W],fs,fk,pad,0.05,1,1);
             
             coh_cr_high = [coh_cr_high; c_cr_high];
             coh_cr_low = [coh_cr_low; c_cr_low];
         
-        
-        
+   
         end % end controls sender
     end % end modulators
 end % end sessions 
@@ -133,8 +146,15 @@ ctrl_send_OA_coh.cr_low = coh_cr_low;
         
 keyboard;
 
-save(strcat(dir_high_low_theta,'/coh_all_sess_controls_sender_OA-receiver.mat'),'ctrl_send_SA_coh') 
-        
+save(strcat(dir_high_low_theta,'/coh_all_sess_controls_sender_OA-receiver.mat'),'ctrl_send_SA_coh')
+
+
+% load(strcat(dir_high_low_theta,'/coh_all_sess_controls_sender_OA-receiver.mat'))
+% % control-sender receiver coherence
+% coh_cr_high = ctrl_send_OA_coh.cr_high;
+% coh_cr_low = ctrl_send_OA_coh.cr_low;
+% f = linspace(0,200,409);
+     
         
 mean_all_coh_cr_high = mean(abs(coh_cr_high),1);
 mean_all_coh_cr_low = mean(abs(coh_cr_low),1);

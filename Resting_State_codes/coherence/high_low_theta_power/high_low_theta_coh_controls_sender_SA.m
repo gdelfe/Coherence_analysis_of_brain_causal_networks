@@ -135,6 +135,13 @@ keyboard;
 
 save(strcat(dir_high_low_theta,'/coh_all_sess_controls_sender_SA-receiver.mat'),'ctrl_send_SA_coh') 
         
+
+load(strcat(dir_high_low_theta,'/coh_all_sess_controls_sender_SA-receiver.mat'))
+% control-sender receiver coherence
+coh_cr_high = ctrl_send_SA_coh.cr_high;
+coh_cr_low = ctrl_send_SA_coh.cr_low;
+f = linspace(0,200,409);
+     
         
 mean_all_coh_cr_high = mean(abs(coh_cr_high),1);
 mean_all_coh_cr_low = mean(abs(coh_cr_low),1);

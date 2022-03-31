@@ -20,13 +20,13 @@ function [mod_Ch_rand,ControlsReg] = choose_ALL_control_other_Regions(RecordPair
     
     RecordPairMRIlabels = RecordPairMRIlabels(~cellfun('isempty',RecordPairMRIlabels)); % -- remove empty cells (in Archie)
     AllBrainReg = unique(RecordPairMRIlabels(:,1)); % -- all recorded regions for this session 
-    ControlsReg = setdiff(AllBrainReg,ModBrainReg) % -- all other regions which are not modulators'
+    ControlsReg = setdiff(AllBrainReg,ModBrainReg); % -- all other regions which are not modulators'
     
     L = length(ControlsReg);
     
     for reg = 1:L % -- for all the control(s) brain regions
         
-        brainRegCtrl = ControlsReg{reg} % -- get the brain region 
+        brainRegCtrl = ControlsReg{reg}; % -- get the brain region 
         brain_idx = MRIlabels.(brainRegCtrl).ElecIndx;  % -- get the indexes of the electrodes in the same brain region
        
         brain_idx = setdiff(brain_idx,mod_Ch); % -- remove all the modulator indexes from the list of brain indexes for that region
