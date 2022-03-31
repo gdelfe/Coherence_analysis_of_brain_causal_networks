@@ -27,8 +27,8 @@ set(0,'DefaultFigureVisible','on')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'beta_band';
-monkey = 'Archie';
+freq_band = 'theta_band';
+monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
@@ -41,20 +41,20 @@ set(0,'DefaultLineLineWidth',2)
 filename = '_rec002.mat'; % -- filename for sess_data_info.mat 
 
 
-for i= 5:10 %1:size(sess_info{1},1)  % For each session with at least one modulator
+for i= 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
-%         addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Maverick RS/movie session
+        addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Maverick RS/movie session
 %         addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % -- Archie movie session 
     
 
 %     addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/001/',sess_info{2}{i})) % -- Maverick rec 001
 %     addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/002/',sess_info{2}{i})) % -- Archie rec 001
-%         file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick lfp recording 
+        file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick lfp recording 
 %         file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie lfp recording 
 
-    file = strcat('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/',sprintf('%s/002/rec002.Frontal_1.lfp.dat',sess_info{2}{i}))
+%     file = strcat('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/',sprintf('%s/002/rec002.Frontal_1.lfp.dat',sess_info{2}{i}))
 %     file = 'rec003.Frontal_1.lfp.dat' % -- for the rec 001 lfp loading 
 
     fid = fopen(file);

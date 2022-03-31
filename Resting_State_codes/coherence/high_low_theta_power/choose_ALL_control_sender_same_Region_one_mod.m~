@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This function picks control electrodes (indexes) in the same 
-% brain area as the modulator (all the available electrodes)
+% brain area as the sender (all the available electrodes)
 %
 % OUTPUT: indexes of the controls
 %         Brain region of the controls
@@ -8,7 +8,7 @@
 % @ Gino Del Ferraro, March 2022, Pesaran Lab, NYU
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [brain_idx,BrainReg] = choose_ALL_control_same_Region(RecordPairMRIlabels,MRIlabels,receiver_idx,m,mod_Ch)
+function [brain_idx,BrainReg] = choose_ALL_control_same_Region(RecordPairMRIlabels,MRIlabels,receiver_idx,s_area,mod_Ch)
     
     mod_Ch(mod_Ch == receiver_idx) = []; % -- remove the receiver from the modulators in case it is one of them
     
