@@ -47,8 +47,8 @@ W = 5;
 
 % time parameters: beginning and end of lfp signal used to determine the
 % high/low modulator theta power for each trial 
-t_i = 1;
-t_f = 1000;
+t_i = 496;
+t_f = 995;
 
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
@@ -82,7 +82,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         % Compute the spectrum for each trial. Format: iTrial x times
         W = 3;
-        [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[1000/1e3,W],1e3,200);
+        [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[500/1e3,W],1e3,200);
         
         % Find low and high theta from the spectrum 
         theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
@@ -129,7 +129,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m +1;
     end 
     
-    save(strcat(dir_Stim_Sess,'/mod_rec_stim.mat'),'mod_rec_stim');
+    save(strcat(dir_Stim_Sess,'/mod_rec_stim_500_1000.mat'),'mod_rec_stim');
     
     clear mod_rec_stim
     
@@ -153,7 +153,7 @@ for s = 1:size(sess_info{1},1)
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Stim_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
     
-    load(strcat(dir_Stim_Sess,'/mod_rec_stim.mat'));
+    load(strcat(dir_Stim_Sess,'/mod_rec_stim_500_1000.mat'));
 %     beg = beg.mod_rec_stim;
 %     last = load(strcat(dir_Stim_Sess,'/mod_rec_stim_500_1000_ms_spec.mat'));
 %     last = last.mod_rec_stim;
@@ -249,7 +249,7 @@ grid on
 set(gca,'FontSize',14)
 xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
 ylabel('Coherence','FontName','Arial','FontSize',15);
-title('STIM Coherence MR high vs low theta power trial - high/low pow [-1000,0]ms','FontSize',10)
+title('STIM Coherence MR high vs low theta power trial - high/low pow [-500,0]ms','FontSize',10)
 legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
 set(gcf, 'Position',  [100, 600, 898, 500])
 xlim([1 95])
@@ -257,9 +257,12 @@ xlim([1 95])
 grid on
 
 
-fname = strcat(dir_Stim_Theta,sprintf('/MR_all_coherence_mean_stim_1000_ms.jpg',cnt_m));
+fname = strcat(dir_Stim_Theta,sprintf('/MR_all_coherence_mean_stim_500_1000_ms.jpg',cnt_m));
 saveas(fig,fname);
 
+
+
+% %%%% MR hit and misses %%%%%%%%%%%%%%%%%%%%%%
 
 
 fig = figure;

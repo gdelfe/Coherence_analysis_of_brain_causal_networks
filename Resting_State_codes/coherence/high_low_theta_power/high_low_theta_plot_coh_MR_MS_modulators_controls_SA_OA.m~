@@ -123,7 +123,7 @@ grid on
 set(gca,'FontSize',14)
 xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
 ylabel('Coherence','FontName','Arial','FontSize',15);
-title(["Coherence MR high vs low theta power trial (of the electrode):", "modulators vs controls SReg/OReg"],'FontSize',10)
+title(['Coherence MR high vs low theta power trial (of the electrode):', 'modulators vs controls SReg/OReg'],'FontSize',10)
 legend('mod high theta pow',' mod low theta pow','CSReg high theta pow',' CSReg low theta pow', 'COReg high theta pow',' COReg low theta pow', 'FontSize',10,'FontName','Arial')
 set(gcf, 'Position',  [100, 600, 898, 500])
 xlim([1 95])
@@ -131,7 +131,7 @@ xlim([1 95])
 grid on
 
 
-fname = strcat(dir_high_low_theta,'/MR_mod_vs_controls_coherence_mean_high-low_pow_electrode.jpg');
+fname = strcat(dir_high_low_theta,'/MR_mod_vs_controls_coherence_mean.jpg');
 saveas(fig,fname);
 
 
@@ -154,7 +154,7 @@ grid on
 set(gca,'FontSize',14)
 xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
 ylabel('Coherence','FontName','Arial','FontSize',15);
-title(["Coherence MS high vs low theta power trial (of the electrode):", "modulators vs controls SReg/OReg"],'FontSize',10)
+title('Coherence MS high vs low theta power trial: modulators vs controls SReg/OReg','FontSize',10)
 legend('mod high theta pow',' mod low theta pow','CSReg high theta pow',' CSReg low theta pow', 'COReg high theta pow',' COReg low theta pow', 'FontSize',10,'FontName','Arial')
 set(gcf, 'Position',  [100, 600, 898, 500])
 xlim([1 95])
@@ -162,7 +162,7 @@ xlim([1 95])
 grid on
 
 
-fname = strcat(dir_high_low_theta,'/MS_mod_vs_controls_coherence_mean_high-low_pow_electrode.jpg');
+fname = strcat(dir_high_low_theta,'/MS_mod_vs_controls_coherence_mean.jpg');
 saveas(fig,fname);
 
 

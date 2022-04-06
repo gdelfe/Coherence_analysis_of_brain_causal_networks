@@ -116,19 +116,40 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
                 lfp_C = sq(sess_control_lfp.lfp_E(ctrl,:,:)); % load control lfp
                 
                 
-                outliers_C = sess_control_lfp.outliers_E(cnt_c).idx;
+                outliers_C = sess_control_lfp.outliers_E(cnt_c).idx; % control outliers/artifact trials
                 
                 % SENDER - CONTROLS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 outliers_CSE = [outliers_S, outliers_C, outliers_E];
                 outliers_CSE = unique(outliers_CSE);  % -- remove repeated entries in outliers
                 
-                high = setdiff(high_idx,outliers_CSE); % remove trials with artifacts from high power trials
-                low = setdiff(low_idx,outliers_CSE);    % remove trials with artifacts from low power trials
+                
+                % COMPUTE HIGH/LOW THETA POWER FOR THE CONTROLS %%%%%%%
+                % Compute the spectrum for each trial. Format: iTrial x times
+                W = 3;
+                [spec_C, f, err] = dmtspec(lfp_C,[1000/1e3,W],1e3,200);
+                
+                % Find low and high theta from the spectrum
+                theta_pow_C = log(mean(spec_C(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
+                theta_pow_mean_C = mean(theta_pow_C); % get the average theta power
+                theta_pow_C = theta_pow_C - theta_pow_mean_C; % rescale the theta power by removing the mean value
+                
+                [sort_theta_C, trial_idx_C] = sort(theta_pow_C); % sort theta power in ascending order
+                cut_C = fix(length(theta_pow_C)/3); % find the index of 1/3 of the distribution
+                
+                % low and high theta power indexes
+                low_theta_pow_C = sort_theta_C(1:cut_C);
+                low_idx_C = trial_idx_C(1:cut_C);
+                
+                high_theta_C = sort_theta_C(end-cut_C+1:end);
+                high_idx_C = trial_idx_C(end-cut_C+1:end);
+                
+                high_C = setdiff(high_idx_C,outliers_CSE); % remove trials with artifacts from high power trials
+                low_C = setdiff(low_idx_C,outliers_CSE);    % remove trials with artifacts from low power trials
                 
                 % compute coherence between sender-control for high/low theta power trials
                 W = 5;
-                [c_cs_high,f] = coherency(lfp_S(high,:),lfp_C(high,:),[N W],fs,fk,pad,0.05,1,1);
-                [c_cs_low,f] = coherency(lfp_S(low,:),lfp_C(low,:),[N W],fs,fk,pad,0.05,1,1);
+                [c_cs_high,f] = coherency(lfp_S(high_C,:),lfp_C(high_C,:),[N W],fs,fk,pad,0.05,1,1);
+                [c_cs_low,f] = coherency(lfp_S(low_C,:),lfp_C(low_C,:),[N W],fs,fk,pad,0.05,1,1);
                 
                 coh_cs_high = [coh_cs_high; c_cs_high];
                 coh_cs_low = [coh_cs_low; c_cs_low];
@@ -140,12 +161,12 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
                 outliers_CRE = [outliers_R, outliers_C, outliers_E];
                 outliers_CRE = unique(outliers_CRE);  % -- remove repeated entries in outliers
                 
-                high = setdiff(high_idx,outliers_CRE); % remove trials with artifacts from high power trials
-                low = setdiff(low_idx,outliers_CRE);    % remove trials with artifacts from low power trials
+                high_C = setdiff(high_idx_C,outliers_CRE); % remove trials with artifacts from high power trials
+                low_C = setdiff(low_idx_C,outliers_CRE);    % remove trials with artifacts from low power trials
                 
                 % compute coherence between receiver-control for high/low theta power trials
-                [c_cr_high,f] = coherency(lfp_R(high,:),lfp_C(high,:),[N W],fs,fk,pad,0.05,1,1);
-                [c_cr_low,f] = coherency(lfp_R(low,:),lfp_C(low,:),[N W],fs,fk,pad,0.05,1,1);
+                [c_cr_high,f] = coherency(lfp_R(high_C,:),lfp_C(high_C,:),[N W],fs,fk,pad,0.05,1,1);
+                [c_cr_low,f] = coherency(lfp_R(low_C,:),lfp_C(low_C,:),[N W],fs,fk,pad,0.05,1,1);
                 
                 coh_cr_high = [coh_cr_high; c_cr_high];
                 coh_cr_low = [coh_cr_low; c_cr_low];
@@ -169,7 +190,7 @@ keyboard;
 
 
 
-save(strcat(dir_high_low_theta,'/coh_all_sess_controls_OA.mat'),'ctrl_coh')
+save(strcat(dir_high_low_theta,'/coh_all_sess_controls_OA_high-low_pow_controls.mat'),'ctrl_coh')
 
 
 
