@@ -50,9 +50,12 @@ nwin = floor((nt-N*fs)./(dn*fs));          % calculate the number of windows
 
 % time parameters: beginning and end of lfp signal used to determine the
 % high/low modulator theta power for each trial 
-t_i = 1;
-t_f = 500;
+t_i = 496;
+t_f = 995;
 t_tot = 500;
+out_name = '/mod_rec_stim_gram_500_1000.mat'
+img_out = '_500_1000';
+fig_caption = '[500,1000]ms';
 
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
@@ -200,7 +203,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m +1;
     end 
     
-    save(strcat(dir_Stim_Sess,sprintf('/mod_rec_stim_gram_1_500.mat')),'mod_rec_stim_gram');
+    save(strcat(dir_Stim_Sess,out_name),'mod_rec_stim_gram');
     
     clear mod_rec_stim_gram
     
@@ -213,8 +216,12 @@ keyboard;
 % 2nd part, to be run independently
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+s_m_high = [];
+s_m_low = [];
+s_m_hit = [];
+s_m_miss = [];
 
-c_mr_high = [];
+c_mr_high = []; 
 c_mr_low = [];
 c_mr_hit = [];
 c_mr_miss = [];
@@ -224,9 +231,8 @@ for s = 1:size(sess_info{1},1)
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Stim_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
     
-    load(strcat(dir_Stim_Sess,'/mod_rec_stim_gram.mat'));
+    load(strcat(dir_Stim_Sess,out_name));
 
-    
     cnt_m = 1;
     for m = mod_rec_stim_gram.mod_idx
         
@@ -237,6 +243,13 @@ for s = 1:size(sess_info{1},1)
             c_mr_low = cat(3, c_mr_low, abs(mod_rec_stim_gram.mod(cnt_m).c_mr_low));
             c_mr_hit = cat(3, c_mr_hit, abs(mod_rec_stim_gram.mod(cnt_m).c_mr_hit)); 
             c_mr_miss = cat(3, c_mr_miss, abs(mod_rec_stim_gram.mod(cnt_m).c_mr_miss));
+            
+            s_m_high = cat(3, s_m_high,abs(mod_rec_stim_gram.mod(cnt_m).s_m_high));
+            s_m_low = cat(3, s_m_low, abs(mod_rec_stim_gram.mod(cnt_m).s_m_low));
+            s_m_hit = cat(3, s_m_hit, abs(mod_rec_stim_gram.mod(cnt_m).s_m_hit)); 
+            s_m_miss = cat(3, s_m_miss, abs(mod_rec_stim_gram.mod(cnt_m).s_m_miss));
+            
+            
             
         end
     
@@ -254,6 +267,11 @@ mean_coh_mr_high = mean(c_mr_high,3);
 mean_coh_mr_low = mean(c_mr_low,3); 
 mean_coh_mr_hit = mean(c_mr_hit,3);
 mean_coh_mr_miss = mean(c_mr_miss,3);
+
+mean_s_m_high = mean(s_m_high,3);
+mean_s_m_low = mean(s_m_low,3); 
+mean_s_m_hit = mean(s_m_hit,3);
+mean_s_m_miss = mean(s_m_miss,3);
 
 
 f = mod_rec_stim_gram.freq;
@@ -279,14 +297,14 @@ yticks = 1:20:length(f);
 yticklabels = floor(f(yticks));
 ytickformat('%.2f')
 set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
-title('Mean coherence-gram (across mod) for high theta pow trials','FontSize',12);
+title(sprintf('Mean coherence-gram (across mod) for high theta pow trials - %s',fig_caption),'FontSize',10);
 xlabel('time (sec)');
 ylabel('freq (Hz)')
 ylim([0,120])
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_Stim_Theta,sprintf('/coherence-gram_high_pow_MR.jpg',cnt_m));
+fname = strcat(dir_Stim_Theta,sprintf('/coherence-gram_high_pow_MR%s.jpg',img_out));
 saveas(fig,fname);
 
 
@@ -308,17 +326,72 @@ yticks = 1:20:length(f);
 yticklabels = floor(f(yticks));
 ytickformat('%.2f')
 set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
-title('Mean coherence-gram (across mod) for low theta pow trials','FontSize',12);
+title(sprintf('Mean coherence-gram (across mod) for low theta pow trials - %s',fig_caption),'FontSize',10);
 xlabel('time (sec)');
 ylabel('freq (Hz)')
 ylim([0,120])
 set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_Stim_Theta,sprintf('/coherence-gram_low_pow_MR.jpg',cnt_m));
+fname = strcat(dir_Stim_Theta,sprintf('/coherence-gram_low_pow_MR%s.jpg',img_out));
 saveas(fig,fname);
 
 
+
+% %%%% MR spectrogram high power %%%%%%%%%%%%%%%%%%%%%%
+
+
+fig = figure;
+tvimage(log(mean_s_m_high)); colorbar;
+
+ax = gca;
+clim = ax.CLim;
+xticks = floor(linspace(1,size(mean_s_m_high,1),5));
+xticklabels = floor(linspace(1,nt,5));
+xtickformat('%d')
+% yticks = floor(linspace(1,length(f),10));
+yticks = 1:20:length(f);
+
+yticklabels = floor(f(yticks));
+ytickformat('%.2f')
+set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
+title(sprintf('Mean spectrogram (across mod) for high theta pow trials -  %s',fig_caption),'FontSize',10);
+xlabel('time (sec)');
+ylabel('freq (Hz)')
+ylim([0,120])
+set(gcf, 'Position',  [100, 600, 1000, 600])
+
+
+fname = strcat(dir_Stim_Theta,sprintf('/spectrogram_high_pow_M%s.jpg',img_out));
+saveas(fig,fname);
+
+
+% %%%% MR spectrogram low power %%%%%%%%%%%%%%%%%%%%%%
+
+
+fig = figure;
+tvimage(log(mean_s_m_low)); colorbar;
+
+ax = gca;
+clim = ax.CLim;
+xticks = floor(linspace(1,size(mean_s_m_low,1),5));
+xticklabels = floor(linspace(1,nt,5));
+xtickformat('%d')
+% yticks = floor(linspace(1,length(f),10));
+yticks = 1:20:length(f);
+
+yticklabels = floor(f(yticks));
+ytickformat('%.2f')
+set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
+title(sprintf('Mean spectrogram (across mod) for low theta pow trials -  %s',fig_caption),'FontSize',10);
+xlabel('time (sec)');
+ylabel('freq (Hz)')
+ylim([0,120])
+set(gcf, 'Position',  [100, 600, 1000, 600])
+
+
+fname = strcat(dir_Stim_Theta,sprintf('/spectrogram_low_pow_M%s.jpg',img_out));
+saveas(fig,fname);
 
 
 
