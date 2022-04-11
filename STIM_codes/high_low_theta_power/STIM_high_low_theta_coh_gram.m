@@ -39,16 +39,20 @@ fclose(fid);
 
 
 % ---- parameters for the coherence-gram
+tapers = [0.5 7];
+k = 2*tapers(1)*tapers(2)-1;
+N = tapers(1);
 fs = 1000;
 fk = 200;
-pad = 2;
-N = 1;
-W = 5;
+dn = 0.01;
+nt = 1000;
+nwin = floor((nt-N*fs)./(dn*fs));          % calculate the number of windows
 
 % time parameters: beginning and end of lfp signal used to determine the
 % high/low modulator theta power for each trial 
-t_i = 496;
-t_f = 995;
+t_i = 1;
+t_f = 500;
+t_tot = 500;
 
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
@@ -58,22 +62,22 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     load(strcat(dir_Stim_Sess,'/sess_data_stim.mat'));
     
-    mod_rec_stim = sess_data_stim;
-    hit = mod_rec_stim.hits;
-    miss = mod_rec_stim.misses;
+    mod_rec_stim_gram = sess_data_stim;
+    hit = mod_rec_stim_gram.hits;
+    miss = mod_rec_stim_gram.misses;
      
     % receiver idx and LFP
-    r = mod_rec_stim.receiver_idx;
-    lfp_R = sq(mod_rec_stim.lfp_E(:,r,:));
+    r = mod_rec_stim_gram.receiver_idx;
+    lfp_R = sq(mod_rec_stim_gram.lfp_E(:,r,:));
         
     cnt_m = 1;
-    for m = mod_rec_stim.mod_idx
+    for m = mod_rec_stim_gram.mod_idx
     
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % % Coherency Modulator-Receiver high/low theta         
         
         % modulator's LFP
-        lfp_M = sq(mod_rec_stim.lfp_E(:,m,:));
+        lfp_M = sq(mod_rec_stim_gram.lfp_E(:,m,:));
         
         % high/low power indexes 
 %         high_idx = mod_rec_stim.mod(cnt_m).high_idx;
@@ -82,7 +86,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         % Compute the spectrum for each trial. Format: iTrial x times
         W = 3;
-        [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[500/1e3,W],1e3,200);
+        [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[t_tot/1e3,W],1e3,200);
         
         % Find low and high theta from the spectrum 
         theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
@@ -99,69 +103,106 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         high_theta = sort_theta(end-cut+1:end);
         high_idx = trial_idx(end-cut+1:end);
         
-        mod_rec_stim.mod(cnt_m).low_theta_pow = low_theta_pow;
-        mod_rec_stim.mod(cnt_m).low_idx = low_idx;
-        mod_rec_stim.mod(cnt_m).high_theta = high_theta;
-        mod_rec_stim.mod(cnt_m).high_idx = high_idx;
+        mod_rec_stim_gram.mod(cnt_m).low_theta_pow = low_theta_pow;
+        mod_rec_stim_gram.mod(cnt_m).low_idx = low_idx;
+        mod_rec_stim_gram.mod(cnt_m).high_theta = high_theta;
+        mod_rec_stim_gram.mod(cnt_m).high_idx = high_idx;
         
         
         W = 5;
         % high/low theta power coherency
+      
         
-        % ---- parameters for the coherence-gram
-        tapers = [0.6 5];
-        k = 2*tapers(1)*tapers(2)-1
-        N = tapers(1);
-        fs = 1000;
-        dn = 0.01;
-        nt = 1000;
-        nwin = floor((nt-N*fs)./(dn*fs))           % calculate the number of windows
         
-        % --- coherence
-        [c_sr,f,spec_m,spec_r] = tfcoh(lfp_M,lfp_R,tapers,1e3,dn,200,2,[],[],1);
-        figure;
-        tvimage(abs(c_sr)); colorbar;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % COHERENCE-GRAM
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        xticks = floor(linspace(1,1000,5));
-        xticklabels = nt(xticks);
-        xtickformat('%d')
-        % yticks = floor(linspace(1,length(f),10));
-        yticks = 1:50:length(f);
+        % --- coherence-gram 
+        [c_mr,f,spec_m,spec_r] = tfcoh(lfp_M,lfp_R,tapers,1e3,dn,200,2,[],[],1);
+        [c_mr_high,f, spec_m_high, spec_r_high] = tfcoh(lfp_M(high_idx,:),lfp_R(high_idx,:),tapers,1e3,dn,200,2,[],[],1); % high power trials
+        [c_mr_low,f, spec_m_low, spec_r_low] = tfcoh(lfp_M(low_idx,:),lfp_R(low_idx,:),tapers,1e3,dn,200,2,[],[],1); % low power trials 
         
-        yticklabels = floor(f(yticks));
-        ytickformat('%.2f')
-        set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
-        title('Coherence-gram S-R','FontSize',12);
-        xlabel('time (sec)');
-        ylabel('freq (Hz)')
-        % ylim([0,120])
-        set(gcf, 'Position',  [100, 600, 1000, 600])
+%         % separate calculation of the spectrogram
+%         k = 4;
+%         fk = [0 60];
+%         tapers = [0.5 5];
+%         dn = 0.005;
+%         pad = 2;
+%        
+%         [specRS, fRS , tiRS] = tfspec(lfp_M,tapers,fs,dn,fk,pad,0.05,1);
+        
+        
+%         figure;
+%         tvimage(abs(c_mr)); colorbar;
+%         
+%         xticks = floor(linspace(1,size(c_mr,1),5));     
+%         xticklabels = floor(linspace(1,nt,5));
+%         xtickformat('%d')
+%         % yticks = floor(linspace(1,length(f),10));
+%         yticks = 1:20:length(f);
+%         
+%         yticklabels = floor(f(yticks));
+%         ytickformat('%.2f')
+%         set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
+%         title('Coherence-gram S-R','FontSize',12);
+%         xlabel('time (sec)');
+%         ylabel('freq (Hz)')
+%         ylim([0,120])
+%         set(gcf, 'Position',  [100, 600, 1000, 600])
+        
 
-        [c_mr,f] = coherency(lfp_M,lfp_R,[N W],fs,fk,pad,0.05,1,1);
-        [c_mr_high,f] = coherency(lfp_M(high_idx,:),lfp_R(high_idx,:),[N W],fs,fk,pad,0.05,1,1);
-        [c_mr_low,f] = coherency(lfp_M(low_idx,:),lfp_R(low_idx,:),[N W],fs,fk,pad,0.05,1,1);
-        
+%         figure;
+%         tvimage(log(sq(specRS))); colorbar;        
+%         xticks = floor(linspace(1,size(specRS,1),5));     
+%         xticklabels = floor(linspace(1,nt,5));
+%         xtickformat('%d')
+%         yticks = floor(linspace(1,length(f),10));
+%         yticks = 1:20:length(f);
+%         
+%         yticklabels = floor(f(yticks));
+%         ytickformat('%.2f')
+%         set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
+%         title('Coherence-gram S-R','FontSize',12);
+%         xlabel('time (sec)');
+%         ylabel('freq (Hz)')
+%         ylim([0,120])
+%         set(gcf, 'Position',  [100, 600, 1000, 600])
+
         % hits/misses coherences
-        [c_mr_hit,f] = coherency(lfp_M(hit,:),lfp_R(hit,:),[N W],fs,fk,pad,0.05,1,1);
-        [c_mr_miss,f] = coherency(lfp_M(miss,:),lfp_R(miss,:),[N W],fs,fk,pad,0.05,1,1);
+        [c_mr_hit,f, spec_m_hit, spec_r_hit] = tfcoh(lfp_M(hit,:),lfp_R(hit,:),tapers,1e3,dn,200,2,[],[],1);
+        [c_mr_miss,f, spec_m_miss, spec_r_miss] = tfcoh(lfp_M(miss,:),lfp_R(miss,:),tapers,1e3,dn,200,2,[],[],1);
         
-        % high/low theta power coherency
-        mod_rec_stim.mod(cnt_m).c_mr = c_mr;
-        mod_rec_stim.mod(cnt_m).c_mr_high = c_mr_high;
-        mod_rec_stim.mod(cnt_m).c_mr_low = c_mr_low;
+        % high/low theta power coherence-gram
+        mod_rec_stim_gram.mod(cnt_m).c_mr = c_mr;
+        mod_rec_stim_gram.mod(cnt_m).c_mr_high = c_mr_high;
+        mod_rec_stim_gram.mod(cnt_m).c_mr_low = c_mr_low;
+        % spectrum 
+        mod_rec_stim_gram.mod(cnt_m).s_m = spec_m;
+        mod_rec_stim_gram.mod(cnt_m).s_r = spec_r;
+        mod_rec_stim_gram.mod(cnt_m).s_m_high = spec_m_high;
+        mod_rec_stim_gram.mod(cnt_m).s_r_high = spec_r_high;
+        mod_rec_stim_gram.mod(cnt_m).s_m_low = spec_m_low;
+        mod_rec_stim_gram.mod(cnt_m).s_r_low = spec_r_low;
+
         
-        % hits/misses coherences
-        mod_rec_stim.mod(cnt_m).c_mr_hit = c_mr_hit;
-        mod_rec_stim.mod(cnt_m).c_mr_miss = c_mr_miss;
+        % hits/misses coherence-gram
+        mod_rec_stim_gram.mod(cnt_m).c_mr_hit = c_mr_hit;
+        mod_rec_stim_gram.mod(cnt_m).c_mr_miss = c_mr_miss;
+        % spectrum hit/miss
+        mod_rec_stim_gram.mod(cnt_m).s_m_hit = spec_m_hit;
+        mod_rec_stim_gram.mod(cnt_m).s_r_hit = spec_r_hit;
+        mod_rec_stim_gram.mod(cnt_m).s_m_miss = spec_m_miss;
+        mod_rec_stim_gram.mod(cnt_m).s_r_miss = spec_r_miss;
         
-        mod_rec_stim.freq = f;
+        mod_rec_stim_gram.freq = f;
         
         cnt_m = cnt_m +1;
     end 
     
-    save(strcat(dir_Stim_Sess,sprintf('/mod_rec_stim_500_1000.mat')),'mod_rec_stim');
+    save(strcat(dir_Stim_Sess,sprintf('/mod_rec_stim_gram_1_500.mat')),'mod_rec_stim_gram');
     
-    clear mod_rec_stim
+    clear mod_rec_stim_gram
     
     
 end 
@@ -183,59 +224,20 @@ for s = 1:size(sess_info{1},1)
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Stim_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
     
-    load(strcat(dir_Stim_Sess,'/mod_rec_stim_500_1000.mat'));
-%     beg = beg.mod_rec_stim;
-%     last = load(strcat(dir_Stim_Sess,'/mod_rec_stim_500_1000_ms_spec.mat'));
-%     last = last.mod_rec_stim;
-%     all = load(strcat(dir_Stim_Sess,'/mod_rec_stim.mat'));
-%     all = all.mod_rec_stim;
-% 
-%     mod_rec_stim = beg;
+    load(strcat(dir_Stim_Sess,'/mod_rec_stim_gram.mat'));
+
     
     cnt_m = 1;
-    for m = mod_rec_stim.mod_idx
+    for m = mod_rec_stim_gram.mod_idx
         
-        if mod_rec_stim.receiver_idx ~= m
+        if mod_rec_stim_gram.receiver_idx ~= m
         
-            c_mr_high = [c_mr_high; mod_rec_stim.mod(cnt_m).c_mr_high];
-            c_mr_low = [c_mr_low; mod_rec_stim.mod(cnt_m).c_mr_low];
-            c_mr_hit = [c_mr_hit; mod_rec_stim.mod(cnt_m).c_mr_hit]; 
-            c_mr_miss = [c_mr_miss; mod_rec_stim.mod(cnt_m).c_mr_miss];
             
-%             b = beg.mod(cnt_m).low_idx;
-%             l = last.mod(cnt_m).low_idx;
-%             a = all.mod(cnt_m).low_idx;
-%             common.sess(s).mod(cnt_m).low_idx_beg_last = setxor(b,l);
-%             common.sess(s).mod(cnt_m).low_idx_beg_all = setxor(b,a);
-%             common.sess(s).mod(cnt_m).low_idx_all_last = setxor(a,l);
-%             
-%             if ~isempty(setxor(b,l))
-%                 display(['sess low',num2str(s)])
-%             end
-%             if ~isempty(setxor(b,a))
-%                 display(['sess low',num2str(s)])
-%             end
-%             if ~isempty(setxor(a,l))
-%                 display(['sess low',num2str(s)])
-%             end
-%             
-%             b = beg.mod(cnt_m).high_idx;
-%             l = last.mod(cnt_m).high_idx;
-%             a = all.mod(cnt_m).high_idx;
-%             common.sess(s).mod(cnt_m).high_idx_beg_last = setxor(b,l);
-%             common.sess(s).mod(cnt_m).high_idx_beg_all = setxor(b,a);
-%             common.sess(s).mod(cnt_m).high_idx_all_last = setxor(a,l);
-%             
-%             if ~isempty(setxor(b,l))
-%                 display(['sess high',num2str(s)])
-%             end
-%             if ~isempty(setxor(b,a))
-%                 display(['sess high',num2str(s)])
-%             end
-%             if ~isempty(setxor(a,l))
-%                 display(['sess high',num2str(s)])
-%             end
-%             
+            c_mr_high = cat(3, c_mr_high,abs(mod_rec_stim_gram.mod(cnt_m).c_mr_high));
+            c_mr_low = cat(3, c_mr_low, abs(mod_rec_stim_gram.mod(cnt_m).c_mr_low));
+            c_mr_hit = cat(3, c_mr_hit, abs(mod_rec_stim_gram.mod(cnt_m).c_mr_hit)); 
+            c_mr_miss = cat(3, c_mr_miss, abs(mod_rec_stim_gram.mod(cnt_m).c_mr_miss));
+            
         end
     
         cnt_m = cnt_m + 1;
@@ -247,74 +249,76 @@ end
 
 keyboard;
 
+% compute the mean of the coherence-gram across modulators-receiver pairs 
+mean_coh_mr_high = mean(c_mr_high,3);
+mean_coh_mr_low = mean(c_mr_low,3); 
+mean_coh_mr_hit = mean(c_mr_hit,3);
+mean_coh_mr_miss = mean(c_mr_miss,3);
 
-mean_coh_mr_high = mean(abs(c_mr_high));
-mean_coh_mr_low = mean(abs(c_mr_low)); 
-mean_coh_mr_hit = mean(abs(c_mr_hit)); 
-mean_coh_mr_miss = mean(abs(c_mr_miss)); 
 
-err_coh_mr_high = std(abs(c_mr_high))/sqrt(size(c_mr_high,1)); 
-err_coh_mr_low = std(abs(c_mr_low))/sqrt(size(c_mr_low,1));
-err_coh_mr_hit = std(abs(c_mr_hit))/sqrt(size(c_mr_hit,1));
-err_coh_mr_miss = std(abs(c_mr_miss))/sqrt(size(c_mr_miss,1));
-
-f = mod_rec_stim.freq;
+f = mod_rec_stim_gram.freq;
 
 %%%%%%%%%%%%%%%%%%%%%%
 % FIGURES %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%
 
 
-% %%%% MR high power/low power %%%%%%%%%%%%%%%%%%%%%%
-
-set(0,'DefaultFigureVisible','on')
+% %%%% MR coherence-gram high power %%%%%%%%%%%%%%%%%%%%%%
 
 fig = figure;
-shadedErrorBar(f,mean_coh_mr_high,err_coh_mr_high,'lineprops',{'color',[179, 71, 0]/255 },'patchSaturation',0.5); hold on
-shadedErrorBar(f,mean_coh_mr_low,err_coh_mr_low,'lineprops',{'color',[255, 148, 77]/255 },'patchSaturation',0.5);
+tvimage(mean_coh_mr_high); colorbar;
+
+ax = gca;
+clim = ax.CLim;
+xticks = floor(linspace(1,size(mean_coh_mr_high,1),5));
+xticklabels = floor(linspace(1,nt,5));
+xtickformat('%d')
+% yticks = floor(linspace(1,length(f),10));
+yticks = 1:20:length(f);
+
+yticklabels = floor(f(yticks));
+ytickformat('%.2f')
+set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
+title('Mean coherence-gram (across mod) for high theta pow trials','FontSize',12);
+xlabel('time (sec)');
+ylabel('freq (Hz)')
+ylim([0,120])
+set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-grid on
-% title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
-set(gca,'FontSize',14)
-xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
-ylabel('Coherence','FontName','Arial','FontSize',15);
-title('STIM Coherence MR high vs low theta power trial - high/low pow [-500,0]ms','FontSize',10)
-legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
-set(gcf, 'Position',  [100, 600, 898, 500])
-xlim([1 95])
-% ylim([0 0.25])
-grid on
-
-
-fname = strcat(dir_Stim_Theta,sprintf('/MR_all_coherence_mean_stim_500_1000_ms.jpg',cnt_m));
+fname = strcat(dir_Stim_Theta,sprintf('/coherence-gram_high_pow_MR.jpg',cnt_m));
 saveas(fig,fname);
 
 
 
-% %%%% MR hit and misses %%%%%%%%%%%%%%%%%%%%%%
+% %%%% MR coherence-gram low power %%%%%%%%%%%%%%%%%%%%%%
 
 
 fig = figure;
+tvimage(mean_coh_mr_low); colorbar;
 
-shadedErrorBar(f,mean_coh_mr_hit,err_coh_mr_hit,'lineprops',{'color',[204, 0, 0]/255 },'patchSaturation',0.5); hold on
-shadedErrorBar(f,mean_coh_mr_miss,err_coh_mr_miss,'lineprops',{'color',[255, 128, 128]/255 },'patchSaturation',0.5);
+ax = gca;
+ax.CLim = clim;
+xticks = floor(linspace(1,size(mean_coh_mr_low,1),5));
+xticklabels = floor(linspace(1,nt,5));
+xtickformat('%d')
+% yticks = floor(linspace(1,length(f),10));
+yticks = 1:20:length(f);
 
-grid on
-% title(sprintf('Both animals: Abs MS coherence, %s - Resting State',titleN),'FontSize',11);
-set(gca,'FontSize',14)
-xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
-ylabel('Coherence','FontName','Arial','FontSize',15);
-title('Coherence MR hits vs misses trials','FontSize',12)
-legend('Hits','Misses','FontSize',10,'FontName','Arial')
-set(gcf, 'Position',  [100, 600, 898, 500])
-xlim([1 95])
-% ylim([0 0.25])
-grid on
+yticklabels = floor(f(yticks));
+ytickformat('%.2f')
+set(gca, 'XTick', xticks, 'XTickLabel', xticklabels,'YTick', yticks, 'YTickLabel', yticklabels)
+title('Mean coherence-gram (across mod) for low theta pow trials','FontSize',12);
+xlabel('time (sec)');
+ylabel('freq (Hz)')
+ylim([0,120])
+set(gcf, 'Position',  [100, 600, 1000, 600])
 
 
-fname = strcat(dir_Stim_Theta,sprintf('/MR_hit_miss_coherence_mean_stim.jpg',cnt_m));
+fname = strcat(dir_Stim_Theta,sprintf('/coherence-gram_low_pow_MR.jpg',cnt_m));
 saveas(fig,fname);
+
+
 
 
 

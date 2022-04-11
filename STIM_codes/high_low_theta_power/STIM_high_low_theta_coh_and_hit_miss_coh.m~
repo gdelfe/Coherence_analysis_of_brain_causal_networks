@@ -50,7 +50,6 @@ W = 5;
 t_i = 496;
 t_f = 995;
 t_tot = 500;
-out_name = '/mod_rec_stim_500_1000.mat';
 
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
@@ -136,7 +135,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m +1;
     end 
     
-    save(strcat(dir_Stim_Sess,out_name),'mod_rec_stim');
+    save(strcat(dir_Stim_Sess,'/mod_rec_stim_500_1000.mat'),'mod_rec_stim');
     
     clear mod_rec_stim
     

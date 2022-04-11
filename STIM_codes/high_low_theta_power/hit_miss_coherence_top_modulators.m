@@ -36,7 +36,7 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-modulators = importdata(strcat(dir_sort,'/modulators_sorted_AUC.txt')); % session, modulator idx, decod accuracy, order index i
+modulators = importdata(strcat(dir_sort,'/modulators_sorted_decod_accuracy.txt')); % session, modulator idx, decod accuracy, order index i
 
 N = 15;
 
@@ -56,11 +56,22 @@ for n = 1:N
     
     if mod_rec_stim.receiver_idx ~= m
         
-        c_mr_high = [c_mr_high; mod_rec_stim.mod(cnt_m).c_mr_high];
-        c_mr_low = [c_mr_low; mod_rec_stim.mod(cnt_m).c_mr_low];
-        c_mr_hit = [c_mr_hit; mod_rec_stim.mod(cnt_m).c_mr_hit];
-        c_mr_miss = [c_mr_miss; mod_rec_stim.mod(cnt_m).c_mr_miss];
-        cnt = cnt + 1;
+        a = mod_rec_stim.mod(1).confusion(1,1);
+        b = mod_rec_stim.mod(1).confusion(1,2);
+        c = mod_rec_stim.mod(1).confusion(2,1);  
+        d = mod_rec_stim.mod(1).confusion(2,2);
+        D = a + d;
+        ND = b + c;
+        
+        if 2*(D - ND)/(D + ND) > 0.3; 
+            c_mr_high = [c_mr_high; mod_rec_stim.mod(cnt_m).c_mr_high];
+            c_mr_low = [c_mr_low; mod_rec_stim.mod(cnt_m).c_mr_low];
+            c_mr_hit = [c_mr_hit; mod_rec_stim.mod(cnt_m).c_mr_hit];
+            c_mr_miss = [c_mr_miss; mod_rec_stim.mod(cnt_m).c_mr_miss];
+            cnt = cnt + 1;
+            mod_rec_stim.mod(1).confusion
+        end
+        
     end
     
 end 
