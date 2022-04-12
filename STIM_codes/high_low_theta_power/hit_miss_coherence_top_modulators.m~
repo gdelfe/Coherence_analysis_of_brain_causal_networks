@@ -38,11 +38,11 @@ fclose(fid);
 
 modulators = importdata(strcat(dir_sort,'/modulators_sorted_decod_accuracy.txt')); % session, modulator idx, decod accuracy, order index i
 
-in_name = '/mod_rec_stim.mat';
-fig_name = '_1_1000ms_TOP5_positive_mod';
-title_name = 'Top 5 positive mod [0,1000]ms'
+in_name = '/mod_rec_stim_500_1000.mat';
+fig_name = '_500_1000ms';
+title_name = 'Top 10 % mod'
 
-N = 15;
+N = 20;
 
 c_mr_high = [];
 c_mr_low = [];
@@ -71,7 +71,7 @@ for n = 1:N
         ND = b + c;
         
         if 2*(D - ND)/(D + ND) > 0.3; 
-            display(['---------------',num2str(n)]);
+            display(['---------------',num2str(m)])
             c_mr_high = [c_mr_high; mod_rec_stim.mod(cnt_m).c_mr_high];
             c_mr_low = [c_mr_low; mod_rec_stim.mod(cnt_m).c_mr_low];
             c_mr_hit = [c_mr_hit; mod_rec_stim.mod(cnt_m).c_mr_hit];
