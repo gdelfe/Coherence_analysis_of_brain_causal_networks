@@ -52,7 +52,7 @@ t_f = 995;
 t_tot = 500;
 out_name = '/mod_rec_stim_500_1000.mat';
 fig_name = '_500_1000ms';
-fig_caption = '[-500,0]ms';
+% fig_caption = '[-1000,-500]ms';
 
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
@@ -138,6 +138,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m +1;
     end 
     
+    
     save(strcat(dir_Stim_Sess,out_name),'mod_rec_stim');
     
     clear mod_rec_stim
@@ -165,7 +166,7 @@ for s = 1:size(sess_info{1},1)
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Stim_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
     
-    load(strcat(dir_Stim_Sess,'/mod_rec_stim_500_1000.mat'));
+    load(strcat(dir_Stim_Sess,out_name));
 %     beg = beg.mod_rec_stim;
 %     last = load(strcat(dir_Stim_Sess,'/mod_rec_stim_500_1000_ms_spec.mat'));
 %     last = last.mod_rec_stim;
@@ -187,6 +188,9 @@ for s = 1:size(sess_info{1},1)
             
             spec_hit = [spec_hit; mod_rec_stim.mod(cnt_m).spec_m_hit];
             spec_miss = [spec_miss; mod_rec_stim.mod(cnt_m).spec_m_miss];
+            
+            
+            
             
 %             b = beg.mod(cnt_m).low_idx;
 %             l = last.mod(cnt_m).low_idx;

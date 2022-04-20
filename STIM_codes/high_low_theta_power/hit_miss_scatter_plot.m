@@ -1,10 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code considers the stimulation experiments. For each trial, it
-% checks whether the receiver's response is associated with high-(low)-theta
-% power of the modulator's electrode. Modulators with high-theta power for
-% receiver response are considered "positive", modulators with low theta
-% power for receiver response are considered "negative".
+% This code considers the stimulation experiments. 
+% 
 %
 %    @ Gino Del Ferraro, March 2022, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -25,7 +22,6 @@ dir_high_low_theta = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/S
 
 name_struct_input = '/session_data_lfp.mat';
 filename = '.mat'; % -- filename for sess_data_info.mat
-recording = 'last_recording';
 
 freq_band = 'theta_band';
 monkey = 'Maverick';
@@ -38,40 +34,59 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 
-for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
-    
+out_name = '/mod_rec_stim_500_1000.mat';
+fig_name = '_500_1000ms';
+% fig_caption = '[-1000,-500]ms';
+
+c_mr_av = [];
+theta_pow_HM = [];
+
+for s = 1:size(sess_info{1},1) 
+
     Sess = sess_info{1}(s); % Session number
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
+    dir_Stim_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d',Sess));
     
-    load(strcat(dir_Sess,'/sess_data_stim.mat'));
+    load(strcat(dir_Stim_Sess,out_name));
+
     
     cnt_m = 1;
-   
-    for m = sess_data_stim.mod_idx
+    for m = mod_rec_stim.mod_idx
         
-        theta_pow = sess_data_stim.mod(cnt_m).theta_pow;
-        [sort_theta, sort_idx] = sort(theta_pow);
-        hit = sess_data_stim.hits;
-        miss = sess_data_stim.misses;
-        L = length(theta_pow); 
-        
-        acc_list = [];
-        for l = 1:L % varying the threshold for the ROC
-            pot_miss = sort_idx(1:l); % everything at the left of the threshold
-            pot_hit = sort_idx(l+1:end); % everything at the right of the threshold
+        if mod_rec_stim.receiver_idx ~= m
             
+            miss_pow = log(mean(mod_rec_stim.mod(cnt_m).spec_m_miss((9:19))));
+            hit_pow = log(mean(mod_rec_stim.mod(cnt_m).spec_m_hit((9:19))));
             
-            Tmiss = intersect(pot_miss,sess_data_stim.misses);
-            Thit = intersect(pot_hit,sess_data_stim.hits);
-            acc = (length(Tmiss) + length(Thit))/L;
-            acc_list = [l, acc; acc_list];
+            theta_pow_HM = [theta_pow_HM; miss_pow, hit_pow];
+            
+          
+            c_mr_hit = mean(abs(mod_rec_stim.mod(cnt_m).c_mr_hit(9:19)));
+            c_mr_miss = mean(abs(mod_rec_stim.mod(cnt_m).c_mr_miss(9:19)));
+            
+            c_mr_av = [c_mr_av; c_mr_miss, c_mr_hit];
+             
         end
-        [acc_max, idx_max] = max(acc_list(:,2))
-        keyboard 
-        cnt_m = cnt_m + 1;
-
-    end
     
+        cnt_m = cnt_m + 1;
+    end 
     
 end
+
+
+fig = figure;
+scatter(theta_pow_HM(:,1),theta_pow_HM(:,2),'filled');
+grid on 
+title('Hits vs miss mean theta power');
+xlabel('misses log(mean(theta pow))');
+ylabel('hits log(mean(theta pow))');
+
+fname = strcat(dir_Stim_Theta,'/scatter_hits_vs_misses.jpg');
+saveas(fig,fname);
+
+
+
+
+
+
+

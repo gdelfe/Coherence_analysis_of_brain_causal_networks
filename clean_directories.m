@@ -38,18 +38,16 @@ fclose(fid);
 % sess_list = importdata(strcat(dir_Stim,'/Sessions_list.txt'));
 % cd(dir_Stim)
 
-for i = 1:size(sess_info{1},1) % For each session with at least one modulator
+for s = 1:size(sess_info{1},1) % For each session with at least one modulator
     
     
-%     close all
-    Sess = sess_info{1}(i); % Session numberdir_Sess
-%     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
-    dir_Sess_mod_rec = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/',Sess));
+    Sess = sess_info{1}(s); % Session number
+    display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
+    dir_Stim_Sess = strcat(dir_Stim,sprintf('/Sess_%d',Sess));
     
 
-    cd(dir_Sess_mod_rec)
-    !rm -rf Data
+    cd(dir_Stim_Sess)
+    !rm -rf 
     
 %     dir_Controls = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
 %     dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d/Theta_band',i));

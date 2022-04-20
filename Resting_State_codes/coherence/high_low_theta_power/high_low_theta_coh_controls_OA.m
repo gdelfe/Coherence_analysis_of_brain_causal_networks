@@ -243,7 +243,7 @@ grid on
 set(gca,'FontSize',14)
 xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
 ylabel('Coherence','FontName','Arial','FontSize',15);
-title('Coherence MR high vs low theta power trial','FontSize',12)
+title('OA: Coherence MR high vs low theta power trial of the controls','FontSize',12)
 legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
 set(gcf, 'Position',  [100, 600, 898, 500])
 xlim([1 95])
@@ -251,7 +251,7 @@ xlim([1 95])
 grid on
 
 
-fname = strcat(dir_high_low_theta,sprintf('/MR_controls_OA_coherence_mean.jpg',cnt_m));
+fname = strcat(dir_high_low_theta,sprintf('/MR_controls_OA_coherence_mean_high-low_pow_controls.jpg',cnt_m));
 saveas(fig,fname);
 
 
@@ -269,7 +269,7 @@ grid on
 set(gca,'FontSize',14)
 xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
 ylabel('Coherence','FontName','Arial','FontSize',15);
-title('Coherence MS high vs low theta power trial','FontSize',12)
+title('OA: Coherence MS high vs low theta power trial of the controls','FontSize',12)
 legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
 set(gcf, 'Position',  [100, 600, 898, 500])
 xlim([1 95])
@@ -277,5 +277,5 @@ xlim([1 95])
 grid on
 
 
-fname = strcat(dir_high_low_theta,sprintf('/MS_controls_OA_coherence_mean.jpg',cnt_m));
+fname = strcat(dir_high_low_theta,sprintf('/MS_controls_OA_coherence_mean_high-low_pow_controls.jpg',cnt_m));
 saveas(fig,fname);

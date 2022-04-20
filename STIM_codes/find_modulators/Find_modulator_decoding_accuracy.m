@@ -12,8 +12,9 @@ close all
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'beta_band';
-monkey = 'Archie';
+freq_band = 'theta_band';
+freq_range = [4 8];
+monkey = 'Maverick';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_Stim = strcat(dir_main,sprintf('%s/Stim_data/%s',monkey,freq_band));
 
@@ -32,7 +33,7 @@ fclose(fid);
 
 
 subjects = {'maverick','archie'};
-for iSubject = 2    % : length(subjects)
+for iSubject = 1    % : length(subjects)
 %     clearvars -except subjects iSubject
     if strcmp(subjects{iSubject},'archie')
         archie_vSUBNETS220_rig3
@@ -53,7 +54,7 @@ for iSubject = 2    % : length(subjects)
     UsedSess = find(useSessIndx);
     
     for i = list_sess %UsedSess
-        clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess dir_RS list_sess sess_info i dir_Stim freq_band
+        clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess dir_RS list_sess sess_info i dir_Stim freq_band freq_range
         
         iSess = sess_info{1}(i); % Session number
 
@@ -96,7 +97,7 @@ for iSubject = 2    % : length(subjects)
         
         AnalParams = Data.Params.Anal;
         AnalParams.Tapers = [0.5,2];
-        AnalParams.TestSpecDiff.fk = [10 40];
+        AnalParams.TestSpecDiff.fk = freq_range;
         
         fkNames = {'\theta'};
         Data.Params.Anal = AnalParams;

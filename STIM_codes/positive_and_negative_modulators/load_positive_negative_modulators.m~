@@ -54,7 +54,6 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         [sort_theta, sort_idx] = sort(theta_pow);
         hit = sess_data_stim.hits;
         miss = sess_data_stim.misses;
-        L = length(theta_pow); 
         
         acc_list = [];
         for l = 1:L % varying the threshold for the ROC

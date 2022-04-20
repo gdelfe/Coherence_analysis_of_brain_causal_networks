@@ -47,12 +47,12 @@ W = 5;
 
 % time parameters: beginning and end of lfp signal used to determine the
 % high/low modulator theta power for each trial 
-t_i = 1;
-t_f = 1000;
-t_tot = 1000;
-out_name = '/mod_rec_stim.mat';
-fig_name = '_1_1000ms';
-fig_caption = '[-1000,0]ms';
+t_i = 496;
+t_f = 995;
+t_tot = 500;
+out_name = '/mod_rec_stim_500_1000.mat';
+fig_name = '_500_1000ms';
+% fig_caption = '[-1000,-500]ms';
 
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
@@ -138,6 +138,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m +1;
     end 
     
+    
     save(strcat(dir_Stim_Sess,out_name),'mod_rec_stim');
     
     clear mod_rec_stim
@@ -187,6 +188,9 @@ for s = 1:size(sess_info{1},1)
             
             spec_hit = [spec_hit; mod_rec_stim.mod(cnt_m).spec_m_hit];
             spec_miss = [spec_miss; mod_rec_stim.mod(cnt_m).spec_m_miss];
+            
+            
+            
             
 %             b = beg.mod(cnt_m).low_idx;
 %             l = last.mod(cnt_m).low_idx;

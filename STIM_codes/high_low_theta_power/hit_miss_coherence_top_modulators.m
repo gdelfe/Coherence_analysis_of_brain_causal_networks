@@ -36,13 +36,13 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-modulators = importdata(strcat(dir_sort,'/modulators_sorted_decod_accuracy.txt')); % session, modulator idx, decod accuracy, order index i
+modulators = importdata(strcat(dir_sort,'/modulators_sorted_decod_accuracy_v2.txt')); % session, modulator idx, decod accuracy, order index i
 
-in_name = '/mod_rec_stim.mat';
-fig_name = '_1_1000ms_TOP5_positive_mod';
-title_name = 'Top 5 positive mod [0,1000]ms'
+in_name = '/mod_rec_stim_500_1000.mat';
+fig_name = '_500_1000_ms_TOP10_mod';
+title_name = 'Top 10% mod [-500,0]ms'
 
-N = 15;
+N = 10;
 
 c_mr_high = [];
 c_mr_low = [];
@@ -63,14 +63,14 @@ for n = 1:N
     
     if mod_rec_stim.receiver_idx ~= m
         
-        a = mod_rec_stim.mod(1).confusion(1,1);
-        b = mod_rec_stim.mod(1).confusion(1,2);
-        c = mod_rec_stim.mod(1).confusion(2,1);  
-        d = mod_rec_stim.mod(1).confusion(2,2);
+        a = mod_rec_stim.mod(cnt_m).confusion(1,1);
+        b = mod_rec_stim.mod(cnt_m).confusion(1,2);
+        c = mod_rec_stim.mod(cnt_m).confusion(2,1);  
+        d = mod_rec_stim.mod(cnt_m).confusion(2,2);
         D = a + d;
         ND = b + c;
         
-        if 2*(D - ND)/(D + ND) > 0.3; 
+%         if 2*(D - ND)/(D + ND) > 0.3; 
             display(['---------------',num2str(n)]);
             c_mr_high = [c_mr_high; mod_rec_stim.mod(cnt_m).c_mr_high];
             c_mr_low = [c_mr_low; mod_rec_stim.mod(cnt_m).c_mr_low];
@@ -81,8 +81,11 @@ for n = 1:N
             spec_miss = [spec_miss; mod_rec_stim.mod(cnt_m).spec_m_miss];
             
             cnt = cnt + 1;
-            mod_rec_stim.mod(1).confusion
-        end
+            mod_rec_stim.mod(cnt_m).confusion
+            mod_rec_stim.Decod_Accuracy(cnt_m)
+            display(['decod acc modulator -- ', num2str(modulators(n,3))]);
+
+%         end
         
     end
     
@@ -108,7 +111,7 @@ err_s_m_hit = std(log(spec_hit))/sqrt(size(spec_hit,1));
 err_s_m_miss = std(log(spec_miss))/sqrt(size(spec_miss,1));
 
 f = mod_rec_stim.freq;
-fspec = linspace(0,200,size(spec_hit,2))
+fspec = linspace(0,200,size(spec_hit,2));
 
 
 

@@ -42,7 +42,7 @@ for iSubject = 1% : length(subjects)
     
     UsedSess = find(useSessIndx);
     
-    for iSess = 5 %UsedSess
+    for iSess = 25 %UsedSess
         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess dir_Stim
         
         disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
@@ -84,7 +84,7 @@ for iSubject = 1% : length(subjects)
         Fs = Data.Fs.raw;% raw sampling rate
         
         AnalParams = Data.Params.Anal;
-        AnalParams.Tapers = [0.5,2];
+        AnalParams.Tapers = [0.5,2]; % to compute the power 
         AnalParams.TestSpecDiff.fk = [4 8]; 
         
         fkNames = {'\theta'};
@@ -159,7 +159,7 @@ for iSubject = 1% : length(subjects)
 % %                         nCh_Use = numel(chs_FreqBand);
                         
                         nCh_Use = size(Data.RecordPair,1)
-                        for iCh = 52 %1 : nCh_Use
+                        for iCh = 45 %1 : nCh_Use
                             
 % %                             iCh = find(chs_FreqBand(indx)==Data.RecordPair(:,1)); %-- ask Shaoyu if we should have this line here
                             
