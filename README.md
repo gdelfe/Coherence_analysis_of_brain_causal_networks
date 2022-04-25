@@ -6,4 +6,4 @@ brain communication and to manipulate brain activity through BMIs. In this work 
 
 By studying the resting state dynamics of the sender, receiver, and modulator sites, we then investigate the modulation mechanism behind the sender-receiver communication thoughout spectral analysis of power spectral densities and coherences.
 
-[a link] (https://github.com/gdelfe/Coherence-modulators-analysis/tree/master/Resting_State_codes)
+[a link] (/tree/master/Resting_State_codes)
