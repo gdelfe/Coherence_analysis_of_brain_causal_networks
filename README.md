@@ -1,1 +1,1 @@
-# This repo contains all the codes for the modulators analysis of neural signals (LFP)
+# Neuro-modulator identification of sender-receiver communication in brain networks and coherence spectral analysis
