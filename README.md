@@ -7,6 +7,6 @@ brain communication and to manipulate brain activity through BMIs. In this work 
 By studying the resting state dynamics of the sender, receiver, and modulator sites, we then investigate the modulation mechanism behind the sender-receiver communication thoughout spectral analysis of power spectral densities and coherences.
 
 The codes for the different types of analysis can be found respectively here: </br>
-<a href="https://github.com/gdelfe/Coherence-modulators-analysis/tree/master/Resting_State_codes">Resting State</a> analysis </br>
-<a href="https://github.com/gdelfe/Coherence-modulators-analysis/tree/master/STIM_codes">Stimulation experiment</a> analysis </br>
+- <a href="https://github.com/gdelfe/Coherence-modulators-analysis/tree/master/Resting_State_codes">Resting State</a> analysis </br>
+- <a href="https://github.com/gdelfe/Coherence-modulators-analysis/tree/master/STIM_codes">Stimulation experiment</a> analysis </br>
 
