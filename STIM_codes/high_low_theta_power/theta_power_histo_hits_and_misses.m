@@ -7,7 +7,7 @@
 %    @ Gino Del Ferraro, March 2022, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear all; close all;
+clear all; %close all;
 
 % set(0,'DefaultFigureVisible','off')
 set(0,'DefaultFigureVisible','on')
@@ -65,9 +65,9 @@ for n = 1:N
         % modulator's LFP
         lfp_M = sq(mod_rec_stim.lfp_E(:,m,:));
         
-        W = 3;
-        [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[t_tot/1e3,W],1e3,200);
-        theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
+        W = 2;
+        [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[t_tot/1e3,W],1e3,100);
+        theta_pow = log(mean(spec(:,5:9),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
         
 %         theta_pow_mean = mean(theta_pow); % get the average theta power
 %         theta_pow = theta_pow - theta_pow_mean; % rescale the theta power by removing the mean value
@@ -138,8 +138,8 @@ for n = 1:N
         xline(high_theta_pow(1),'-',{'high threshold'}, 'LineWidth', 2, 'Color', 'r');
         xline(sort_theta(idx_max),'-',{'ROC threshold'}, 'LineWidth', 2, 'Color', 'k');
         
-        fname = strcat(dir_Stim_Theta,sprintf('/histo_hits_misses_top_m_%d.jpg',n));
-        saveas(fig,fname);
+%         fname = strcat(dir_Stim_Theta,sprintf('/histo_hits_misses_top_m_%d.jpg',n));
+%         saveas(fig,fname);
       
     end
 end

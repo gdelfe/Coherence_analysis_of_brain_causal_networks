@@ -63,11 +63,11 @@ for iSubject = 1% : length(subjects)
                 fileName_Pre = sprintf('%sSess%03d_%s_AccLLR_Elec%03d-Elec%03d_%s_grouped.mat',dataDir_Pre,iSess,day,RespPair(1),RespPair(2),stimName);
         end
         
-%         tic
-%         disp('Loading Pre data ...')
-%         load(fileName_Pre)
-%         disp('Done with Pre data loading')
-%         toc
+        tic
+        disp('Loading Pre data ...')
+        load(fileName_Pre)
+        disp('Done with Pre data loading')
+        toc
       
         dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d',iSess));
         load(strcat(dir_Sess,'/Data_with_theta_band.mat'));

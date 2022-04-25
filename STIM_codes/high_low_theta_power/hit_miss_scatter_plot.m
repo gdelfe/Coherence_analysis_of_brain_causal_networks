@@ -55,16 +55,19 @@ for s = 1:size(sess_info{1},1)
         
         if mod_rec_stim.receiver_idx ~= m
             
-            miss_pow = log(mean(mod_rec_stim.mod(cnt_m).spec_m_miss((9:19))));
-            hit_pow = log(mean(mod_rec_stim.mod(cnt_m).spec_m_hit((9:19))));
+%             miss_pow = log(mean(mod_rec_stim.mod(cnt_m).spec_m_miss((9:19))));
+%             hit_pow = log(mean(mod_rec_stim.mod(cnt_m).spec_m_hit((9:19))));
+            
+            miss_pow = log(mean((sq(mod_rec_stim.Spec.psd.notDetected(:,5:9))),2));
+            hit_pow = log(mean((sq(mod_rec_stim.Spec.psd.Detected(:,5:9))),2));
             
             theta_pow_HM = [theta_pow_HM; miss_pow, hit_pow];
             
           
-            c_mr_hit = mean(abs(mod_rec_stim.mod(cnt_m).c_mr_hit(9:19)));
-            c_mr_miss = mean(abs(mod_rec_stim.mod(cnt_m).c_mr_miss(9:19)));
+%             c_mr_hit = mean(abs(mod_rec_stim.mod(cnt_m).c_mr_hit(9:19)));
+%             c_mr_miss = mean(abs(mod_rec_stim.mod(cnt_m).c_mr_miss(9:19)));
             
-            c_mr_av = [c_mr_av; c_mr_miss, c_mr_hit];
+%             c_mr_av = [c_mr_av; c_mr_miss, c_mr_hit];
              
         end
     

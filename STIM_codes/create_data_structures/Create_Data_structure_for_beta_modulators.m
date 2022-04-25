@@ -43,10 +43,7 @@ for iSubject = 1% : length(subjects)
         clearvars -except iSess PreStimSess DATADIR FIGUREDIR MONKEYDIR iSubject subjects UsedSess dir_Stim f_range
         
         disp(['Session ' num2str(iSess) ' out of ' num2str(length(PreStimSess)) ' ...'])
-        dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d',iSess));
-        if ~exist(dir_Sess, 'dir')
-            mkdir(dir_Sess)
-        end
+
         
         RespPair = sessElectrode(PreStimSess{iSess}); % responding channel
         stimName = PreStimSess{iSess}{9};
@@ -230,6 +227,10 @@ for iSubject = 1% : length(subjects)
                         display(['Computing p-value for all the electrodes... '])
                         Data = plotModulationNetworkAucMRIoverlay(Data,BrainArea,saveFigFlag,plotFigFlag,plotElecGrid,plotMRIoverlay,PlotStimElec,cmap);
                         
+                        dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d',iSess));
+                        if ~exist(dir_Sess, 'dir')
+                            mkdir(dir_Sess)
+                        end
                         save(strcat(dir_Sess,'/Data_beta_modulators.mat'),'Data','-v7.3');
            
                         

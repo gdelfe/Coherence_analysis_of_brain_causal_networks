@@ -214,7 +214,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         end
     end % for each modulators
      
-    save(strcat(dir_Sess,'/sess_data_stim.mat'),'sess_data_stim');
+%     save(strcat(dir_Sess,'/sess_data_stim.mat'),'sess_data_stim');
 
 end
    

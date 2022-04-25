@@ -76,10 +76,6 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     load(strcat(dir_Sess,'/Data_with_theta_band.mat')); % load stim data for info about hits/misses
     load(strcat(dir_Modulators,'/session_data_lfp.mat')); % load RS data for info about the modulators
     
-
-    % hit and miss trials -- they are the same for each modulator within the same session
-    hit = Data.spec.lfp.DetectedIndx{1};
-    miss = Data.spec.lfp.notDetectedIndx{1};
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,8 +111,6 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     sess_data_stim.MRIlabels = sess_data_lfp.MRIlabels;
     sess_data_stim.RecordPairMRIlabels = sess_data_lfp.RecordPairMRIlabels;
     sess_data_stim.Spec = sess_data_lfp.Spec;
-    sess_data_stim.hits = hit;
-    sess_data_stim.misses = miss;
     sess_data_stim.sender_pair = sess_data_lfp.sender_pair;
     sess_data_stim.sender_area = sess_data_lfp.sender_area;
     sess_data_stim.receiver_pair = sess_data_lfp.receiver_pair;
@@ -135,6 +129,13 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         display(['-- Modulator ',num2str(m),' --  ',num2str(cnt_m),', out of tot  ',num2str(length(sess_data_lfp.mod_idx)),' '])
 
+        % hit and miss trials -- they might be different across modulators
+        % within the same session (ask Shaoyu)
+        hit = Data.spec.lfp.DetectedIndx{m};
+        miss = Data.spec.lfp.notDetectedIndx{m};
+        
+        sess_data_stim.hits = hit;
+        sess_data_stim.misses = miss;
         
         lfp_m = sq(lfp_E(:,m,:)); % modulator lfp
         % Compute the spectrum for each trial. Format: iTrial x times
