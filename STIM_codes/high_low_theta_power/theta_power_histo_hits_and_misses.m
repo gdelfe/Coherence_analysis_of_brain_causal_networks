@@ -65,9 +65,18 @@ for n = 1:N
         % modulator's LFP
         lfp_M = sq(mod_rec_stim.lfp_E(:,m,:));
         
-        W = 2;
-        [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[t_tot/1e3,W],1e3,100);
-        theta_pow = log(mean(spec(:,5:9),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
+%         % My data 
+%         W = 3;
+%         [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[t_tot/1e3,W],1e3,100);
+%         theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
+%         
+        % Shaoyu's data
+        spec_hits = sq(mod_rec_stim.Spec.psd.Detected);
+        spec_misses = sq(mod_rec_stim.Spec.psd.notDetected);
+        spec = [spec_hits; spec_misses];
+        theta_pow = mean(log(spec(:,5:9)),2); % average across theta frequency band 
+        theta_pow_hits = mean(log(spec_hits(:,5:9)),2); 
+        theta_pow_misses = mean(log(spec_misses(:,5:9)),2); 
         
 %         theta_pow_mean = mean(theta_pow); % get the average theta power
 %         theta_pow = theta_pow - theta_pow_mean; % rescale the theta power by removing the mean value
@@ -119,27 +128,31 @@ for n = 1:N
         nbins = 30;
 %         nbins_h = max( rount(length(theta_pow(hit)/nbins));
 %         nbins_m = length(theta_pow(miss));
-        h1 = histogram(theta_pow(hit),nbins,'FaceAlpha',0.5,'FaceColor','r');
+        h1 = histogram(theta_pow_hits,nbins,'FaceAlpha',0.5,'FaceColor','r');
         hold on 
-        h2 = histogram(theta_pow(miss),nbins,'FaceAlpha',0.5,'FaceColor','b');
+        h2 = histogram(theta_pow_misses,nbins,'FaceAlpha',0.5,'FaceColor','b');
         grid on
         legend([h1,h2],{'hits','misses'},'AutoUpdate', 'off');
         title(sprintf('Theta power of modulator for hit and miss trials, top mod n. %d',n));
         xlabel('log(theta pow)');
         ylabel('count');
         set(gcf, 'Position',  [100, 600, 700, 500])
-        ycoord = max(max(histcounts(theta_pow(hit),nbins)),max(histcounts(theta_pow(miss),nbins)));
+%         ycoord = max(max(histcounts(theta_pow(hit),nbins)),max(histcounts(theta_pow(miss),nbins)));
         decod = mod_rec_stim.Decod_Accuracy(cnt_m);
-        str = sprintf("Shaoyu dec acc = %.2f" + newline + "ROC acc = %.2f" +newline+ "CM acc = %.2f" + newline + "Conf. Diag. = %.2f" + newline + "Conf. non-Diag. = %.2f"+ newline + 'Conf. Mat. = ' + newline + '%.2f  %.2f'+ newline + '%.2f  %.2f',decod,acc_max,acc,D,ND,a,b,c,d);
-        text(min(theta_pow),ycoord - 3,str);
-        hold on;
+        str = sprintf("Shaoyu dec acc = %.2f",decod) %+ newline + "ROC acc = %.2f" +newline+ "CM acc = %.2f" + newline + "Conf. Diag. = %.2f" + newline + "Conf. non-Diag. = %.2f"+ newline + 'Conf. Mat. = ' + newline + '%.2f  %.2f'+ newline + '%.2f  %.2f',decod,acc_max,acc,D,ND,a,b,c,d);
+
+%         str = sprintf("Shaoyu dec acc = %.2f" + newline + "ROC acc = %.2f" +newline+ "CM acc = %.2f" + newline + "Conf. Diag. = %.2f" + newline + "Conf. non-Diag. = %.2f"+ newline + 'Conf. Mat. = ' + newline + '%.2f  %.2f'+ newline + '%.2f  %.2f',decod,acc_max,acc,D,ND,a,b,c,d);
+%         text(min(theta_pow),double(ycoord - 3.),str);
+        text(10,6,str);
+
+%         hold on;
+%         
+%         xline(low_theta_pow(end),'-',{'low threshold'}, 'LineWidth', 2, 'Color', 'b');
+%         xline(high_theta_pow(1),'-',{'high threshold'}, 'LineWidth', 2, 'Color', 'r');
+%         xline(sort_theta(idx_max),'-',{'ROC threshold'}, 'LineWidth', 2, 'Color', 'k');
         
-        xline(low_theta_pow(end),'-',{'low threshold'}, 'LineWidth', 2, 'Color', 'b');
-        xline(high_theta_pow(1),'-',{'high threshold'}, 'LineWidth', 2, 'Color', 'r');
-        xline(sort_theta(idx_max),'-',{'ROC threshold'}, 'LineWidth', 2, 'Color', 'k');
-        
-%         fname = strcat(dir_Stim_Theta,sprintf('/histo_hits_misses_top_m_%d.jpg',n));
-%         saveas(fig,fname);
+        fname = strcat(dir_Stim_Theta,sprintf('/histo_hits_misses_top_m_%d_Shaoyu.jpg',n));
+        saveas(fig,fname);
       
     end
 end

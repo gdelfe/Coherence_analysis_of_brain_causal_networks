@@ -22,7 +22,7 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 dir_out = strcat(dir_main,sprintf('%s/Resting_state/%s/Modulators_controls',monkey,freq_band));
@@ -35,10 +35,10 @@ filename = '_AUC'; % -- write out file for the modulators
 filename_ctrl = ''; % -- write out file for the controls 
 
 % % -- exclude bad sessions 
-% excluded_sess = [8,22,30,31];
-% excluded_idx = [2,5,8,9];
 sess_list = 1:size(sess_info{1},1);
-% sess_list(excluded_idx) = [];
+% excluded_sess = [8,22,30,31]; % archie
+excluded_idx = [2,5,8,9]; % archie 
+sess_list(excluded_idx) = [];
 
 name_structure = '/modulators_decod_accuracy.mat';
 name_struct_input_SA = '/session_controls_same_area_info.mat'; % -- structure controls Same Area

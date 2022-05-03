@@ -83,7 +83,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     StimTrials = Data.StimTrials(Data.goodTrials_index);
     sys = StimTrials(1).MT;
-    bn_Pre = [-1005 -5]; % ms
+    bn_Pre = [-540 140]; % ms
     
     % load all the channel LFPs for that given session 
     [Lfp_Pre] = trialStimPulseLfp(StimTrials, sys, [], [], 'PulseStarts', bn_Pre); % returns monopolar recording

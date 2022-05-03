@@ -28,7 +28,7 @@ f = linspace(1,fk,409); % frequency values (range)
 
 % -- theta
 % N_list = [10,20,30,40,50,100];
-N_list = 100;
+N_list = 10;
 
 % % ranges at which the peak occours for the modulators, ctrl SA, ctrl OA for MR and CR coherence 
 % flist_mod_mr = {11:17,10:16,12:14,13:15,12:14,13:15};

@@ -87,8 +87,12 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         % Compute the spectrum for each trial. Format: iTrial x times
         W = 3;
         [spec, f, err] = dmtspec(lfp_M(:,t_i:t_f),[t_tot/1e3,W],1e3,200);
-        [spec_hit, f, err] = dmtspec(lfp_M(hit,t_i:t_f),[t_tot/1e3,W],1e3,200,0.05,2,1);
-        [spec_miss, f, err] = dmtspec(lfp_M(miss,t_i:t_f),[t_tot/1e3,W],1e3,200,0.05,2,1);
+        
+        spec_hit = mean(sq(mod_rec_stim.Spec.psd.Detected));
+        spec_miss = mean(sq(mod_rec_stim.Spec.psd.notDetected));
+                 
+%         [spec_hit, f, err] = dmtspec(lfp_M(hit,t_i:t_f),[t_tot/1e3,W],1e3,200,0.05,2,1);
+%         [spec_miss, f, err] = dmtspec(lfp_M(miss,t_i:t_f),[t_tot/1e3,W],1e3,200,0.05,2,1);
         
         % Find low and high theta from the spectrum 
         theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
@@ -139,7 +143,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     end 
     
     
-    save(strcat(dir_Stim_Sess,out_name),'mod_rec_stim');
+%     save(strcat(dir_Stim_Sess,out_name),'mod_rec_stim');
     
     clear mod_rec_stim
     
@@ -186,11 +190,13 @@ for s = 1:size(sess_info{1},1)
             c_mr_miss = [c_mr_miss; mod_rec_stim.mod(cnt_m).c_mr_miss];
             
             
-            spec_hit = [spec_hit; mod_rec_stim.mod(cnt_m).spec_m_hit];
-            spec_miss = [spec_miss; mod_rec_stim.mod(cnt_m).spec_m_miss];
+            spec_hit = [spec_hit; mean(sq(mod_rec_stim.Spec.psd.Detected))];
+            spec_miss = [spec_miss; mean(sq(mod_rec_stim.Spec.psd.notDetected))];
+        
             
-            
-            
+%             spec_hit = [spec_hit; mod_rec_stim.mod(cnt_m).spec_m_hit];
+%             spec_miss = [spec_miss; mod_rec_stim.mod(cnt_m).spec_m_miss];
+
             
 %             b = beg.mod(cnt_m).low_idx;
 %             l = last.mod(cnt_m).low_idx;
