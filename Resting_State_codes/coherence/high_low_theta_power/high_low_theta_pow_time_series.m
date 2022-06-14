@@ -51,6 +51,8 @@ load(strcat(dir_Modulators,name_struct_input)); % RS LFP split into 1 sec window
 % for all the modulators in that session 
 for cnt_m = 1:length(sess_data_lfp.mod_idx)
     
+    cnt_m = 14;
+    
     load(strcat(dir_Sess_mod_send_data,sprintf('/modulator_%d_send.mat',cnt_m)));
     load(strcat(dir_Sess_mod_rec_data,sprintf('/modulator_%d_rec.mat',cnt_m)));
     
