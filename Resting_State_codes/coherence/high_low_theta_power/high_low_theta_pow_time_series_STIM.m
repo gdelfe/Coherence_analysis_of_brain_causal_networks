@@ -38,79 +38,102 @@ fclose(fid);
 
 modulators = importdata(strcat(dir_sort,'/modulators_sorted_decod_accuracy_v2.txt')); % session, modulator idx, decod accuracy, order index i
 
-
-% Select specific Session to look at 
-s = 16;
+% Select specific Session to look at
+s = 15;
 Sess = sess_info{1}(s); % Session number
 
-% Load STIM data for that session 
+% Load STIM data for that session
 dir_Stim_Sess = strcat(dir_Stim_Theta,sprintf('/Sess_%d/',Sess));
 load(strcat(dir_Stim_Sess,in_name));
 
-% Print modulators brain regions  
+% Print modulators brain regions
 unique(mod_rec_stim.mod_areas)
 
 % select modulator:
-cnt_m = 14;
-lfp_m = mod_rec_stim.lfp_E(:,cnt_m,:);
-
-% Select high and low theta power trials 
-W = 3;
-[spec, f, err] = dmtspec(lfp_E,[1000/1e3,W],1e3,200);
-
-theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
-theta_pow_mean = mean(theta_pow); % get the average theta power
-theta_pow = theta_pow - theta_pow_mean; % rescale the theta power by removing the mean value
-
-[sort_theta, trial_idx] = sort(theta_pow); % sort theta power in ascending order
-cut = fix(length(theta_pow)/3); % find the index of 1/3 of the distribution
-
-% low and high theta power indexes 
-low_theta_pow = sort_theta(1:cut);
-low_idx = trial_idx(1:cut);
-
-high_theta = sort_theta(end-cut+1:end);
-high_idx = trial_idx(end-cut+1:end);
-
-
-
-fig_ts = figure;
-[ha, pos] = tight_subplot(10,1,[.01 .03],[.2 .01],[.1 .1])
-
-% plot LFP for a few trials 
-for i = 0:4
+% cnt_m = 1; % modulator index
+for cnt_m = 1 : length(mod_rec_stim.mod_idx)
     
-    axes(ha(i+1))
-    plot(mod_rec.lfp_E_high(end-i,:),'color','b')
-    %set(gca,'xticklabel',[]);
+    el = mod_rec_stim.mod_idx(cnt_m); % electrode
+    lfp_m = sq(mod_rec_stim.lfp_E(:,el,:));
+    
+    % Select high and low theta power trials
+    W = 3;
+    [spec, f, err] = dmtspec(lfp_m,[1000/1e3,W],1e3,200);
+    
+    theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
+    theta_pow_mean = mean(theta_pow); % get the average theta power
+    theta_pow = theta_pow - theta_pow_mean; % rescale the theta power by removing the mean value
+    
+    [sort_theta, trial_idx] = sort(theta_pow); % sort theta power in ascending order
+    cut = fix(length(theta_pow)/3); % find the index of 1/3 of the distribution
+    
+    % low and high theta power indexes
+    low_theta = sort_theta(1:cut);
+    low_idx = trial_idx(1:cut);
+    
+    high_theta = sort_theta(end-cut+1:end);
+    high_idx = trial_idx(end-cut+1:end);
+    
+    % Power trials
+    lfp_E_high = lfp_m(high_idx,:); % high theta
+    lfp_E_low = lfp_m(low_idx,:); % low theta
+    
+    % plot theta power histogram
+    % fig = figure;
+    % histogram(high_theta,30,'FaceAlpha',0.5)
+    % hold on
+    % histogram(low_theta,30,'FaceAlpha',0.5)
+    
+    fig = figure;
+    histogram(theta_pow,30,'FaceAlpha',0.5,'Normalization','probability','EdgeColor','w')
     grid on
-    
-    axes(ha(10-i))
-    plot(mod_rec.lfp_E_low(i+1,:),'color','r')
-    grid on
-    
-    % set(ha(1:5),'XTickLabel',''); set(ha,'YTickLabel','')
-    
-    ylabel('Lfp','FontName','Arial','FontSize',12);
-    set(gcf, 'Position',  [100, 600, 1500, 1000]);
+    hold on; xline(low_theta(end),'b');
+    hold on; xline(high_theta(1),'r');
+    legend('theta power','low theta','high theta')
     
     
     
     
+    % plot LFP for a few trials
     
-    % save the plots
-    dir_ts_rec_fig = strcat(dir_high_low_theta,sprintf('/Sess_%d/mod_rec/Figures/Time_Series',Sess));
-    if ~exist(dir_ts_rec_fig, 'dir')
-        mkdir(dir_ts_rec_fig)
+    for start = [0]
+        fig_ts = figure;
+        [ha] = tight_subplot(10,1,[.02 .02],[.05 .05],[.1 .1]);
+        j = 0;
+        for i = start:start+4
+            
+            axes(ha(j+1));
+            plot(lfp_E_high(end-i,:),'color','b') % plot trials on the right tail of the distribution
+            %set(gca,'xticklabel',[]);
+            ylim([-330,330])
+            grid on
+            
+            axes(ha(end-j));
+            plot(lfp_E_low(i+1,:),'color','r') % plot trials on the left tail of the distribution
+            grid on
+            ylim([-330,330])
+            
+            j = j + 1;
+            % set(ha(1:5),'XTickLabel',''); set(ha,'YTickLabel','')
+            
+            %     ylabel('Lfp','FontName','Arial','FontSize',12);
+            set(gcf, 'Position',  [100, 600, 700, 1000]);
+            
+        end
+        
+        % %     save the plots
+        dir_ts_rec_fig = strcat(dir_Stim_Theta,sprintf('/high_low_theta',Sess));
+        
+        %     reg = mod_rec_stim.mod_areas{cnt_m};
+        %     fname = strcat(dir_ts_rec_fig,sprintf('/modulator_%d_reg_%s_sess_%d.pdf',cnt_m,reg,Sess));
+        %     saveas(fig_ts,fname);
+        %     fname = strcat(dir_ts_rec_fig,sprintf('/modulator_%d_reg_%s_sess_%d.jpg',cnt_m,reg,Sess));
+        %     saveas(fig_ts,fname);
+        
     end
-    
-    fname = strcat(dir_ts_rec_fig,sprintf('/modulator_%d_lfp_high_low_theta.jpg',cnt_m));
-    saveas(fig_ts,fname);
-    
-    
     
 end
 
-
-
+M1  = find(strcmp(mod_rec_stim.RecordPairMRIlabels(:,1),'M1'));
+CN  = find(strcmp(mod_rec_stim.RecordPairMRIlabels(:,1),'CN'));
 
