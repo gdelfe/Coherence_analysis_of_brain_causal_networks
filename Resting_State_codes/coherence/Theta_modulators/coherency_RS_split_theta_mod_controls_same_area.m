@@ -32,11 +32,11 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-name_struct_input = '/session_controls_same_area_lfp.mat'; % -- name file to load 
+name_struct_input = '/sess_controls_same_area_lfp.mat'; % -- name file to load 
 filename = '.mat'; % -- write out filename for sess_data_info.mat 
 recording = 'last_recording'; % -- write out directory
 
-freq_band = 'beta_band';
+freq_band = 'theta_band';
 monkey = 'Maverick';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
@@ -71,16 +71,10 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
         mkdir(dir_Sess_Ctrl)
     end
     
-    % -- load list electrodes, sender, receiver
-    %     electrode = dataG.RecordPair; % ---- all electrode pairs
-    %     receiver = dataG.receiver;  % ---- receiver pair
-    %     sender = dataG.sender; % ---- sender pair
-    %
-    %     % ---  time parameter
+
+    % ---  time parameter
     tot_time = 150001;
-    %     % ---  freq parameter for the masking
-    %     fmin = 10;
-    %     fmax = 40;
+
     
     outliers_SR = [sess_control_lfp.outliers_S, sess_control_lfp.outliers_R];
     outliers_SR = unique(outliers_SR);  % -- remove repeated entries in outliers
@@ -150,7 +144,7 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     lfp_E_all = sess_control_lfp.lfp_E;
     
     cnt_m = 1;
-    for Ch = ctrl_Ch % for all the modulators in the session
+    for Ch = ctrl_Ch % for all the controls
         
         close all
         

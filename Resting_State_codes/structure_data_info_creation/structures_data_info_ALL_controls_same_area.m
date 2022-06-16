@@ -38,7 +38,7 @@ set(0,'DefaultLineLineWidth',2)
 
 % -- print structures on stdout
 %format short
-for s=1:size(sess_info{1},1)
+for s= 8 %1:size(sess_info{1},1)
     
     Sess = sess_info{1}(s); % Session number
     dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
