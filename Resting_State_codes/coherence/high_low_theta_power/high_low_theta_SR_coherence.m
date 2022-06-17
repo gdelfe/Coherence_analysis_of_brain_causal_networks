@@ -18,16 +18,15 @@ set(0,'DefaultLineLineWidth',2)
 
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
-dir_high_low_theta = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Maverick/Resting_State/high_low_theta';
 
-name_struct_input = '/session_data_lfp.mat';
+name_struct_input = '/session_data_lfp_movie.mat'; % -- name file to load
 filename = '.mat'; % -- filename for sess_data_info.mat
-recording = 'last_recording';
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
-dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
+monkey = 'Archie';
 
+dir_high_low_theta = strcat(dir_main,sprintf('/%s/Resting_State/high_low_theta',monkey));
+dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
 
 fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
@@ -146,38 +145,38 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         coh_all_c_sr_low = [coh_all_c_sr_low; c_sr_low];
         
                 
-        fig_histo = figure;
-        histogram(low_theta_pow,20,'FaceAlpha',.6); grid on
-        hold on
-        histogram(high_theta,20,'FaceAlpha',.6);
-        legend('low theta','high theta')
-        title('Theta power distribution Mod S','FontSize',12)
-        ylabel('count')
-        xlabel('Log Theta power (mean centered)')
-        
-        
-        fig_coh = figure;
-        plot(f,abs(c_sr_high));
-        hold on
-        plot(f,abs(c_sr_low));
-        title('coherence SR - trials with high and low theta pow')
-        legend('high pow trials','low pow trials')
-        ylabel('cohernece')
-        xlabel('frequency')
-        grid on
-        
-        
-        
-        dir_Sess_send_rec_fig = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Figures',Sess));
-        if ~exist(dir_Sess_send_rec_fig, 'dir')
-            mkdir(dir_Sess_send_rec_fig)
-        end
-        
-        
-        fname = strcat(dir_Sess_send_rec_fig,sprintf('/modulator_%d_theta_pow_histo_S.jpg',cnt_m));
-        saveas(fig_histo,fname);
-        fname = strcat(dir_Sess_send_rec_fig,sprintf('/SR_coherence_for_mod_%d_high_low_theta.jpg',cnt_m));
-        saveas(fig_coh,fname);
+%         fig_histo = figure;
+%         histogram(low_theta_pow,20,'FaceAlpha',.6); grid on
+%         hold on
+%         histogram(high_theta,20,'FaceAlpha',.6);
+%         legend('low theta','high theta')
+%         title('Theta power distribution Mod S','FontSize',12)
+%         ylabel('count')
+%         xlabel('Log Theta power (mean centered)')
+%         
+%         
+%         fig_coh = figure;
+%         plot(f,abs(c_sr_high));
+%         hold on
+%         plot(f,abs(c_sr_low));
+%         title('coherence SR - trials with high and low theta pow')
+%         legend('high pow trials','low pow trials')
+%         ylabel('cohernece')
+%         xlabel('frequency')
+%         grid on
+%         
+%         
+%         
+%         dir_Sess_send_rec_fig = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Figures',Sess));
+%         if ~exist(dir_Sess_send_rec_fig, 'dir')
+%             mkdir(dir_Sess_send_rec_fig)
+%         end
+%         
+%         
+%         fname = strcat(dir_Sess_send_rec_fig,sprintf('/modulator_%d_theta_pow_histo_S.jpg',cnt_m));
+%         saveas(fig_histo,fname);
+%         fname = strcat(dir_Sess_send_rec_fig,sprintf('/SR_coherence_for_mod_%d_high_low_theta.jpg',cnt_m));
+%         saveas(fig_coh,fname);
                
         
         cnt_m = cnt_m +1;

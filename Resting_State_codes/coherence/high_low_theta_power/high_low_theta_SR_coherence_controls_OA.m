@@ -2,7 +2,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code compute the theta coherence between the sender-receiver
 % for those trials having high/low modulator theta power for the control
-% electrode in the Same Area as the modulators 
+% electrode in the Other Areas but the modulators'
+%
 %
 %    @ Gino Del Ferraro, June 2022, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -20,7 +21,7 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
 
-name_struct_input = '/sess_controls_same_area_lfp.mat'; % -- name file to load
+name_struct_input = '/session_controls_other_areas_lfp_movie.mat'; % -- name file to load
 filename = '.mat'; % -- filename for sess_data_info.mat
 recording = 'last_recording';
 
@@ -56,7 +57,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     Sess = sess_info{1}(s); % Session number
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area',Sess));
+    dir_Sess_Ctrl = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_other_areas',Sess));
     
     load(strcat(dir_Sess_Ctrl,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
     
@@ -151,18 +152,23 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         cnt_m = cnt_m +1;
         
     end % end of for cycle for all the controls in a given session
+       
     
     if ~isempty(send_rec)
-        dir_Sess_send_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Data',Sess));    
-        save(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_SA.mat'),'send_rec');
+        dir_Sess_send_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Data',Sess));
+        if ~exist(dir_Sess_send_rec_data, 'dir')
+            mkdir(dir_Sess_send_rec_data)
+        end
+        save(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_OA.mat'),'send_rec');
     end
     
 end
 
 
-save(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_SA.mat'),'coh_all_c_sr_high')
-save(strcat(dir_high_low_theta,'/coh_all_sess_sr_low_controls_SA.mat'),'coh_all_c_sr_low')
+save(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_OA.mat'),'coh_all_c_sr_high')
+save(strcat(dir_high_low_theta,'/coh_all_sess_sr_low_controls_OA.mat'),'coh_all_c_sr_low')
 
+keyboard
 
 mean_all_coh_sr_high = mean(abs(coh_all_c_sr_high),1);
 mean_all_coh_sr_low = mean(abs(coh_all_c_sr_low),1);
@@ -192,7 +198,7 @@ grid on
 set(gca,'FontSize',14)
 xlabel('Frequency (Hz)','FontName','Arial','FontSize',15);
 ylabel('Coherence','FontName','Arial','FontSize',15);
-title('Coherence SR high vs low theta power trial (control SA)','FontSize',12)
+title('Coherence SR high vs low theta power trial (control OA)','FontSize',12)
 legend('high theta pow','low theta pow','FontSize',10,'FontName','Arial')
 set(gcf, 'Position',  [100, 600, 898, 500])
 xlim([1 95])
@@ -200,7 +206,7 @@ xlim([1 95])
 grid on
 
 
-fname = strcat(dir_high_low_theta,sprintf('/SR_all_coherence_mean_controls_SA.jpg',cnt_m));
+fname = strcat(dir_high_low_theta,sprintf('/SR_all_coherence_mean_controls_OA.jpg',cnt_m));
 saveas(fig,fname);
 
 
