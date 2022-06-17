@@ -56,7 +56,7 @@ for cnt_m = 1 %1 : length(mod_rec_stim.mod_idx)
 %     el = mod_rec_stim.mod_idx(cnt_m); % electrode
 %     lfp_m = sq(mod_rec_stim.lfp_E(:,el,:));
     
-    el = 5;
+    el = 2;
     lfp_m = sq(mod_rec_stim.lfp_E(:,el,:));
     
     % Select high and low theta power trials
@@ -130,13 +130,12 @@ for cnt_m = 1 %1 : length(mod_rec_stim.mod_idx)
         
         % %     save the plots
         dir_ts_rec_fig = strcat(dir_Stim_Theta,sprintf('/high_low_theta',Sess));
-            
-        reg = mod_rec_stim.RecordPairMRIlabels{el,1};
-        %             reg = mod_rec_stim.mod_areas{cnt_m};
-        fname = strcat(dir_ts_rec_fig,sprintf('/ctrl_OA_time_series_el_%d_reg_%s_sess_%d.pdf',el,reg,Sess));
-        saveas(fig_ts,fname);
-        fname = strcat(dir_ts_rec_fig,sprintf('/ctrl_OA_time_series_el_%d_reg_%s_sess_%d.jpg',el,reg,Sess))
-        saveas(fig_ts,fname);
+        
+            reg = mod_rec_stim.mod_areas{cnt_m};
+            fname = strcat(dir_ts_rec_fig,sprintf('/ctrl_SA_time_series_.pdf',cnt_m,reg,Sess));
+            saveas(fig_ts,fname);
+            fname = strcat(dir_ts_rec_fig,sprintf('/modulator_%d_reg_%s_sess_%d.jpg',cnt_m,reg,Sess));
+            saveas(fig_ts,fname);
         
     end
     
@@ -145,7 +144,6 @@ end
 M1  = find(strcmp(mod_rec_stim.RecordPairMRIlabels(:,1),'M1'));
 CN  = find(strcmp(mod_rec_stim.RecordPairMRIlabels(:,1),'CN'));
 OFC = find(strcmp(mod_rec_stim.RecordPairMRIlabels(:,1),'OFC'));
-ACC = find(strcmp(mod_rec_stim.RecordPairMRIlabels(:,1),'ACC'));
 
 OFC'
 CN'

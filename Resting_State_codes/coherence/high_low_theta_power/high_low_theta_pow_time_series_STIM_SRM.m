@@ -157,10 +157,6 @@ for cnt_m = 1 % 1 : length(sess_data_lfp.mod_idx)
         
         
         
-        
-        
-        
-        
 end
 
 M1  = find(strcmp(mod_rec_stim.RecordPairMRIlabels(:,1),'M1'));
