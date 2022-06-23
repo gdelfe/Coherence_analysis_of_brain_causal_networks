@@ -123,8 +123,8 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
     set(gcf, 'Position',  [100, 600, 2000, 500]);
     
         
-    id = 2;
-    reg = [M1(1),CN(id),OFC(1),ACC(5),dPFC(id)];
+    id = 1;
+    reg = [M1(id),CN(id),OFC(id),ACC(id),dPFC(id)];
     reg_name = {'M1','CN','OFC','ACC','dPFC'};
     start = 1;
     stop = 20;
@@ -168,15 +168,14 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
         
         %         plot(lfp_ns(start:1000*stop),'color','b')
         figure
-%         plot(X,'color','b'); hold on
-        plot(X-smooth(X,200),'color','b'); hold on 
-        plot(smooth(X,5)-smooth(X,200),'color','k'); hold on 
+        plot(X,'color','b'); hold on
+        plot(smooth(X,500),'color','k'); hold on 
         plot(filter3,'color','r'); hold on
-        xlim([10000 14000])
+        xlim([2000 5000])
         %set(gca,'xticklabel',[]);
         grid on
         ylabel(sprintf('%s',reg_name{i}),'FontName','Arial','FontSize',12);
-        set(gcf, 'Position',  [100, 100+i*200, 2000, 200]);
+        set(gcf, 'Position',  [100, 600, 2000, 500]);
         
     end
     

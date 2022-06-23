@@ -53,9 +53,11 @@ unique(mod_rec_stim.mod_areas)
 % cnt_m = 1; % modulator index
 for cnt_m = 1 %1 : length(mod_rec_stim.mod_idx)
     
+    % % Modulators
 %     el = mod_rec_stim.mod_idx(cnt_m); % electrode
 %     lfp_m = sq(mod_rec_stim.lfp_E(:,el,:));
     
+    % General electrodes 
     el = 5;
     lfp_m = sq(mod_rec_stim.lfp_E(:,el,:));
     
