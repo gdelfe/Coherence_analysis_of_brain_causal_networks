@@ -96,29 +96,30 @@ fig = figure;
 hold all
 
 % trial sorted by modulators
-shadedErrorBar(f,mean_sr_H,err_sr_H,'lineprops',{'color',[0, 102, 204]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_sr_L,err_sr_L,'lineprops',{'color',[128, 191, 255]/255},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_sr_H,err_sr_H,'lineprops',{'color',[0, 102, 204]/255},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_sr_L,err_sr_L,'lineprops',{'color',[128, 191, 255]/255},'patchSaturation',0.4); hold on
 
-% trial sorted by controls SA 
-shadedErrorBar(f,mean_sr_SA_H,err_sr_SA_H,'lineprops',{'color',[102, 0, 204]/255},'patchSaturation',0.4); hold on
-shadedErrorBar(f,mean_sr_SA_L,err_sr_SA_L,'lineprops',{'color',[255, 102, 255]/255},'patchSaturation',0.4); hold on
+% % trial sorted by controls SA 
+% shadedErrorBar(f,mean_sr_SA_H,err_sr_SA_H,'lineprops',{'color',[102, 0, 204]/255},'patchSaturation',0.4); hold on
+% shadedErrorBar(f,mean_sr_SA_L,err_sr_SA_L,'lineprops',{'color',[255, 102, 255]/255},'patchSaturation',0.4); hold on
 
-% trial sorted by controls OA
+% % trial sorted by controls OA
 shadedErrorBar(f,mean_sr_OA_H,err_sr_OA_H,'lineprops',{'color',[61, 92, 92]/255},'patchSaturation',0.4); hold on
 shadedErrorBar(f,mean_sr_OA_L,err_sr_OA_L,'lineprops',{'color',[148, 184, 184]/255},'patchSaturation',0.4); hold on
-xlim([0 95])
+
 
 grid on
-title('Both animals: SR coherence for high/low power','FontSize',11);
+title('Both animals: SR coherence for high/low power ctlr OA','FontSize',11);
 xlabel('freq (Hz)');
 ylabel('coherence');
-legend('mod pow','ctrl same reg pow','ctrl other reg pow','FontSize',10)
-set(gcf, 'Position',  [100, 600, 1000, 600])
+legend('high pow trial','low pow trial','FontSize',10)
+set(gcf, 'Position',  [100, 600, 800, 500])
 grid on
+xlim([0 95])
 
-fname = strcat(dir_both_monkeys,'/coherency_SR_high_low_power.jpg');
+fname = strcat(dir_both_monkeys,'/coherency_SR_ctrl_OA_high_low_power.jpg');
 saveas(fig,fname)
-fname = strcat(dir_both_monkeys,'/coherency_SR_high_low_power.pdf');
+fname = strcat(dir_both_monkeys,'/coherency_SR_ctrl_OA_only_high_low_power.pdf');
 saveas(fig,fname)
 
 

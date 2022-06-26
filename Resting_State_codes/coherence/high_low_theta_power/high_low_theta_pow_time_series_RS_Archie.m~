@@ -21,12 +21,12 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
 dir_high_low_theta = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Maverick/Resting_State/high_low_theta';
 
-name_struct_input = '/session_data_lfp.mat';
+name_struct_input = '/session_data_lfp_movie.mat';
 filename = '.mat'; % -- filename for sess_data_info.mat
 recording = 'last_recording';
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
 
 
@@ -34,9 +34,9 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-% area_tot = {};
+area_tot = {};
 % for s = 1:length(sess_info{1})
-s = 1 % 1:size(sess_info{1},1)
+s = 4; % 1:size(sess_info{1},1)
 Sess = sess_info{1}(s); % Session number
 cnt_m = 1;
 
@@ -48,17 +48,16 @@ dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
 
 load(strcat(dir_Modulators,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
 
-sess_data_lfp
-areas = sess_data_lfp.RecordPairMRIlabels(:,1);
-areas =  areas(~cellfun('isempty',areas));
+% sess_data_lfp
+% areas = sess_data_lfp.RecordPairMRIlabels(:,1);
+% areas =  areas(~cellfun('isempty',areas));
 % display(['Session ------- ',num2str(s)])
-area_sess = unique(areas);
+% area_sess = unique(areas)
 % area_tot = [area_tot; area_sess];
-%     
+    
 % end
 
 % unique(area_tot)
-
 
 
 % for all the modulators in that session 
@@ -97,58 +96,42 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
     lfp_E_low = lfp_m(low_idx,:); % low theta
     
     sess_data_lfp
+    
+    sess_data_lfp
     areas = sess_data_lfp.RecordPairMRIlabels(:,1);
     areas =  areas(~cellfun('isempty',areas));
     unique(areas)
-
-    M1  = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'M1'));
-    CN  = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'CN'));
-    OFC = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'OFC'));
-    ACC = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'ACC'));
-    dPFC = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'dPFC'));
-
+    
+    Amyg  = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'Amyg'));
+    GP  = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'GP'));
+    NAc  = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'NAu'));
+    Put = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'Put'));
+    S1 = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'S1'));
+    SMG = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'SMG'));
+    SPL = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'SPL'));
+    pCun = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'pCun'));
+    
+    BFB = find(strcmp(sess_data_lfp.RecordPairMRIlabels(:,1),'BFB'));
+    
     
     lfp_m = sq(sess_data_lfp.lfp_E(el,:,:));
     
-    
-    % 1 figure
-    figure;
-    lfp_el = sq(sess_data_lfp.lfp_E(OFC(id),:,:));
-    lfp_T = lfp_el';
-    X = lfp_T(:)';
-    filter = thetafilter(X,1000);
-    filter2 = thetafilter(X,600);
-    filter3 = thetafilter(X,1200);
-    
-    plot(X,'color','b'); hold on
-%     plot(X-smooth(X,100)); hold on
-%     plot(smooth(X,100)); hold on
-    plot(filter,'color','r'); hold on;
-    plot(filter2,'color','k'); hold on;
-    plot(filter3,'color','g'); hold on 
-%     plot(X-smooth(X,100)); hold on 
-%     plot(X-smooth(X,200)); hold on
-    legend
-    xlim([34200 35800])
-    
-    %set(gca,'xticklabel',[]);
-    grid on
-    ylabel('Lfp','FontName','Arial','FontSize',12);
-    set(gcf, 'Position',  [100, 600, 2000, 500]);
-    
-        
+   
     id = 2;
-    reg = [M1(1),CN(2),OFC(1),ACC(5),dPFC(2)];
-    reg_name = {'M1','CN','OFC','ACC','dPFC'};
-    start = 1;
-    stop = 20;
+    reg = {Amyg(1),GP(1),NAc(1),Put(1),S1(1),SMG(1),SPL(1),pCun(1)};
+    reg_name = {'Amyg','GP','NAc','Put','S1','SMG','SPL','pCun'};
+%     reg = {BFB(1)}
+%     reg_name = {'BFB'}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%
+    % ALL THE PLOTS TOGETHER 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%
     
     fig_ts = figure;
-    ha = tight_subplot(5,1,[.02 .02],[.2 .01],[.1 .1])
-    for i = 1:5
+    ha = tight_subplot(8,1,[.02 .02],[.2 .01],[.1 .1])
+    for i = 1:8
         
         % chose the electrode channel and concatenate the splitted trials
-        lfp_el = sq(sess_data_lfp.lfp_E(reg(i),:,:));
+        lfp_el = sq(sess_data_lfp.lfp_E(reg{i},:,:));
         lfp_T = lfp_el';
         X = lfp_T(:)';
         
@@ -156,76 +139,52 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
         
         axes(ha(i))
 %         plot(lfp_ns(start:1000*stop),'color','b')
-        plot(X-smooth(X,100),'color','b'); hold on
+        plot(X-smooth(X,200),'color','b'); hold on 
         plot(filter3,'color','r'); hold on 
         ylabel(sprintf('%s',reg_name{i}),'FontName','Arial','FontSize',12);
 
         %set(gca,'xticklabel',[]);
         grid on
-        xlim([24000 28000])
 
     end
     % set(ha(1:5),'XTickLabel',''); set(ha,'YTickLabel','')
     
-    ylabel('Lfp','FontName','Arial','FontSize',12);
-    set(gcf, 'Position',  [100, 600, 1500, 1000]);
-    
-    
-    
-        fig_ts = figure;
-    ha = tight_subplot(5,1,[.02 .02],[.2 .01],[.1 .1])
-    for i = 1:5
-        
-        % chose the electrode channel and concatenate the splitted trials
-        lfp_el = sq(sess_data_lfp.lfp_E(reg(i),:,:));
-        lfp_T = lfp_el';
-        X = lfp_T(:)';
-        
-        filter3 = thetafilter(X,600);
-        
-        axes(ha(i))
-%         plot(lfp_ns(start:1000*stop),'color','b')
-        plot(X-smooth(X,100),'color','b'); hold on
-        plot(filter3,'color','r'); hold on 
-        ylabel(sprintf('%s',reg_name{i}),'FontName','Arial','FontSize',12);
-
-        %set(gca,'xticklabel',[]);
-        grid on
-        xlim([24000 28000])
-
-    end
-    % set(ha(1:5),'XTickLabel',''); set(ha,'YTickLabel','')
-    
-    ylabel('Lfp','FontName','Arial','FontSize',12);
-    set(gcf, 'Position',  [100, 600, 1500, 1000]);
-    
-    
+    set(gcf, 'Position',  [100, 600, 2000, 1000]);
     
    
     
-    % MAVERICK %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    reg = [M1(1),CN(2),OFC(1),ACC(5),dPFC(5)];
-    fig_ts = figure
-
-    for i = 1:5
+    %%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Plots separated 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    for i = 1 %:8
         
         % chose the electrode channel and concatenate the splitted trials
-        lfp_el = sq(sess_data_lfp.lfp_E(reg(i),:,:));
+        lfp_el = sq(sess_data_lfp.lfp_E(reg{i},:,:));
         lfp_T = lfp_el';
         X = lfp_T(:)';
         
         filter3 = thetafilter(X,800);
-
-        plot(X-smooth(X,100)+100*i,'color','b'); hold on 
-        plot(filter3+100*i,'color','r'); hold on
-
+        
+        %         plot(lfp_ns(start:1000*stop),'color','b')
+        fig_ts = figure
+%         plot(X,'color','b'); hold on
+        plot(X-smooth(X,200),'color','b'); hold on 
+%         plot(smooth(X,5)-smooth(X,200),'color','k'); hold on 
+        plot(filter3,'color','r'); hold on
+        xlim([10000 13000])
+%         set(gca,'xticklabel',[]);
+        grid on
+        ylabel(sprintf('%s',reg_name{i}),'FontName','Arial','FontSize',12);
+        set(gcf, 'Position',  [100,100, 800, 150]);
+%         set(gcf, 'Position',  [100, -400+i*300, 2000, 150]);
+        
+        fname = strcat(dir_RS_Theta,sprintf('/time_series/lfp_reg_%s_sess_%d.pdf',reg_name{i},Sess))
+        saveas(fig_ts,fname);
+        fname = strcat(dir_RS_Theta,sprintf('/time_series/lfp_reg_%s_sess_%d.fig',reg_name{i},Sess))
+        saveas(fig_ts,fname);
     end
     
-    xlim([10000 13000])
-    %         set(gca,'xticklabel',[]);
-    grid on
-    ylabel(sprintf('%s',reg_name{i}),'FontName','Arial','FontSize',12);
-    set(gcf, 'Position',  [100, -400+i*300, 2000, 150]);
     
     
         % ARCHIE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -246,12 +205,11 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
         plot(X-smooth(X,200),'color','b'); hold on 
 %         plot(smooth(X,5)-smooth(X,200),'color','k'); hold on 
         plot(filter3,'color','r'); hold on
-        xlim([10000 13000])
+        xlim([10000 14000])
 %         set(gca,'xticklabel',[]);
         grid on
         ylabel(sprintf('%s',reg_name{i}),'FontName','Arial','FontSize',12);
-        set(gcf, 'Position',  [100,100, 800, 150]);
-%         set(gcf, 'Position',  [100, -400+i*300, 2000, 150]);
+        set(gcf, 'Position',  [100, -400+i*300, 2000, 150]);
         
         fname = strcat(dir_RS_Theta,sprintf('/time_series/lfp_reg_%s_sess_%d.pdf',reg_name{i},Sess))
         saveas(fig_ts,fname);

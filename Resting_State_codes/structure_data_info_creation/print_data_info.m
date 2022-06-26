@@ -12,7 +12,7 @@ addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
@@ -43,13 +43,17 @@ for i= list_sess
 
     
     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
-    sess_data
+    
+    display(['i count = ',num2str(i),' -- Sess ', num2str(Sess)])
+    areas = sess_data.mod_areas;
+    areas = areas(~cellfun('isempty',areas));
+    unique(areas)
         
-    load(strcat(dir_ctrl_SA,'/session_controls_same_area_info.mat')); % --- dataG: all data info and LFP
-    ctrl_SA = sess_All_controls_same_area
-% 
-    load(strcat(dir_ctrl_OA,'/session_controls_other_areas_info.mat')); % --- dataG: all data info and LFP
-    ctrl_OA = sess_All_controls_other_areas
+%     load(strcat(dir_ctrl_SA,'/session_controls_same_area_info.mat')); % --- dataG: all data info and LFP
+%     ctrl_SA = sess_All_controls_same_area
+% % 
+%     load(strcat(dir_ctrl_OA,'/session_controls_other_areas_info.mat')); % --- dataG: all data info and LFP
+%     ctrl_OA = sess_All_controls_other_areas
     
     
     
