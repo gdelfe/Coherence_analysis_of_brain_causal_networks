@@ -11,7 +11,7 @@
 
 clear all; close all;
 
-% set(0,'DefaultFigureVisible','off')
+% set(0,'DefaultFigureVisible','off')c
 set(0,'DefaultFigureVisible','on')
 set(0,'DefaultLineLineWidth',2)
 

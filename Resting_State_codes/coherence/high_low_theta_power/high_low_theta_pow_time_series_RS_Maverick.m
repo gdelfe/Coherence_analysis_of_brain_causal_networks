@@ -28,7 +28,7 @@ recording = 'last_recording';
 freq_band = 'theta_band';
 monkey = 'Maverick';
 dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
-
+dir_both = strcat(dir_main,sprintf('/both_monkeys/spectrograms/%s/',monkey));
 
 fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
@@ -36,7 +36,7 @@ fclose(fid);
 
 % area_tot = {};
 % for s = 1:length(sess_info{1})
-s = 1 % 1:size(sess_info{1},1)
+s = 9 % 1:size(sess_info{1},1)
 Sess = sess_info{1}(s); % Session number
 cnt_m = 1;
 
@@ -139,22 +139,26 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
         
     id = 2;
     reg = [M1(1),CN(2),OFC(1),ACC(5),dPFC(2)];
-    reg_name = {'M1','CN','OFC','ACC','dPFC'};
+    reg_name = {'M1','CN','OFC','ACC','dPFC','CN rec'};
     start = 1;
     stop = 20;
     
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % ALL PLOTS IN ONE FIGURE, BUT SEPARATED
-    
+    reg = [M1(1),dPFC(4),ACC(3), CN(5),OFC(3)];
+    reg_name = {'M1','dPFC','ACC','CN','OFC'};
+
+
     fig_ts = figure;
-    ha = tight_subplot(5,1,[.02 .02],[.2 .01],[.1 .1])
+    ha = tight_subplot(5,1,[.04 .04],[.2 .01],[.1 .1])
     for i = 1:5
         
         % chose the electrode channel and concatenate the splitted trials
         lfp_el = sq(sess_data_lfp.lfp_E(reg(i),:,:));
         lfp_T = lfp_el';
         X = lfp_T(:)';
-        
+        X = lfpfilter_low(X,1000);
+
         filter3 = thetafilter(X,800);
         
         axes(ha(i))
@@ -165,12 +169,12 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
 
         %set(gca,'xticklabel',[]);
         grid on
-        xlim([24000 28000])
+        xlim([38500 41500])
 
     end
     % set(ha(1:5),'XTickLabel',''); set(ha,'YTickLabel','')
     
-    set(gcf, 'Position',  [100, 600, 1500, 1000]);
+    set(gcf, 'Position',  [100, 600, 800, 600]);
       
     
     % MAVERICK %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -179,24 +183,43 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % ONE FIGURE, ALL PLOTS TOGETHER SHIFT ON THE Y-AXIS
     
-    reg = [M1(1),CN(2),OFC(1),ACC(5),dPFC(5)];
+%     reg = [M1(4),48,CN(2),OFC(4),ACC(2),dPFC(3)];
+    reg = [M1(1), CN(5),OFC(3),ACC(3),dPFC(4)];
     fig_ts = figure
+    
+%     lfp_S = sq(sess_data_lfp.lfp_S);
+%     lfp_T = lfp_S';
+%     X = lfp_T(:)';
+%     
+%     filter3 = thetafilter(X,800);
+%     
+%     plot(X-smooth(X,100),'color','b'); hold on
+%     plot(filter3,'color','r'); hold on
+%     grid on
 
-    for i = 1:5
+    for i = 1:4
         
         % chose the electrode channel and concatenate the splitted trials
         lfp_el = sq(sess_data_lfp.lfp_E(reg(i),:,:));
         lfp_T = lfp_el';
         X = lfp_T(:)';
+        X = lfpfilter_low(X,1000);
+        
         
         filter3 = thetafilter(X,800);
 
-        plot(X-smooth(X,100)+100*i,'color','b'); hold on 
-        plot(filter3+100*i,'color','r'); hold on
+        plot(X-smooth(X,100)+80*i,'color','b'); hold on 
+        plot(filter3+80*i,'color','r'); hold on
+        grid on 
 
     end
+        xlim([38500 42000])
+        set(gcf, 'Position',  [100,100, 1500, 800]);
+
+
     
-    xlim([10000 13000])
+    
+    
     %         set(gca,'xticklabel',[]);
     grid on
     ylabel(sprintf('%s',reg_name{i}),'FontName','Arial','FontSize',12);
@@ -237,6 +260,47 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
 %         fname = strcat(dir_RS_Theta,sprintf('/time_series/lfp_reg_%s_sess_%d.fig',reg_name{i},Sess))
 %         saveas(fig_ts,fname);
     end
+    
+    
+    
+    reg = [M1(1),CN(2),OFC(1),ACC(5),dPFC(5)];
+    
+    fk = [0 50];
+    tapers = [0.7 3];
+    dn = 0.005;
+    fs = 1000;
+    pad = 2;
+    CLim = [4,11]
+    
+    for i = 1:5
+        
+        lfp_el = sq(sess_data_lfp.lfp_E(reg(i),:,:));
+        % SPECTROGRAM
+        [specRS, fRS , tiRS] = tfspec(lfp_el,tapers,fs,dn,fk,pad,0.05,1,0);
+        
+        fig = figure; tvimage(sq(log(specRS)));
+        title(sprintf('%s',reg_name{i}))
+        ticks = 0:10:100;
+        ticklabels = 0:5:50;
+        yticks(ticks)
+        yticklabels(ticklabels)
+        colorbar 
+        ylabel('frequency','FontName','Arial','FontSize',10);
+        xlabel('time','FontName','Arial','FontSize',10);
+%         ax = gca;
+%         ax.CLim = [4,11];
+
+%         set(gcf, 'Position',  [100,100, 400, 300]);
+        %         set(gcf, 'Position',  [100, -400+i*300, 2000, 150]);
+        
+        fname = strcat(dir_both,sprintf('spec_reg_%s_sess_%d.pdf',reg_name{i},Sess))
+        saveas(fig,fname);
+        fname = strcat(dir_both,sprintf('spec_reg_%s_sess_%d.fig',reg_name{i},Sess))
+        saveas(fig,fname);
+    end
+    
+    
+    
     
 
 
