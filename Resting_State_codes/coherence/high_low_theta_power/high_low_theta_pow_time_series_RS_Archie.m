@@ -256,6 +256,37 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
     end
     
     
+    
+    
+        
+    % %%%%%%%%%%%%
+    % SPECTRUM
+    %%%%%%%%%%%%%%
+    W = 8;
+    for i = 1%:8
+        
+        lfp_el = sq(sess_data_lfp.lfp_E(reg{i},:,:));
+        % SPECTRUM
+        [spec, f, err] = dmtspec(lfp_el, [1000/1e3,W],1e3,200,2,0.05,1);
+        
+        fig = figure;
+        plot(f,log(spec));
+        
+        title(sprintf('%s',reg_name{i}))
+        
+        ylabel('log(PSD)','FontName','Arial','FontSize',10);
+        xlabel('time','FontName','Arial','FontSize',10);
+        xlim([0 95])
+        grid on
+        
+        fname = strcat(dir_both,sprintf('spectrum_reg_%s_sess_%d.pdf',reg_name{i},Sess))
+        saveas(fig,fname);
+        fname = strcat(dir_both,sprintf('spectrum_reg_%s_sess_%d.fig',reg_name{i},Sess))
+        saveas(fig,fname);
+    end
+    
+    
+    
 
 
     

@@ -28,7 +28,7 @@ recording = 'last_recording';
 freq_band = 'theta_band';
 monkey = 'Maverick';
 dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
-dir_both = strcat(dir_main,sprintf('/both_monkeys/spectrograms/%s/',monkey));
+dir_both = strcat(dir_main,sprintf('/both_monkeys/spectrum/%s/',monkey));
 
 fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
@@ -36,7 +36,7 @@ fclose(fid);
 
 % area_tot = {};
 % for s = 1:length(sess_info{1})
-s = 9 % 1:size(sess_info{1},1)
+s = 1 % 1:size(sess_info{1},1)
 Sess = sess_info{1}(s); % Session number
 cnt_m = 1;
 
@@ -139,7 +139,7 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
         
     id = 2;
     reg = [M1(1),CN(2),OFC(1),ACC(5),dPFC(2)];
-    reg_name = {'M1','CN','OFC','ACC','dPFC','CN rec'};
+    reg_name = {'M1','CN','OFC','ACC','dPFC'};
     start = 1;
     stop = 20;
     
@@ -264,7 +264,8 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
     
     
     reg = [M1(1),CN(2),OFC(1),ACC(5),dPFC(5)];
-    
+    reg_name = {'M1','CN','OFC','ACC','dPFC'};
+
     fk = [0 50];
     tapers = [0.7 3];
     dn = 0.005;
@@ -275,7 +276,7 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
     for i = 1:5
         
         lfp_el = sq(sess_data_lfp.lfp_E(reg(i),:,:));
-        % SPECTROGRAM
+        % SPECTROGRAM  
         [specRS, fRS , tiRS] = tfspec(lfp_el,tapers,fs,dn,fk,pad,0.05,1,0);
         
         fig = figure; tvimage(sq(log(specRS)));
@@ -296,6 +297,39 @@ for cnt_m = 1 % 1:length(sess_data_lfp.mod_idx)
         fname = strcat(dir_both,sprintf('spec_reg_%s_sess_%d.pdf',reg_name{i},Sess))
         saveas(fig,fname);
         fname = strcat(dir_both,sprintf('spec_reg_%s_sess_%d.fig',reg_name{i},Sess))
+        saveas(fig,fname);
+    end
+    
+    
+    % %%%%%%%%%%%%
+    % SPECTRUM
+    %%%%%%%%%%%%%%
+    W = 8;
+    for i = 1:5
+        
+        lfp_el = sq(sess_data_lfp.lfp_E(reg(i),:,:));
+        % SPECTRUM
+        [spec, f, err] = dmtspec(lfp_el, [1000/1e3,W],1e3,200,2,0.05,1);
+        
+        fig = figure;
+        plot(f,log(spec));
+        
+        title(sprintf('%s',reg_name{i}))
+        
+        ylabel('log(PSD)','FontName','Arial','FontSize',10);
+        xlabel('time','FontName','Arial','FontSize',10);
+        xlim([0 95])
+        grid on
+        set(gca,'FontSize',13)
+        %         ax = gca;
+        %         ax.CLim = [4,11];
+        
+        %         set(gcf, 'Position',  [100,100, 400, 300]);
+        %         set(gcf, 'Position',  [100, -400+i*300, 2000, 150]);
+        
+        fname = strcat(dir_both,sprintf('spectrum_reg_%s_sess_%d.pdf',reg_name{i},Sess))
+        saveas(fig,fname);
+        fname = strcat(dir_both,sprintf('spectrum_reg_%s_sess_%d.fig',reg_name{i},Sess))
         saveas(fig,fname);
     end
     

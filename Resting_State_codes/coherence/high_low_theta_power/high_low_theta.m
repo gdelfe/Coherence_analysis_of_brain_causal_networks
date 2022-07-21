@@ -403,11 +403,11 @@ save(strcat(dir_high_low_theta,'/coh_all_sess_mr_high.mat'),'coh_all_c_mr_high')
 save(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'),'coh_all_c_mr_low')
 
 
-% load(strcat(dir_high_low_theta,'/coh_all_sess_ms_high.mat'))
-% load(strcat(dir_high_low_theta,'/coh_all_sess_ms_low.mat'))
-% load(strcat(dir_high_low_theta,'/coh_all_sess_mr_high.mat'))
-% load(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'))
-
+load(strcat(dir_high_low_theta,'/coh_all_sess_ms_high.mat'))
+load(strcat(dir_high_low_theta,'/coh_all_sess_ms_low.mat'))
+load(strcat(dir_high_low_theta,'/coh_all_sess_mr_high.mat'))
+load(strcat(dir_high_low_theta,'/coh_all_sess_mr_low.mat'))
+f = linspace(0,200,409);
 
 mean_all_coh_ms_high = mean(abs(coh_all_c_ms_high),1);
 mean_all_coh_ms_low = mean(abs(coh_all_c_ms_low),1);

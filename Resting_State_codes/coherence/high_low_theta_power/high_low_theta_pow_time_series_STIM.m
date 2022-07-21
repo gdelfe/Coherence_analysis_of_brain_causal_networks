@@ -90,13 +90,16 @@ for cnt_m = 1 %1 : length(mod_rec_stim.mod_idx)
     % histogram(low_theta,30,'FaceAlpha',0.5)
     
     fig = figure;
-    histogram(theta_pow,30,'FaceAlpha',0.5,'Normalization','probability','EdgeColor','w')
+    histogram(theta_pow,40,'FaceAlpha',0.5,'Normalization','probability','EdgeColor','w')
     grid on
     hold on; xline(low_theta(end),'b');
     hold on; xline(high_theta(1),'r');
     legend('theta power','low theta','high theta')
     ylim([0 0.1])
     dir_ts_rec_fig = strcat(dir_Stim_Theta,sprintf('/high_low_theta',Sess));
+    
+    
+    
     fname = strcat(dir_ts_rec_fig,'/modulator_theta_histogram.pdf');
     saveas(fig,fname);
     fname = strcat(dir_ts_rec_fig,'/modulator_theta_histogram.jpg');
