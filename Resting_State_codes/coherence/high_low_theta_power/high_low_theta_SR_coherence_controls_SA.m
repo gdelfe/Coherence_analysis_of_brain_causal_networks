@@ -20,12 +20,12 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
 
-name_struct_input = '/sess_controls_same_area_lfp.mat'; % -- name file to load
+name_struct_input = '/sess_controls_same_area_lfp_movie.mat'; % -- name file to load
 filename = '.mat'; % -- filename for sess_data_info.mat
 recording = 'last_recording';
 
 freq_band = 'theta_band';
-monkey = 'Archie';
+monkey = 'Maverick';
 
 dir_high_low_theta = strcat(dir_main,sprintf('/%s/Resting_State/high_low_theta',monkey));
 dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
@@ -162,6 +162,9 @@ end
 
 save(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_SA.mat'),'coh_all_c_sr_high')
 save(strcat(dir_high_low_theta,'/coh_all_sess_sr_low_controls_SA.mat'),'coh_all_c_sr_low')
+
+
+load(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_SA.mat'))
 
 
 mean_all_coh_sr_high = mean(abs(coh_all_c_sr_high),1);

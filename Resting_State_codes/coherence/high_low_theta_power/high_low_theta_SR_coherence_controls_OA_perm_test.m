@@ -19,7 +19,7 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
 
-name_struct_input = '/session_data_lfp_movie.mat'; % -- name file to load
+name_struct_input = '/session_controls_same_area_lfp_movie.mat'; % -- name file to load
 filename = '.mat'; % -- filename for sess_data_info.mat
 
 freq_band = 'theta_band';
@@ -51,32 +51,38 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     Sess = sess_info{1}(s); % Session number
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
     
-    load(strcat(dir_Modulators,name_struct_input)); % load sess_data_lfp, structure with session modulator info 
 
     % Load sender-receiver structure 
     dir_Sess_send_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Data',Sess));
-    load(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session.mat'));
+    load(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_OA.mat'));
 
     % number of modulators in that session 
-    n_mod = size(sess_data_lfp.mod_idx,2);
     cnt_m = 1; % counter for numb of modulators checked for the outlier trials remover
     
+    % Select a subset of the controls in order to match the total number of
+    % modulators that we have. This corresponds to selecting only .64% of
+    % the total controls. The reason is to speed up the permutation test on
+    % less electrodes.
+    
+    M = size(send_rec.mod,2);
+    l = round(M*0.42);
+    M_rand = randperm(M);
+    M_rand = M_rand(1:l);
     
     
-    for m = sess_data_lfp.mod_idx
+    for ch = M_rand
         
-        display(['-- Modulator ',num2str(m),'  --- ',num2str(cnt_m),' out of ', num2str(n_mod)]);
+        display(['-- Modulator ',num2str(ch),'  --- ',num2str(cnt_m),' out of ', num2str(l)]);
         
         % load Sender and Receiver LFP without outliers
-        lfp_S = send_rec.mod(cnt_m).lfp_S_clean;
-        lfp_R = send_rec.mod(cnt_m).lfp_R_clean;
+        lfp_S = send_rec.mod(ch).lfp_S_clean;
+        lfp_R = send_rec.mod(ch).lfp_R_clean;
        
         
         % load low and high theta power indexes 
-        low_idx = send_rec.mod(cnt_m).low_pow_idx;
-        high_idx = send_rec.mod(cnt_m).high_pow_idx;
+        low_idx = send_rec.mod(ch).low_pow_idx;
+        high_idx = send_rec.mod(ch).high_pow_idx;
         
  
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -101,17 +107,15 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             diff = [diff; d];
             
         end
-        
+        cnt_m = cnt_m + 1;
     end
          
 end
 
 
 
-save(strcat(dir_high_low_theta,'/coh_diff_permutation.mat'),'diff','-v7.3')
+save(strcat(dir_high_low_theta,'/coh_diff_perm_ctlr_OA_archie.mat'),'diff','-v7.3')
 
-load(strcat(dir_high_low_theta,'/coh_all_sess_sr_high.mat'))
-load(strcat(dir_high_low_theta,'/coh_all_sess_sr_low.mat'))
 
 
 

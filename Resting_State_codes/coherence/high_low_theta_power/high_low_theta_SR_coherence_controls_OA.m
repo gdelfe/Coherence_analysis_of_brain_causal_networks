@@ -168,6 +168,9 @@ end
 save(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_OA.mat'),'coh_all_c_sr_high')
 save(strcat(dir_high_low_theta,'/coh_all_sess_sr_low_controls_OA.mat'),'coh_all_c_sr_low')
 
+load(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_OA.mat'))
+
+
 keyboard
 
 mean_all_coh_sr_high = mean(abs(coh_all_c_sr_high),1);
