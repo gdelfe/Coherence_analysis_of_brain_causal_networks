@@ -19,11 +19,11 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
 
-name_struct_input = '/session_data_lfp.mat'; % -- name file to load
+name_struct_input = '/session_data_lfp_movie.mat'; % -- name file to load
 filename = '.mat'; % -- filename for sess_data_info.mat
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 
 dir_high_low_theta = strcat(dir_main,sprintf('/%s/Resting_State/high_low_theta',monkey));
 dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
@@ -47,8 +47,12 @@ diff_mod_OA = [];
 diff_ctrl_OA = [];
 diff_mod_ctrl_OA = [];
 
+diff_ctrl_SAOA = [];
+diff_ctrl_OASA = [];
+diff_ctrl = [];
 
-nperm = 10; % number of permutation for each session, for each modulator
+
+nperm = 1000; % number of permutation for each session, for each modulator
 
 
 for s = 1 % 1:size(sess_info{1},1)  % For each session with at least one modulator
@@ -63,7 +67,7 @@ for s = 1 % 1:size(sess_info{1},1)  % For each session with at least one modulat
     dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
     load(strcat(dir_Modulators,name_struct_input)); % load sess_data_lfp, structure with session modulator info
     dir_Ctrl_SA =  strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area',Sess));
-    load(strcat(dir_Ctrl_SA,'/sess_controls_same_area_lfp_movie.mat')); % load controls lfp and data
+    load(strcat(dir_Ctrl_SA,'/session_controls_same_area_lfp_movie.mat')); % load controls lfp and data
 
     
     if sess_data_lfp.mod_idx ~= sess_data_lfp.receiver_idx % if modulator is not receiver
@@ -78,7 +82,10 @@ for s = 1 % 1:size(sess_info{1},1)  % For each session with at least one modulat
         load(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_OA.mat'));
         ctrl_OA = send_rec;
         
-        
+        % load Sender and Receiver LFP without outliers
+        lfp_S = sess_data_lfp.lfp_S;
+        lfp_R = sess_data_lfp.lfp_R;
+            
         % number of modulators in that session
         n_mod = size(mod.mod_idx,2);
         cnt_m = 1; % counter for numb of modulators checked for the outlier trials remover
@@ -90,11 +97,7 @@ for s = 1 % 1:size(sess_info{1},1)  % For each session with at least one modulat
             % %%%%%%%%%%%%%%%%%%%%%%
             % MODULATOR %%%%%%%%%%%%
             % %%%%%%%%%%%%%%%%%%%%%%
-            
-            % load Sender and Receiver LFP without outliers
-            lfp_S = mod.mod(cnt_m).lfp_S_clean;
-            lfp_R = mod.mod(cnt_m).lfp_R_clean;
-            
+
             
             % load low and high theta power trial indexes for the modulator
             low_idx = mod.mod(cnt_m).low_pow_idx;
@@ -183,8 +186,8 @@ for s = 1 % 1:size(sess_info{1},1)  % For each session with at least one modulat
                 pseudo_H_ctrl_SAOA = perm_high_SA_OA(1:length(high_idx_SA));
                 pseudo_H_ctrl_OASA = perm_high_SA_OA(length(high_idx_SA)+1:end);
                 
-                pseudo_L_ctrl_SAOA = perm_low_mod_OA(1:length(high_idx_SA));
-                pseudo_L_ctrl_OASA = perm_low_mod_OA(length(high_idx_SA)+1:end);
+                pseudo_L_ctrl_SAOA = perm_low_mod_OA(1:length(low_idx_SA));
+                pseudo_L_ctrl_OASA = perm_low_mod_OA(length(low_idx_SA)+1:end);
                 
                 
                 
@@ -272,18 +275,18 @@ end
 
 
 dir_perm = strcat(dir_high_low_theta,'/permutation_test');
-save(strcat(dir_perm,'/coh_diff_modulators_high_low_mod_SA_mav.mat'),'diff_mod','-v7.3')
-save(strcat(dir_perm,'/coh_diff_ctlr_SA_high_low_mod_SA_mav.mat'),'diff_ctlr','-v7.3')
-save(strcat(dir_perm,'/coh_diff_of_diff_mod_ctrl_SA_mav.mat'),'diff_mod_ctrl','-v7.3')
+save(strcat(dir_perm,'/coh_diff_modulators_high_low_mod_SA_archie.mat'),'diff_mod','-v7.3')
+save(strcat(dir_perm,'/coh_diff_ctlr_SA_high_low_mod_SA_archie.mat'),'diff_ctrl','-v7.3')
+save(strcat(dir_perm,'/coh_diff_of_diff_mod_ctrl_SA_archie.mat'),'diff_mod_ctrl','-v7.3')
 
 
-save(strcat(dir_perm,'/coh_diff_modulators_high_low_mod_OA_mav.mat'),'diff_mod_OA','-v7.3')
-save(strcat(dir_perm,'/coh_diff_ctlr_SA_high_low_mod_OA_mav.mat'),'diff_ctlr_OA','-v7.3')
-save(strcat(dir_perm,'/coh_diff_of_diff_mod_ctrl_OA_mav.mat'),'diff_mod_ctrl_OA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_modulators_high_low_mod_OA_archie.mat'),'diff_mod_OA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_ctlr_SA_high_low_mod_OA_archie.mat'),'diff_ctrl_OA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_of_diff_mod_ctrl_OA_archie.mat'),'diff_mod_ctrl_OA','-v7.3')
 
-save(strcat(dir_perm,'/coh_diff_ctrl_SAOA_high_low_mav.mat'),'diff_ctrl_SAOA','-v7.3')
-save(strcat(dir_perm,'/coh_diff_ctrl_OASA_high_low_mav.mat'),'diff_ctrl_OASA','-v7.3')
-save(strcat(dir_perm,'/coh_diff_of_diff_ctrl_SAOA_mav.mat'),'diff_ctrl','-v7.3')
+save(strcat(dir_perm,'/coh_diff_ctrl_SAOA_high_low_archie.mat'),'diff_ctrl_SAOA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_ctrl_OASA_high_low_archie.mat'),'diff_ctrl_OASA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_of_diff_ctrl_SAOA_archie.mat'),'diff_ctrl','-v7.3')
 
 
 

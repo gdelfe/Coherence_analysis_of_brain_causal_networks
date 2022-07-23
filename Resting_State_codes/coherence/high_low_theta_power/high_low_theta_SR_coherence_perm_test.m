@@ -23,7 +23,7 @@ name_struct_input = '/session_data_lfp.mat'; % -- name file to load
 filename = '.mat'; % -- filename for sess_data_info.mat
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 
 dir_high_low_theta = strcat(dir_main,sprintf('/%s/Resting_State/high_low_theta',monkey));
 dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
@@ -115,7 +115,7 @@ end
 
 
 
-save(strcat(dir_high_low_theta,'/coh_diff_permutation_mav.mat'),'diff','-v7.3')
+save(strcat(dir_high_low_theta,'permutation_test/coh_diff_permutation_mav.mat'),'diff','-v7.3')
 
 
 

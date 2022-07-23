@@ -108,7 +108,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             
             
             
-            % get control for the sender same area index
+            % get control for the sender other area index
             ctrl_idx = choose_ALL_control_sender_other_Region_one_mod(RecordPairMRIlabels,MRIlabels,receiver_idx,s_area,mod_Ch);
             
             for ctrl = ctrl_idx % for all the controls associated with the sender
