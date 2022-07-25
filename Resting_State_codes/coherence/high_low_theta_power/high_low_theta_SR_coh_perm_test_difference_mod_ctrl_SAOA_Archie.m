@@ -55,7 +55,7 @@ diff_ctrl = [];
 nperm = 1000; % number of permutation for each session, for each modulator
 
 
-for s = 1 % 1:size(sess_info{1},1)  % For each session with at least one modulator
+for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -68,7 +68,7 @@ for s = 1 % 1:size(sess_info{1},1)  % For each session with at least one modulat
     load(strcat(dir_Modulators,name_struct_input)); % load sess_data_lfp, structure with session modulator info
     dir_Ctrl_SA =  strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area',Sess));
     load(strcat(dir_Ctrl_SA,'/session_controls_same_area_lfp_movie.mat')); % load controls lfp and data
-
+    
     
     if sess_data_lfp.mod_idx ~= sess_data_lfp.receiver_idx % if modulator is not receiver
         
@@ -85,7 +85,7 @@ for s = 1 % 1:size(sess_info{1},1)  % For each session with at least one modulat
         % load Sender and Receiver LFP without outliers
         lfp_S = sess_data_lfp.lfp_S;
         lfp_R = sess_data_lfp.lfp_R;
-            
+        
         % number of modulators in that session
         n_mod = size(mod.mod_idx,2);
         cnt_m = 1; % counter for numb of modulators checked for the outlier trials remover
@@ -97,7 +97,7 @@ for s = 1 % 1:size(sess_info{1},1)  % For each session with at least one modulat
             % %%%%%%%%%%%%%%%%%%%%%%
             % MODULATOR %%%%%%%%%%%%
             % %%%%%%%%%%%%%%%%%%%%%%
-
+            
             
             % load low and high theta power trial indexes for the modulator
             low_idx = mod.mod(cnt_m).low_pow_idx;
@@ -108,162 +108,165 @@ for s = 1 % 1:size(sess_info{1},1)  % For each session with at least one modulat
             % %%%%%%%%%%%%%%%%%%%%%%
             
             % pick control in the same area of the modulator
-            mreg = sess_data_lfp.RecordPairMRIlabels{m,1};  % modulator region           
-            el_idx = find(strcmp(sess_control_lfp.RecordPairMRIlabels(:,1),mreg)); % indexes of electrodes in the same region as the modulator 
+            mreg = sess_data_lfp.RecordPairMRIlabels{m,1};  % modulator region
+            el_idx = find(strcmp(sess_control_lfp.RecordPairMRIlabels(:,1),mreg)); % indexes of electrodes in the same region as the modulator
             ctrl_idx  = sess_control_lfp.ctrl_idx; % all control indexes
-            ctrls = intersect(el_idx,ctrl_idx); % common indexes: controls which are in the modulator region 
+            ctrls = intersect(el_idx,ctrl_idx); % common indexes: controls which are in the modulator region
             
-            r = randperm(length(ctrls));
-            r = ctrls(r(1));   % select a random control to be used in comparison to the modulator in the same region 
-            r = find(sess_control_lfp.ctrl_idx == r); % find the index for that control 
-            
-            % indexes high and low trials for that control 
-            low_idx_SA = ctrl_SA.mod(r).low_pow_idx;
-            high_idx_SA = ctrl_SA.mod(r).high_pow_idx;
-            
-            
-            % %%%%%%%%%%%%%%%%%%%%%%
-            % CONTROL OTHER REGION %
-            % %%%%%%%%%%%%%%%%%%%%%%
-                 
-            % load low and high theta power indexes for the control OA
-            r = randperm(size(ctrl_OA.mod,2)); % select a random control to be used in comparison to the modulator. It doesn't matter which one you pick , each one is in an area which is not a modulator's one
-            r = r(1);
-            low_idx_OA = ctrl_OA.mod(r).low_pow_idx;
-            high_idx_OA = ctrl_OA.mod(r).high_pow_idx;
-            
-
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % % Coherency Sender-Receiver (Permutation test)
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            idx_high = [high_idx; high_idx_SA]; % concatenate high pow trial for modulator and controls SA
-            idx_low = [low_idx; low_idx_SA];    % concatenate low pow trial for modulator and controls SA
-            
-            idx_high_mod_OA = [high_idx; high_idx_OA]; % concatenate high pow trial for modulator and controls OA
-            idx_low_mod_OA = [low_idx; low_idx_OA];    % concatenate low pow trial for modulator and controls OA
-            
-            idx_high_SA_OA = [high_idx_SA; high_idx_OA]; % concatenate high pow trial for modulator and controls OA
-            idx_low_SA_OA = [low_idx_SA; low_idx_OA];    % concatenate low pow trial for modulator and controls OA
-            
-            L_high_SA = length(idx_high);
-            L_low_SA = length(idx_low);
-            
-            L_high_OA = length(idx_high_mod_OA);
-            L_low_OA = length(idx_low_mod_OA);
-            
-            L_high_SAOA = length(idx_high_SA_OA);
-            L_low_SAOA = length(idx_low_SA_OA);
-            
-            for p = 1:nperm
+            if length(ctrls) > 0
                 
-                perm_high = idx_high(randperm(L_high_SA)); % permute high idx trial for control SA and modulator
-                perm_low = idx_low(randperm(L_low_SA));    % permute low idx trial for control SA and modulator
+                r = randperm(length(ctrls));
+                r = ctrls(r(1));   % select a random control to be used in comparison to the modulator in the same region
+                r = find(sess_control_lfp.ctrl_idx == r); % find the index for that control
                 
-                perm_high_mod_OA = idx_high_mod_OA(randperm(L_high_OA)); % permute high idx trial for control OA and modulator
-                perm_low_mod_OA = idx_low_mod_OA(randperm(L_low_OA));    % permute low idx trial for control OA and modulator
-                
-                perm_high_SA_OA = idx_high_SA_OA(randperm(L_high_SAOA)); % permute high idx trial for control SA and OA
-                perm_low_SA_OA = idx_low_SA_OA(randperm(L_low_SAOA));    % permute low idx trial for control SA and OA
-                
-                % pseudo trials high and low theta, for controls SA and modulators 
-                pseudo_H_mod_SA = perm_high(1:length(high_idx));
-                pseudo_H_ctrl_SA = perm_high(length(high_idx)+1:end);
-                
-                pseudo_L_mod_SA = perm_low(1:length(low_idx));
-                pseudo_L_ctrl_SA = perm_low(length(low_idx)+1:end);
+                % indexes high and low trials for that control
+                low_idx_SA = ctrl_SA.mod(r).low_pow_idx;
+                high_idx_SA = ctrl_SA.mod(r).high_pow_idx;
                 
                 
-                % pseudo trials high and low theta, for controls OA and modulators 
-                pseudo_H_mod_OA = perm_high_mod_OA(1:length(high_idx));
-                pseudo_H_ctrl_OA = perm_high_mod_OA(length(high_idx)+1:end);
+                % %%%%%%%%%%%%%%%%%%%%%%
+                % CONTROL OTHER REGION %
+                % %%%%%%%%%%%%%%%%%%%%%%
                 
-                pseudo_L_mod_OA = perm_low_mod_OA(1:length(low_idx));
-                pseudo_L_ctrl_OA = perm_low_mod_OA(length(low_idx)+1:end);
-                
-                
-                % pseudo trials high and low theta, for controls SA and OA
-                pseudo_H_ctrl_SAOA = perm_high_SA_OA(1:length(high_idx_SA));
-                pseudo_H_ctrl_OASA = perm_high_SA_OA(length(high_idx_SA)+1:end);
-                
-                pseudo_L_ctrl_SAOA = perm_low_mod_OA(1:length(low_idx_SA));
-                pseudo_L_ctrl_OASA = perm_low_mod_OA(length(low_idx_SA)+1:end);
+                % load low and high theta power indexes for the control OA
+                r = randperm(size(ctrl_OA.mod,2)); % select a random control to be used in comparison to the modulator. It doesn't matter which one you pick , each one is in an area which is not a modulator's one
+                r = r(1);
+                low_idx_OA = ctrl_OA.mod(r).low_pow_idx;
+                high_idx_OA = ctrl_OA.mod(r).high_pow_idx;
                 
                 
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % % Coherency Sender-Receiver (Permutation test)
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 
-                % -- coherence for null distribution
-                % %% modulator and control SA
-                % modulator
-                [c_sr_high_mod,f] = coherency(lfp_S(pseudo_H_mod_SA,:),lfp_R(pseudo_H_mod_SA,:),[N W],fs,fk,pad,0.05,1,1);
-                [c_sr_low_mod,f] = coherency(lfp_S(pseudo_L_mod_SA,:),lfp_R(pseudo_L_mod_SA,:),[N W],fs,fk,pad,0.05,1,1);
-                % control SA
-                [c_sr_high_ctrl,f] = coherency(lfp_S(pseudo_H_ctrl_SA,:),lfp_R(pseudo_H_ctrl_SA,:),[N W],fs,fk,pad,0.05,1,1);
-                [c_sr_low_ctrl,f] = coherency(lfp_S(pseudo_L_ctrl_SA,:),lfp_R(pseudo_L_ctrl_SA,:),[N W],fs,fk,pad,0.05,1,1);
+                idx_high = [high_idx; high_idx_SA]; % concatenate high pow trial for modulator and controls SA
+                idx_low = [low_idx; low_idx_SA];    % concatenate low pow trial for modulator and controls SA
                 
+                idx_high_mod_OA = [high_idx; high_idx_OA]; % concatenate high pow trial for modulator and controls OA
+                idx_low_mod_OA = [low_idx; low_idx_OA];    % concatenate low pow trial for modulator and controls OA
                 
-                % %% modulator and control OA
-                % modulator
-                [c_sr_high_mod_OA,f] = coherency(lfp_S(pseudo_H_mod_OA,:),lfp_R(pseudo_H_mod_OA,:),[N W],fs,fk,pad,0.05,1,1);
-                [c_sr_low_mod_OA,f] = coherency(lfp_S(pseudo_L_mod_OA,:),lfp_R(pseudo_L_mod_OA,:),[N W],fs,fk,pad,0.05,1,1);
-                % control SA
-                [c_sr_high_ctrl_OA,f] = coherency(lfp_S(pseudo_H_ctrl_OA,:),lfp_R(pseudo_H_ctrl_OA,:),[N W],fs,fk,pad,0.05,1,1);
-                [c_sr_low_ctrl_OA,f] = coherency(lfp_S(pseudo_L_ctrl_OA,:),lfp_R(pseudo_L_ctrl_OA,:),[N W],fs,fk,pad,0.05,1,1);
+                idx_high_SA_OA = [high_idx_SA; high_idx_OA]; % concatenate high pow trial for modulator and controls OA
+                idx_low_SA_OA = [low_idx_SA; low_idx_OA];    % concatenate low pow trial for modulator and controls OA
                 
+                L_high_SA = length(idx_high);
+                L_low_SA = length(idx_low);
                 
-                % %% modulator and control OA
-                % modulator
-                [c_sr_high_ctrl_SAOA,f] = coherency(lfp_S(pseudo_H_ctrl_SAOA,:),lfp_R(pseudo_H_ctrl_SAOA,:),[N W],fs,fk,pad,0.05,1,1);
-                [c_sr_low_ctrl_SAOA,f] = coherency(lfp_S(pseudo_L_ctrl_SAOA,:),lfp_R(pseudo_L_ctrl_SAOA,:),[N W],fs,fk,pad,0.05,1,1);
-                % control SA
-                [c_sr_high_ctrl_OASA,f] = coherency(lfp_S(pseudo_H_ctrl_OASA,:),lfp_R(pseudo_H_ctrl_OASA,:),[N W],fs,fk,pad,0.05,1,1);
-                [c_sr_low_ctrl_OASA,f] = coherency(lfp_S(pseudo_L_ctrl_OASA,:),lfp_R(pseudo_L_ctrl_OASA,:),[N W],fs,fk,pad,0.05,1,1);
+                L_high_OA = length(idx_high_mod_OA);
+                L_low_OA = length(idx_low_mod_OA);
                 
-                %%%%%%%%%%%%%%%%%%%%%%%%
-                % Modulator - control SA
+                L_high_SAOA = length(idx_high_SA_OA);
+                L_low_SAOA = length(idx_low_SA_OA);
                 
-                d_mod = abs(c_sr_high_mod) - abs(c_sr_low_mod); % coherence difference modulator
-                d_ctrl = abs(c_sr_high_ctrl) - abs(c_sr_low_ctrl); % coherence difference control
-                
-                % difference of the difference 
-                d_mod_ctrl = d_mod - d_ctrl;
-                
-                % store values 
-                diff_mod = [diff_mod; d_mod];
-                diff_ctrl = [diff_ctrl; d_ctrl];
-                diff_mod_ctrl = [diff_mod_ctrl; d_mod_ctrl];
-                
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                % % % Modulator - control OA
-
-                d_mod_OA = abs(c_sr_high_mod_OA) - abs(c_sr_low_mod_OA); % coherence difference modulator
-                d_ctrl_OA = abs(c_sr_high_ctrl_OA) - abs(c_sr_low_ctrl_OA); % coherence difference control
-                
-                % difference of the difference 
-                d_mod_ctrl_OA = d_mod_OA - d_ctrl_OA;
-                
-                % store values 
-                diff_mod_OA = [diff_mod_OA; d_mod_OA];
-                diff_ctrl_OA = [diff_ctrl_OA; d_ctrl_OA];
-                diff_mod_ctrl_OA = [diff_mod_ctrl_OA; d_mod_ctrl_OA];
-                
-                
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                % % % Control SA - Control OA
-
-                d_ctrl_SAOA = abs(c_sr_high_ctrl_SAOA) - abs(c_sr_low_ctrl_SAOA); % coherence difference control
-                d_ctrl_OASA = abs(c_sr_high_ctrl_OASA) - abs(c_sr_low_ctrl_OASA); % coherence difference control
-                
-                % difference of the difference 
-                d_ctrl = d_ctrl_SAOA - d_ctrl_OASA;
-                
-                % store values 
-                diff_ctrl_SAOA = [diff_ctrl_SAOA; d_ctrl_SAOA];
-                diff_ctrl_OASA = [diff_ctrl_OASA; d_ctrl_OASA];
-                diff_ctrl = [diff_ctrl; d_ctrl];
-        
-                
+                for p = 1:nperm
+                    
+                    perm_high = idx_high(randperm(L_high_SA)); % permute high idx trial for control SA and modulator
+                    perm_low = idx_low(randperm(L_low_SA));    % permute low idx trial for control SA and modulator
+                    
+                    perm_high_mod_OA = idx_high_mod_OA(randperm(L_high_OA)); % permute high idx trial for control OA and modulator
+                    perm_low_mod_OA = idx_low_mod_OA(randperm(L_low_OA));    % permute low idx trial for control OA and modulator
+                    
+                    perm_high_SA_OA = idx_high_SA_OA(randperm(L_high_SAOA)); % permute high idx trial for control SA and OA
+                    perm_low_SA_OA = idx_low_SA_OA(randperm(L_low_SAOA));    % permute low idx trial for control SA and OA
+                    
+                    % pseudo trials high and low theta, for controls SA and modulators
+                    pseudo_H_mod_SA = perm_high(1:length(high_idx));
+                    pseudo_H_ctrl_SA = perm_high(length(high_idx)+1:end);
+                    
+                    pseudo_L_mod_SA = perm_low(1:length(low_idx));
+                    pseudo_L_ctrl_SA = perm_low(length(low_idx)+1:end);
+                    
+                    
+                    % pseudo trials high and low theta, for controls OA and modulators
+                    pseudo_H_mod_OA = perm_high_mod_OA(1:length(high_idx));
+                    pseudo_H_ctrl_OA = perm_high_mod_OA(length(high_idx)+1:end);
+                    
+                    pseudo_L_mod_OA = perm_low_mod_OA(1:length(low_idx));
+                    pseudo_L_ctrl_OA = perm_low_mod_OA(length(low_idx)+1:end);
+                    
+                    
+                    % pseudo trials high and low theta, for controls SA and OA
+                    pseudo_H_ctrl_SAOA = perm_high_SA_OA(1:length(high_idx_SA));
+                    pseudo_H_ctrl_OASA = perm_high_SA_OA(length(high_idx_SA)+1:end);
+                    
+                    pseudo_L_ctrl_SAOA = perm_low_mod_OA(1:length(low_idx_SA));
+                    pseudo_L_ctrl_OASA = perm_low_mod_OA(length(low_idx_SA)+1:end);
+                    
+                    
+                    
+                    % -- coherence for null distribution
+                    % %% modulator and control SA
+                    % modulator
+                    [c_sr_high_mod,f] = coherency(lfp_S(pseudo_H_mod_SA,:),lfp_R(pseudo_H_mod_SA,:),[N W],fs,fk,pad,0.05,1,1);
+                    [c_sr_low_mod,f] = coherency(lfp_S(pseudo_L_mod_SA,:),lfp_R(pseudo_L_mod_SA,:),[N W],fs,fk,pad,0.05,1,1);
+                    % control SA
+                    [c_sr_high_ctrl,f] = coherency(lfp_S(pseudo_H_ctrl_SA,:),lfp_R(pseudo_H_ctrl_SA,:),[N W],fs,fk,pad,0.05,1,1);
+                    [c_sr_low_ctrl,f] = coherency(lfp_S(pseudo_L_ctrl_SA,:),lfp_R(pseudo_L_ctrl_SA,:),[N W],fs,fk,pad,0.05,1,1);
+                    
+                    
+                    % %% modulator and control OA
+                    % modulator
+                    [c_sr_high_mod_OA,f] = coherency(lfp_S(pseudo_H_mod_OA,:),lfp_R(pseudo_H_mod_OA,:),[N W],fs,fk,pad,0.05,1,1);
+                    [c_sr_low_mod_OA,f] = coherency(lfp_S(pseudo_L_mod_OA,:),lfp_R(pseudo_L_mod_OA,:),[N W],fs,fk,pad,0.05,1,1);
+                    % control SA
+                    [c_sr_high_ctrl_OA,f] = coherency(lfp_S(pseudo_H_ctrl_OA,:),lfp_R(pseudo_H_ctrl_OA,:),[N W],fs,fk,pad,0.05,1,1);
+                    [c_sr_low_ctrl_OA,f] = coherency(lfp_S(pseudo_L_ctrl_OA,:),lfp_R(pseudo_L_ctrl_OA,:),[N W],fs,fk,pad,0.05,1,1);
+                    
+                    
+                    % %% modulator and control OA
+                    % modulator
+                    [c_sr_high_ctrl_SAOA,f] = coherency(lfp_S(pseudo_H_ctrl_SAOA,:),lfp_R(pseudo_H_ctrl_SAOA,:),[N W],fs,fk,pad,0.05,1,1);
+                    [c_sr_low_ctrl_SAOA,f] = coherency(lfp_S(pseudo_L_ctrl_SAOA,:),lfp_R(pseudo_L_ctrl_SAOA,:),[N W],fs,fk,pad,0.05,1,1);
+                    % control SA
+                    [c_sr_high_ctrl_OASA,f] = coherency(lfp_S(pseudo_H_ctrl_OASA,:),lfp_R(pseudo_H_ctrl_OASA,:),[N W],fs,fk,pad,0.05,1,1);
+                    [c_sr_low_ctrl_OASA,f] = coherency(lfp_S(pseudo_L_ctrl_OASA,:),lfp_R(pseudo_L_ctrl_OASA,:),[N W],fs,fk,pad,0.05,1,1);
+                    
+                    %%%%%%%%%%%%%%%%%%%%%%%%
+                    % Modulator - control SA
+                    
+                    d_mod = abs(c_sr_high_mod) - abs(c_sr_low_mod); % coherence difference modulator
+                    d_ctrl = abs(c_sr_high_ctrl) - abs(c_sr_low_ctrl); % coherence difference control
+                    
+                    % difference of the difference
+                    d_mod_ctrl = d_mod - d_ctrl;
+                    
+                    % store values
+                    diff_mod = [diff_mod; d_mod];
+                    diff_ctrl = [diff_ctrl; d_ctrl];
+                    diff_mod_ctrl = [diff_mod_ctrl; d_mod_ctrl];
+                    
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    % % % Modulator - control OA
+                    
+                    d_mod_OA = abs(c_sr_high_mod_OA) - abs(c_sr_low_mod_OA); % coherence difference modulator
+                    d_ctrl_OA = abs(c_sr_high_ctrl_OA) - abs(c_sr_low_ctrl_OA); % coherence difference control
+                    
+                    % difference of the difference
+                    d_mod_ctrl_OA = d_mod_OA - d_ctrl_OA;
+                    
+                    % store values
+                    diff_mod_OA = [diff_mod_OA; d_mod_OA];
+                    diff_ctrl_OA = [diff_ctrl_OA; d_ctrl_OA];
+                    diff_mod_ctrl_OA = [diff_mod_ctrl_OA; d_mod_ctrl_OA];
+                    
+                    
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    % % % Control SA - Control OA
+                    
+                    d_ctrl_SAOA = abs(c_sr_high_ctrl_SAOA) - abs(c_sr_low_ctrl_SAOA); % coherence difference control
+                    d_ctrl_OASA = abs(c_sr_high_ctrl_OASA) - abs(c_sr_low_ctrl_OASA); % coherence difference control
+                    
+                    % difference of the difference
+                    d_ctrl = d_ctrl_SAOA - d_ctrl_OASA;
+                    
+                    % store values
+                    diff_ctrl_SAOA = [diff_ctrl_SAOA; d_ctrl_SAOA];
+                    diff_ctrl_OASA = [diff_ctrl_OASA; d_ctrl_OASA];
+                    diff_ctrl = [diff_ctrl; d_ctrl];
+                    
+                    
+                end
             end
-            cnt_m = cnt_m + 1;        
+            cnt_m = cnt_m + 1;
             
         end
         

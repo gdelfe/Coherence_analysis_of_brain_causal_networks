@@ -55,7 +55,7 @@ diff_ctrl = [];
 nperm = 1000; % number of permutation for each session, for each modulator
 
 
-for s = 1 % 1:size(sess_info{1},1)  % For each session with at least one modulator
+for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all

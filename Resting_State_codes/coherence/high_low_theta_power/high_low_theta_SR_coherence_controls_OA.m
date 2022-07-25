@@ -23,7 +23,6 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 
 name_struct_input = '/session_controls_other_areas_lfp_movie.mat'; % -- name file to load
 filename = '.mat'; % -- filename for sess_data_info.mat
-recording = 'last_recording';
 
 freq_band = 'theta_band';
 monkey = 'Archie';
@@ -168,10 +167,8 @@ end
 save(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_OA.mat'),'coh_all_c_sr_high')
 save(strcat(dir_high_low_theta,'/coh_all_sess_sr_low_controls_OA.mat'),'coh_all_c_sr_low')
 
-load(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_OA.mat'))
+% load(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_OA.mat'))
 
-
-keyboard
 
 mean_all_coh_sr_high = mean(abs(coh_all_c_sr_high),1);
 mean_all_coh_sr_low = mean(abs(coh_all_c_sr_low),1);
