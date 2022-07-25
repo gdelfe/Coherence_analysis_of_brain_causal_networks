@@ -21,7 +21,7 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
 
-name_struct_input = '/session_controls_other_areas_lfp_movie.mat'; % -- name file to load
+name_struct_input = '/session_controls_other_areas_lfp.mat'; % -- name file to load
 filename = '.mat'; % -- filename for sess_data_info.mat
 
 freq_band = 'theta_band';
