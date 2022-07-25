@@ -43,11 +43,11 @@ for s = 1:size(sess_info{1},1) % For each session with at least one modulator
     
     Sess = sess_info{1}(s); % Session number
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_RS_Sess = strcat(dir_RS,sprintf('/Sess_%d/',Sess));
+    dir_RS_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas/',Sess));
     
 
     cd(dir_RS_Sess)
-    !rm session_data_lfp.mat
+    !rm session_controls_other_areas_lfp_movie.mat
     
 %     dir_Controls = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
 %     dir_Sess = strcat(dir_Stim,sprintf('/Sess_%d/Theta_band',i));

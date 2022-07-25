@@ -20,17 +20,17 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
 
-name_struct_input = '/session_controls_same_area_lfp_movie.mat'; % -- name file to load
+name_struct_input = '/session_controls_same_area_lfp.mat'; % -- name file to load
 filename = '.mat'; % -- filename for sess_data_info.mat
 recording = 'last_recording';
 
 freq_band = 'theta_band';
-monkey = 'Archie';
+monkey = 'Maverick';
 
 dir_high_low_theta = strcat(dir_main,sprintf('/%s/Resting_State/high_low_theta',monkey));
 dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
 
-fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
@@ -159,7 +159,6 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
 end
 
-keyboard
 
 save(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_SA.mat'),'coh_all_c_sr_high')
 save(strcat(dir_high_low_theta,'/coh_all_sess_sr_low_controls_SA.mat'),'coh_all_c_sr_low')

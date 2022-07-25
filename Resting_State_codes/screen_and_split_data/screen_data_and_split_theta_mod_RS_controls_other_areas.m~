@@ -28,7 +28,7 @@ set(0,'DefaultFigureVisible','on')
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'theta_band';
+freq_band = 'beta_band';
 monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
@@ -37,10 +37,9 @@ sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
 
-name_structure_data_info = '/session_controls_other_areas_info.mat'; % name input file 
-name_output = 'session_controls_other_areas_lfp.mat'; % name output structure - same for both Archie (movie) and Maverick 
+name_structure_data_info = '/session_controls_other_areas_info.mat';
 
-for i= 1:size(sess_info{1},1) % For each session with at least one modulator
+for i=5:10 %1:size(sess_info{1},1) % For each session with at least one modulator
     
     
     close all
@@ -54,7 +53,7 @@ for i= 1:size(sess_info{1},1) % For each session with at least one modulator
     
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas/',Sess));
+    dir_Sess = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
 
     
     % Resting state path and file name 
@@ -70,8 +69,9 @@ for i= 1:size(sess_info{1},1) % For each session with at least one modulator
     end
     
     % -- RECORDING 002
-%     file = strcat('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/',sprintf('%s/002/rec002.Frontal_1.lfp.dat',sess_info{2}{i}))
+    file = strcat('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/',sprintf('%s/002/rec002.Frontal_1.lfp.dat',sess_info{2}{i}))
     fid = fopen(file);
+
     format = 'float=>single';
     
     CH = 220; % tot number of channels
@@ -81,7 +81,9 @@ for i= 1:size(sess_info{1},1) % For each session with at least one modulator
     % h = fread(fid,[CH,diff(bn)*FS./1e3],format);
     % ---- bipolar referencing, pairs of electrodes
     
-
+    Sess = sess_info{1}(i); % Session number
+    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_other_areas',Sess));
 
     %load(strcat(dir_Sess,'/session_control_info.mat')); % --- dataG: all data info and LFP
     load(strcat(dir_Sess,name_structure_data_info)); % --- dataG: all data info and LFP
@@ -239,7 +241,7 @@ for i= 1:size(sess_info{1},1) % For each session with at least one modulator
         cnt_m = cnt_m + 1;
     end
     
-    save(strcat(dir_Sess,name_output),'sess_control_lfp');
+    save(strcat(dir_Sess,sprintf('/session_controls_other_areas_lfp%s',filename)),'sess_control_lfp');
 
     
 end

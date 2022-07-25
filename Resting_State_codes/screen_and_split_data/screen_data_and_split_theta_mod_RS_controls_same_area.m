@@ -28,7 +28,7 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
-freq_band = 'beta_band';
+freq_band = 'theta_band';
 monkey = 'Archie';
 dir_RS = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
@@ -36,11 +36,11 @@ fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info_movie.txt')); % load se
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-filename = '_rec002.mat'; % -- write out filename for sess_data_info.mat 
+name_output = 'session_controls_same_area_lfp.mat'
+name_structure_data_info = '/session_controls_same_area_info.mat'; % name input 
 
-name_structure_data_info = '/session_controls_same_area_info.mat';
 
-for i= 5:10 %1:size(sess_info{1},1)  % For each session with at least one modulator
+for i= 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     close all
     % -- MOVIE OR LAST RECORDING 
@@ -51,11 +51,27 @@ for i= 5:10 %1:size(sess_info{1},1)  % For each session with at least one modula
 %     file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie lfp recording
 %     fid = fopen(file);
     
-    
-    % -- RECORDING 002
-    file = strcat('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/',sprintf('%s/002/rec002.Frontal_1.lfp.dat',sess_info{2}{i}))
-    fid = fopen(file);
+    Sess = sess_info{1}(i); % Session number
+    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_same_area/',Sess));
 
+    
+    % Resting state path and file name 
+    if strcmp(monkey,'Maverick')
+        addpath(sprintf('/vol/sas8/Maverick_RecStim_vSUBNETS220/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
+        file = sprintf('rec%s.Frontal.lfp.dat',sess_info{3}{i}) % -- Maverick
+    end
+    if strcmp(monkey,'Archie')
+        addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/%s/',sess_info{2}{i},sess_info{3}{i})) % add path of the specific RS session
+        %         addpath(sprintf('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/%s/001/',sess_info{2}{i})) % add path of the specific RS session
+        file = sprintf('rec%s.Frontal_1.lfp.dat',sess_info{3}{i}) % -- Archie
+        %         file = 'rec001.Frontal_1.lfp.dat'
+    end
+    
+%     % -- RECORDING 002
+%     file = strcat('/vol/sas5a/Archie_RecStim_vSUBNETS220_2nd/',sprintf('%s/002/rec002.Frontal_1.lfp.dat',sess_info{2}{i}))
+    
+    fid = fopen(file);
     format = 'float=>single';
     
     CH = 220; % tot number of channels
@@ -64,10 +80,7 @@ for i= 5:10 %1:size(sess_info{1},1)  % For each session with at least one modula
     data = fread(fid,[CH,inf],format); % load the RS data
     % h = fread(fid,[CH,diff(bn)*FS./1e3],format);
     % ---- bipolar referencing, pairs of electrodes
-    
-    Sess = sess_info{1}(i); % Session number
-    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Controls_same_area',Sess));
+   
 
     %load(strcat(dir_Sess,'/session_control_info.mat')); % --- dataG: all data info and LFP
     load(strcat(dir_Sess,name_structure_data_info)); % --- dataG: all data info and LFP
@@ -228,7 +241,7 @@ for i= 5:10 %1:size(sess_info{1},1)  % For each session with at least one modula
         cnt_m = cnt_m + 1;
     end
     
-    save(strcat(dir_Sess,sprintf('/session_controls_same_area_lfp%s',filename)),'sess_control_lfp');
+    save(strcat(dir_Sess,name_output),'sess_control_lfp');
 
     
 end
