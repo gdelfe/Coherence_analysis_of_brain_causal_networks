@@ -100,12 +100,12 @@ shadedErrorBar(f,mean_sr_H,err_sr_H,'lineprops',{'color',[0, 102, 204]/255},'pat
 shadedErrorBar(f,mean_sr_L,err_sr_L,'lineprops',{'color',[128, 191, 255]/255},'patchSaturation',0.4); hold on
 
 % % trial sorted by controls SA 
-% shadedErrorBar(f,mean_sr_SA_H,err_sr_SA_H,'lineprops',{'color',[102, 0, 204]/255},'patchSaturation',0.4); hold on
-% shadedErrorBar(f,mean_sr_SA_L,err_sr_SA_L,'lineprops',{'color',[255, 102, 255]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_sr_SA_H,err_sr_SA_H,'lineprops',{'color',[102, 0, 204]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_sr_SA_L,err_sr_SA_L,'lineprops',{'color',[255, 102, 255]/255},'patchSaturation',0.4); hold on
 % % % 
 % % % % trial sorted by controls OA
-% shadedErrorBar(f,mean_sr_OA_H,err_sr_OA_H,'lineprops',{'color',[61, 92, 92]/255},'patchSaturation',0.4); hold on
-% shadedErrorBar(f,mean_sr_OA_L,err_sr_OA_L,'lineprops',{'color',[148, 184, 184]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_sr_OA_H,err_sr_OA_H,'lineprops',{'color',[61, 92, 92]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_sr_OA_L,err_sr_OA_L,'lineprops',{'color',[148, 184, 184]/255},'patchSaturation',0.4); hold on
 
 
 grid on

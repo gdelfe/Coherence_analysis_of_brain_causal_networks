@@ -101,20 +101,21 @@ diff_OA_arc = diff;
 
 f = linspace(0,200,409);
 
-% Concatenate null distributions for Maverick and Archie
 diff_distr_mod = [mean(diff_mod_mav(:,9:22),2); mean(diff_mod_arc(:,9:22),2)];
 diff_distr_SA = [mean(diff_SA_mav(:,9:22),2); mean(diff_SA_arc(:,9:22),2)];
 diff_distr_OA = [mean(diff_OA_mav(:,9:22),2); mean(diff_OA_arc(:,9:22),2)];
 
-% compute p-values for modulators, controls SA and OA
+
 pvalue_mod = nnz(diff_distr_mod > test_diff_mod)/length(diff_distr_mod)
+
 pvalue_SA = nnz(diff_distr_SA > test_diff_SA)/length(diff_distr_SA)
+
 pvalue_OA = nnz(diff_distr_OA > test_diff_OA)/length(diff_distr_OA)
 
 
 
 figure;
-histogram(diff_distr_mod,100,'FaceAlpha',0.5,'Normalization','pdf')
+histogram(mean(diff_SA_mav(:,9:22),2),100,'FaceAlpha',0.5,'Normalization','pdf')
 
 
 

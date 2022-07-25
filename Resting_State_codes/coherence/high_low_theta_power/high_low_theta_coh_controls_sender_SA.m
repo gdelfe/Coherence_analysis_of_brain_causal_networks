@@ -1,7 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code compute the theta coherence between the sender-receiver 
-% for those trials having high/low modulator theta power.
+% This code compute compute coherence between sender-control 
+% and the receiver for high/low theta power trials of the modulator 
 %
 %    @ Gino Del Ferraro, March 2022, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

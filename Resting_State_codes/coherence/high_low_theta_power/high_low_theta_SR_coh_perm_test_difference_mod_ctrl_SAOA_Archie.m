@@ -55,7 +55,7 @@ diff_ctrl = [];
 nperm = 1000; % number of permutation for each session, for each modulator
 
 
-for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
+for s = 8:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -67,7 +67,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
     load(strcat(dir_Modulators,name_struct_input)); % load sess_data_lfp, structure with session modulator info
     dir_Ctrl_SA =  strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area',Sess));
-    load(strcat(dir_Ctrl_SA,'/session_controls_same_area_lfp_movie.mat')); % load controls lfp and data
+    load(strcat(dir_Ctrl_SA,'/session_controls_same_area_lfp.mat')); % load controls lfp and data
     
     
     if sess_data_lfp.mod_idx ~= sess_data_lfp.receiver_idx % if modulator is not receiver

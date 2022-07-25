@@ -36,12 +36,12 @@ c_sr_mod_OA_mav_L = load(strcat(dir_HL_theta_Mav,'/coh_all_sess_sr_low_controls_
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % %%%%%%%%%  Archie High power %%%%%%
-c_sr_mod_arc_H = load(strcat(dir_HL_theta_Arc,'/coh_all_sess_sr_high_001.mat')); % SR coherence - high theta - trial sorted by modulator power  
+c_sr_mod_arc_H = load(strcat(dir_HL_theta_Arc,'/coh_all_sess_sr_high.mat')); % SR coherence - high theta - trial sorted by modulator power  
 c_sr_mod_SA_arc_H = load(strcat(dir_HL_theta_Arc,'/coh_all_sess_sr_high_controls_SA.mat')); % SR coherence - high theta - trials sorted by controls SA
 c_sr_mod_OA_arc_H = load(strcat(dir_HL_theta_Arc,'/coh_all_sess_sr_high_controls_OA.mat')); % SR coherence - high theta - trials sorted by controls OA
 
 % %%%%%%%%% Archie Low power %%%%%%
-c_sr_mod_arc_L = load(strcat(dir_HL_theta_Arc,'/coh_all_sess_sr_low_001.mat')); % SR coherence - high theta - trial sorted by modulator power  
+c_sr_mod_arc_L = load(strcat(dir_HL_theta_Arc,'/coh_all_sess_sr_low.mat')); % SR coherence - high theta - trial sorted by modulator power  
 c_sr_mod_SA_arc_L = load(strcat(dir_HL_theta_Arc,'/coh_all_sess_sr_low_controls_SA.mat')); % SR coherence - high theta -  trials sorted by controls SA
 c_sr_mod_OA_arc_L = load(strcat(dir_HL_theta_Arc,'/coh_all_sess_sr_low_controls_OA.mat')); % SR coherence - high theta - trials sorted by controls OA 
 
@@ -100,12 +100,12 @@ shadedErrorBar(f,mean_sr_H,err_sr_H,'lineprops',{'color',[0, 102, 204]/255},'pat
 shadedErrorBar(f,mean_sr_L,err_sr_L,'lineprops',{'color',[128, 191, 255]/255},'patchSaturation',0.4); hold on
 
 % % trial sorted by controls SA 
-% shadedErrorBar(f,mean_sr_SA_H,err_sr_SA_H,'lineprops',{'color',[102, 0, 204]/255},'patchSaturation',0.4); hold on
-% shadedErrorBar(f,mean_sr_SA_L,err_sr_SA_L,'lineprops',{'color',[255, 102, 255]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_sr_SA_H,err_sr_SA_H,'lineprops',{'color',[102, 0, 204]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_sr_SA_L,err_sr_SA_L,'lineprops',{'color',[255, 102, 255]/255},'patchSaturation',0.4); hold on
 % % % 
 % % % % trial sorted by controls OA
-% shadedErrorBar(f,mean_sr_OA_H,err_sr_OA_H,'lineprops',{'color',[61, 92, 92]/255},'patchSaturation',0.4); hold on
-% shadedErrorBar(f,mean_sr_OA_L,err_sr_OA_L,'lineprops',{'color',[148, 184, 184]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_sr_OA_H,err_sr_OA_H,'lineprops',{'color',[61, 92, 92]/255},'patchSaturation',0.4); hold on
+shadedErrorBar(f,mean_sr_OA_L,err_sr_OA_L,'lineprops',{'color',[148, 184, 184]/255},'patchSaturation',0.4); hold on
 
 
 grid on
