@@ -75,6 +75,7 @@ for cnt_m = 1 % 1 : length(sess_data_lfp.mod_idx)
     high_theta = sort_theta(end-cut+1:end);
     high_idx = trial_idx(end-cut+1:end);
 end
+
 %
 %     % Power trials
 %     lfp_E_high = lfp_m(high_idx,:); % high theta

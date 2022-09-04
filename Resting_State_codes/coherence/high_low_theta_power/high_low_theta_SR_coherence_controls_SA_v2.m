@@ -4,6 +4,11 @@
 % for those trials having high/low modulator theta power for the control
 % electrode in the Same Area as the modulators 
 %
+% Outliers trials are excluded only for the Sender and Receiver, not for
+% the modulators. This is done in order to guarantee that lfp_S and lfp_R 
+% have the same size for each modulator after outliers removal (needed for
+% permutation test codes)
+%
 %    @ Gino Del Ferraro, June 2022, Pesaran lab, NYU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -25,12 +30,12 @@ filename = '.mat'; % -- filename for sess_data_info.mat
 recording = 'last_recording';
 
 freq_band = 'theta_band';
-monkey = 'Archie';
+monkey = 'Maverick';
 
 dir_high_low_theta = strcat(dir_main,sprintf('/%s/Resting_State/high_low_theta',monkey));
 dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
 
-fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
+fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
@@ -88,15 +93,14 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             % outliers time series in sender and receiver
             outliers_S = sess_control_lfp.outliers_S;
             outliers_R = sess_control_lfp.outliers_R;
-            outliers_E = sess_control_lfp.outliers_E(cnt_m).idx;
             
             
-            outliers_ESR = [outliers_S, outliers_E, outliers_R];
-            outliers_ESR = unique(outliers_ESR);  % -- remove repeated entries in outliers
+            outliers_SR = [outliers_S, outliers_R];
+            outliers_SR = unique(outliers_SR);  % -- remove repeated entries in outliers
             
-            lfp_S(outliers_ESR,:) = [];
-            lfp_R(outliers_ESR,:) = [];
-            lfp_E(outliers_ESR,:) = [];
+            lfp_S(outliers_SR,:) = [];
+            lfp_R(outliers_SR,:) = [];
+            lfp_E(outliers_SR,:) = [];
             
             
             % Compute the spectrum for each trial. Format: iTrial x times
@@ -154,14 +158,14 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     if ~isempty(send_rec)
         dir_Sess_send_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Data',Sess));    
-        save(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_SA.mat'),'send_rec');
+        save(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_SA_v2.mat'),'send_rec');
     end
     
 end
 
 
-save(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_SA.mat'),'coh_all_c_sr_high')
-save(strcat(dir_high_low_theta,'/coh_all_sess_sr_low_controls_SA.mat'),'coh_all_c_sr_low')
+save(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_SA_v2.mat'),'coh_all_c_sr_high')
+save(strcat(dir_high_low_theta,'/coh_all_sess_sr_low_controls_SA_v2.mat'),'coh_all_c_sr_low')
 
 
 % load(strcat(dir_high_low_theta,'/coh_all_sess_sr_high_controls_SA.mat'))
@@ -203,7 +207,7 @@ xlim([1 95])
 grid on
 
 
-fname = strcat(dir_high_low_theta,sprintf('/SR_all_coherence_mean_controls_SA.jpg',cnt_m));
+fname = strcat(dir_high_low_theta,sprintf('/SR_all_coherence_mean_controls_SA_v2.jpg',cnt_m));
 saveas(fig,fname);
 
 

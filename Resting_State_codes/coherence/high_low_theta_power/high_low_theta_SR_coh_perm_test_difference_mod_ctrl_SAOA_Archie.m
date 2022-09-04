@@ -19,7 +19,7 @@ set(0,'DefaultLineLineWidth',2)
 addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes');
 dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data';
 
-name_struct_input = '/session_data_lfp_movie.mat'; % -- name file to load
+name_struct_input = '/session_data_lfp.mat'; % -- name file to load
 filename = '.mat'; % -- filename for sess_data_info.mat
 
 freq_band = 'theta_band';
@@ -39,9 +39,9 @@ pad = 2;
 N = 1;
 W = 5;
 
-diff_mod = [];
-diff_ctrl = [];
-diff_mod_ctrl = [];
+diff_mod_SA = [];
+diff_ctrl_SA = [];
+diff_mod_ctrl_SA = [];
 
 diff_mod_OA = [];
 diff_ctrl_OA = [];
@@ -49,13 +49,13 @@ diff_mod_ctrl_OA = [];
 
 diff_ctrl_SAOA = [];
 diff_ctrl_OASA = [];
-diff_ctrl = [];
+diff_diff_ctrl = [];
 
 
 nperm = 1000; % number of permutation for each session, for each modulator
 
 
-for s = 8:size(sess_info{1},1)  % For each session with at least one modulator
+for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -75,11 +75,11 @@ for s = 8:size(sess_info{1},1)  % For each session with at least one modulator
         
         % Load sender-receiver structure
         dir_Sess_send_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Data',Sess));
-        load(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session.mat'));
+        load(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_v2.mat'));
         mod = send_rec;
-        load(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_SA.mat'));
+        load(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_SA_v2.mat'));
         ctrl_SA = send_rec;
-        load(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_OA.mat'));
+        load(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_OA_v2.mat'));
         ctrl_OA = send_rec;
         
         % load Sender and Receiver LFP without outliers
@@ -223,16 +223,16 @@ for s = 8:size(sess_info{1},1)  % For each session with at least one modulator
                     %%%%%%%%%%%%%%%%%%%%%%%%
                     % Modulator - control SA
                     
-                    d_mod = abs(c_sr_high_mod) - abs(c_sr_low_mod); % coherence difference modulator
-                    d_ctrl = abs(c_sr_high_ctrl) - abs(c_sr_low_ctrl); % coherence difference control
+                    d_mod_SA = abs(c_sr_high_mod) - abs(c_sr_low_mod); % coherence difference modulator
+                    d_ctrl_SA = abs(c_sr_high_ctrl) - abs(c_sr_low_ctrl); % coherence difference control
                     
                     % difference of the difference
-                    d_mod_ctrl = d_mod - d_ctrl;
+                    d_mod_ctrl_SA = d_mod_SA - d_ctrl_SA;
                     
                     % store values
-                    diff_mod = [diff_mod; d_mod];
-                    diff_ctrl = [diff_ctrl; d_ctrl];
-                    diff_mod_ctrl = [diff_mod_ctrl; d_mod_ctrl];
+                    diff_mod_SA = [diff_mod_SA; d_mod_SA];
+                    diff_ctrl_SA = [diff_ctrl_SA; d_ctrl_SA];
+                    diff_mod_ctrl_SA = [diff_mod_ctrl_SA; d_mod_ctrl_SA];
                     
                     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     % % % Modulator - control OA
@@ -256,12 +256,12 @@ for s = 8:size(sess_info{1},1)  % For each session with at least one modulator
                     d_ctrl_OASA = abs(c_sr_high_ctrl_OASA) - abs(c_sr_low_ctrl_OASA); % coherence difference control
                     
                     % difference of the difference
-                    d_ctrl = d_ctrl_SAOA - d_ctrl_OASA;
+                    d_ctrl_ctrl_SA = d_ctrl_SAOA - d_ctrl_OASA;
                     
                     % store values
                     diff_ctrl_SAOA = [diff_ctrl_SAOA; d_ctrl_SAOA];
                     diff_ctrl_OASA = [diff_ctrl_OASA; d_ctrl_OASA];
-                    diff_ctrl = [diff_ctrl; d_ctrl];
+                    diff_diff_ctrl = [diff_diff_ctrl; d_ctrl_ctrl_SA];
                     
                     
                 end
@@ -278,18 +278,18 @@ end
 
 
 dir_perm = strcat(dir_high_low_theta,'/permutation_test');
-save(strcat(dir_perm,'/coh_diff_modulators_high_low_mod_SA_archie.mat'),'diff_mod','-v7.3')
-save(strcat(dir_perm,'/coh_diff_ctlr_SA_high_low_mod_SA_archie.mat'),'diff_ctrl','-v7.3')
-save(strcat(dir_perm,'/coh_diff_of_diff_mod_ctrl_SA_archie.mat'),'diff_mod_ctrl','-v7.3')
+save(strcat(dir_perm,'/coh_diff_modulators_high_low_mod_SA_archie_v2.mat'),'diff_mod_SA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_ctlr_SA_high_low_mod_SA_archie_v2.mat'),'diff_ctrl_SA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_of_diff_mod_ctrl_SA_archie_v2.mat'),'diff_mod_ctrl_SA','-v7.3')
 
 
-save(strcat(dir_perm,'/coh_diff_modulators_high_low_mod_OA_archie.mat'),'diff_mod_OA','-v7.3')
-save(strcat(dir_perm,'/coh_diff_ctlr_SA_high_low_mod_OA_archie.mat'),'diff_ctrl_OA','-v7.3')
-save(strcat(dir_perm,'/coh_diff_of_diff_mod_ctrl_OA_archie.mat'),'diff_mod_ctrl_OA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_modulators_high_low_mod_OA_archie_v2.mat'),'diff_mod_OA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_ctlr_SA_high_low_mod_OA_archie_v2.mat'),'diff_ctrl_OA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_of_diff_mod_ctrl_OA_archie_v2.mat'),'diff_mod_ctrl_OA','-v7.3')
 
-save(strcat(dir_perm,'/coh_diff_ctrl_SAOA_high_low_archie.mat'),'diff_ctrl_SAOA','-v7.3')
-save(strcat(dir_perm,'/coh_diff_ctrl_OASA_high_low_archie.mat'),'diff_ctrl_OASA','-v7.3')
-save(strcat(dir_perm,'/coh_diff_of_diff_ctrl_SAOA_archie.mat'),'diff_ctrl','-v7.3')
+save(strcat(dir_perm,'/coh_diff_ctrl_SAOA_high_low_archie_v2.mat'),'diff_ctrl_SAOA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_ctrl_OASA_high_low_archie_v2.mat'),'diff_ctrl_OASA','-v7.3')
+save(strcat(dir_perm,'/coh_diff_of_diff_ctrl_SAOA_archie_v2.mat'),'diff_diff_ctrl','-v7.3')
 
 
 
