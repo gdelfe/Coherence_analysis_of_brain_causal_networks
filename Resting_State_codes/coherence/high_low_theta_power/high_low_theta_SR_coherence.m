@@ -126,7 +126,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % % Coherency Modulator-Sender        %%%%%%%%%%%%%
+        % % Coherency Sender-Receiver        %%%%%%%%%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
        
         W = 5;

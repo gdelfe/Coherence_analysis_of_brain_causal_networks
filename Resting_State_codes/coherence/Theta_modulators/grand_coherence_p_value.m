@@ -64,7 +64,7 @@ for s = 1:length(sess_info{1})
     end
     
     idx = unique(idx);
-    lfp_E(idx,:,:) = [];
+    lfp_E(idx,:,:) = []; % remove channels with high std
     
     sess_grand.lfp_E = lfp_E;
     

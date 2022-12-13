@@ -22,7 +22,7 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 name_struct_input = '/session_data_lfp.mat';
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
 
 
@@ -37,7 +37,7 @@ N = 1;
 W = 5;
     
     
-for s = 24 %4:length(sess_info{1})
+for s = [1,4,12] %4:length(sess_info{1})
     
     Sess = sess_info{1}(s); % Session number
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
@@ -105,7 +105,7 @@ for s = 24 %4:length(sess_info{1})
 end
 
 
-
+keyboard
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SENDER-CONTROL COHERENCE
