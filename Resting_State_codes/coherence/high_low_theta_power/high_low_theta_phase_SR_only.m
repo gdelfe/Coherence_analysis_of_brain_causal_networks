@@ -164,6 +164,10 @@ xticklabels({'-\pi','-\pi/2','0','\pi/2','\pi'})
 fname = strcat(dir_both,'/phase_dist_SR_low_and_high.jpg');
 saveas(fig_histo,fname);
 
+fig_polar = figure;
+polarhistogram(angle(both_sr_coh_low(:,9:19)))
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -237,7 +241,19 @@ angle_high = angle(both_sr_coh_high(:,9:19))';
 angle_low = angle_low(:)';
 angle_high = angle_high(:)';
 
+% %%%%%%%%%%%%%%%%%
+% POLAR HISTOGRAM 
+% %%%%%%%%%%%%%%%%
 
+fig_polar = figure;
+polarhistogram(angle_low,30,'FaceAlpha',.6,'Normalization','probability');
+hold on 
+polarhistogram(angle_high,30,'FaceAlpha',.6,'Normalization','probability');
+legend('low power','high power')
+
+% %%%%%%%%%%%%%%%%%
+% SCATTER PLOT
+% %%%%%%%%%%%%%%%%
 figure;
 scatter(angle_low,angle_high,25,'o','filled')
 xticks([-pi, -pi/2, 0, pi/2, pi])
@@ -261,3 +277,20 @@ xticklabels({'-\pi','-\pi/2','0','\pi/2','\pi'})
 yticks([-pi, -pi/2, 0, pi/2, pi])
 yticklabels({'-\pi','-\pi/2','0','\pi/2','\pi'})
 grid on
+
+diff_HL = both_sr_coh_high - both_sr_coh_low; % difference trial-by-trial SR coherence for high/low modulator power 
+diff_theta = diff_HL(:,9:19); % difference for all the theta frequencies
+angle_diff_theta = angle(diff_theta); % angle of the difference in all the theta frequencies, notation [-pi,pi]
+angle_diff_theta = angle_diff_theta(:)';
+angle_diff_theta = rad2deg(circ_mean(angle_diff_theta'))
+
+diff_theta = diff_HL(:,15); % difference for theta at 7Hz
+angle_diff_theta_7Hz = angle(diff_theta); % angle of the difference in all the theta frequencies, notation [-pi,pi]
+angle_diff_theta_7Hz = angle_diff_theta_7Hz(:)';
+angle_diff_theta_7Hz = rad2deg(circ_mean(angle_diff_theta_7Hz'))
+
+
+
+
+
+

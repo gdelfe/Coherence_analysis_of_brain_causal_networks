@@ -62,8 +62,7 @@ tot_m  = 0; % total number of modulators across sessions
 
 % time parameters 
 t_tot = 500
-ti = 496; 
-tf = 995;
+bn_Pre = [-505 -5]; % ms
 
 for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
@@ -83,7 +82,6 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     StimTrials = Data.StimTrials(Data.goodTrials_index);
     sys = StimTrials(1).MT;
-    bn_Pre = [-540 140]; % ms
     
     % load all the channel LFPs for that given session 
     [Lfp_Pre] = trialStimPulseLfp(StimTrials, sys, [], [], 'PulseStarts', bn_Pre); % returns monopolar recording
@@ -140,7 +138,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         lfp_m = sq(lfp_E(:,m,:)); % modulator lfp
         % Compute the spectrum for each trial. Format: iTrial x times
         W = 3; % frequency smoothing 
-        [spec, f,err] = dmtspec(lfp_m(:,ti:tf),[t_tot/1e3,W],1e3,200); % spectrum 500 ms before onset 
+        [spec, f,err] = dmtspec(lfp_m,[t_tot/1e3,W],1e3,200); % spectrum 500 ms before onset 
         
         % Find low and high theta from the spectrum 
         theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
@@ -198,6 +196,8 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     clear sess_data_stim
     
 end  % for each session
+
+tot_conf = tot_conf./tot_m;
 
 keyboard
 

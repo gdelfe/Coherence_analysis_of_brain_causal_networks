@@ -30,7 +30,7 @@ filename = '.mat'; % -- filename for sess_data_info.mat
 recording = 'last_recording';
 
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
 dir_Stim_Theta = strcat(dir_main,sprintf('/%s/Stim_data/%s',monkey,freq_band));
 
@@ -41,7 +41,10 @@ fclose(fid);
 
 name_structure = '/modulators_decod_accuracy.mat';
 
-
+% time parameters for 500 ms test
+t_tot = 500
+ti = 496; 
+tf = 995;
 
 
 % positive and negative modulators 
@@ -73,8 +76,9 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
         lfp_m = sq(lfp_E(:,m,:)); % modulator lfp
         % Compute the spectrum for each trial. Format: iTrial x times
         W = 3; % frequency smoothing 
-        [spec, f,err] = dmtspec(lfp_m,[1000/1e3,W],1e3,200); % spectrum 500 ms before onset 
-        
+%         [spec, f,err] = dmtspec(lfp_m,[1000/1e3,W],1e3,200); % spectrum 1000 ms before onset 
+        [spec, f,err] = dmtspec(lfp_m(:,ti:tf),[t_tot/1e3,W],1e3,200); % spectrum 500 ms before onset
+
         % Find low and high theta from the spectrum 
         theta_pow = log(mean(spec(:,9:19),2)); % average the spectrum around theta frequencies (9:19) is the idx for theta range
         theta_pow_mean = mean(theta_pow); % get the average theta power
@@ -125,12 +129,14 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
     end %  for each modulator within session 
       
-%     save(strcat(dir_Sess,'/sess_data_stim.mat'),'sess_data_stim');
+    save(strcat(dir_Sess,'/sess_data_stim.mat'),'sess_data_stim');
     clear sess_data_stim
     
 end  % for each session
 
 tot_conf = tot_conf./tot_m;
+
+keyboard
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % COUNT number of positive/negative modulators 
@@ -193,6 +199,9 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     sess_data_stim.hits = hit;
     sess_data_stim.misses = miss;
+    
+    keyboard
+    
 
     cnt_m = 1;
     for m = sess_data_stim.mod_idx
@@ -218,6 +227,8 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
 end
    
+keyboard 
+
 scores.conf_score = score(:,1);
 scores.AUC_score = score(:,2);
 scores.dec_score = score(:,3);
@@ -225,6 +236,7 @@ scores.HH_rate = score_hit(:,1);
 scores.n_hits = score_hit(:,2);
 
 save(strcat(dir_high_low_theta,'/modulators_scores.mat'),'scores');
+% load(strcat(dir_high_low_theta,'/modulators_scores.mat'))
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FIGURES 

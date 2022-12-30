@@ -37,7 +37,7 @@ N = 1;
 W = 5;
     
     
-for s = [1,4,12] %4:length(sess_info{1})
+for s = 1:length(sess_info{1})
     
     Sess = sess_info{1}(s); % Session number
     display(['-- Session ',num2str(s),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
@@ -83,24 +83,24 @@ for s = [1,4,12] %4:length(sess_info{1})
     % FIGURE %%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%
     
-    fig = figure;
-    hold all
-    
-    shadedErrorBar(f,mean_coh,err,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
-    
-    grid on
-    title(sprintf('Pair-wise mean coherence for Sess %d - Maverick',Sess),'FontSize',10);
-    xlabel('freq (Hz)');
-    ylabel('coherence');
-    
-    legend('coherence','FontSize',10)
-    set(gcf, 'Position',  [100, 600, 1000, 600])
-    xlim([0 95])
-    
-    fname = strcat(dir_Mod_results,sprintf('/grand_coherence_sess_%d.jpg',Sess));
-    saveas(fig,fname)
-    fname = strcat(dir_Mod_results,sprintf('/grand_coherence_sess_%d.fig',Sess));
-    saveas(fig,fname)
+%     fig = figure;
+%     hold all
+%     
+%     shadedErrorBar(f,mean_coh,err,'lineprops',{'color',[0.4940, 0.1840, 0.5560]},'patchSaturation',0.4); hold on
+%     
+%     grid on
+%     title(sprintf('Pair-wise mean coherence for Sess %d - Maverick',Sess),'FontSize',10);
+%     xlabel('freq (Hz)');
+%     ylabel('coherence');
+%     
+%     legend('coherence','FontSize',10)
+%     set(gcf, 'Position',  [100, 600, 1000, 600])
+%     xlim([0 95])
+%     
+%     fname = strcat(dir_Mod_results,sprintf('/grand_coherence_sess_%d.jpg',Sess));
+%     saveas(fig,fname)
+%     fname = strcat(dir_Mod_results,sprintf('/grand_coherence_sess_%d.fig',Sess));
+%     saveas(fig,fname)
     
 end
 
