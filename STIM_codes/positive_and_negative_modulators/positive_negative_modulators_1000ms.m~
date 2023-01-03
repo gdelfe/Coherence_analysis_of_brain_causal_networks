@@ -34,7 +34,7 @@ freq_band = 'theta_band';
 monkey = 'Maverick';
 dir_RS_Theta = strcat(dir_main,sprintf('/%s/Resting_state/%s',monkey,freq_band));
 dir_Stim_Theta = strcat(dir_main,sprintf('/%s/Stim_data/%s',monkey,freq_band));
-dir_out = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/both_monkeys'
+dir_out = ''
 
 fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
@@ -195,8 +195,8 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
 
     % hit and miss trials -- they are the same for each modulator within the same session
-%     hit = Data.spec.lfp.DetectedIndx{1};
-%     miss = Data.spec.lfp.notDetectedIndx{1};
+    hit = Data.spec.lfp.DetectedIndx{1};
+    miss = Data.spec.lfp.notDetectedIndx{1};
     
 %     sess_data_stim.hits = hit;
 %     sess_data_stim.misses = miss;
@@ -217,7 +217,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
             AUC_score = sess_data_stim.auc(cnt_m);
             dec_score = sess_data_stim.Decod_Accuracy(cnt_m);
             score = [score; conf_score, AUC_score, dec_score];
-%             score_hit = [score_hit; HH_rate, length(hit)];
+            score_hit = [score_hit; HH_rate, length(hit)];
             
         end
     end % for each modulators
