@@ -63,8 +63,6 @@ xlim([0.05 1.05])
 ylim([0 0.18])
 xlabel('Modulator ranking','FontName','Arial','FontSize',10);
 ylabel('SR coherence difference (high-low)','FontName','Arial','FontSize',10);
-title('SR coherence difference (high-low)','FontName','Arial','FontSize',10);
-
 
 
 keyboard

@@ -136,9 +136,9 @@ save(strcat(dir_high_low_theta,'/coh_all_sess_sr_low_mod_ranked.mat'),'coh_all_c
 
 keyboard
 
-% load(strcat(dir_high_low_theta,'/coh_all_sess_sr_high.mat'))
-% load(strcat(dir_high_low_theta,'/coh_all_sess_sr_low.mat'))
-% f = linspace(0,200,409);
+load(strcat(dir_high_low_theta,'/coh_all_sess_sr_high.mat'))
+load(strcat(dir_high_low_theta,'/coh_all_sess_sr_low.mat'))
+f = linspace(0,200,409);
 
 
 
