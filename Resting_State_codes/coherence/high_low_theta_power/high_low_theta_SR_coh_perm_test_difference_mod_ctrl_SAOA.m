@@ -157,6 +157,8 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
                 L_high_SAOA = length(idx_high_SA_OA);
                 L_low_SAOA = length(idx_low_SA_OA);
                 
+                
+                
                 for p = 1:nperm
                     
                     perm_high = idx_high(randperm(L_high_SA)); % permute high idx trial for control SA and modulator

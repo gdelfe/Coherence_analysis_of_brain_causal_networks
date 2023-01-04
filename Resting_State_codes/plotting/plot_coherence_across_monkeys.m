@@ -106,6 +106,7 @@ ylabel('coherence');
 legend('Modulators-Receivers','Controls-Receivers  same area','Controls-Receiver  other areas','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
+xlim([0 95])
 
 fname = strcat(dir_Ctrl_Maverick,sprintf('/coherency_MR_Modulators_vs_Controls_both_monkeys_W_%d_fk_%d%s.png',W,fk,fn_fig));
 saveas(fig,fname)
