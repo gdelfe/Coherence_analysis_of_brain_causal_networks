@@ -21,12 +21,12 @@ dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data
 sess_list_file = '/Sessions_with_modulator_info_movie.txt';
 freq_band = 'theta_band';
 monkey = 'Archie';
-filename = '_movie'; % -- loading file name for coherence averages ******************
-filename_mod = '_decod_accuracy_all'; % -- loading file name for the list of modulators  ***************
+filename = '_rec001_002_all_sess'; % -- loading file name for coherence averages ******************
+filename_mod = '_AUC'; % -- loading file name for the list of modulators  ***************
 filename_ctrl = ''; % -- loading file name for the list of controls 
 
-recording = 'movie'; % -- folder where to load coherency files  *************
-N = 80; % --- max number of modulators 
+recording = 'rec001_002_all_sessions'; % -- folder where to load coherency files  *************
+N = 60; % --- max number of modulators 
 figstr = sprintf('%d_beta_modulators_%s',N,recording); % -- name figure for the coherence  
 title_caption = sprintf('movie, decod accuracy - %d modulators',N) % -- title captions    **************
 
