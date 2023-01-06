@@ -154,7 +154,7 @@ for s = 1:size(sess_info{1},1)  % For each session with at least one modulator
     
     if ~isempty(send_rec)
         dir_Sess_send_rec_data = strcat(dir_high_low_theta,sprintf('/Sess_%d/send_rec/Data',Sess));    
-        save(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_SA.mat'),'send_rec');
+        save(strcat(dir_Sess_send_rec_data,'/send_rec_coh_for_session_controls_SA.mat'),'A');
     end
     
 end
