@@ -1,9 +1,17 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code computes the null distribution for the test the Null Hypothesis
+% This code computes the null distribution to test the Null Hypothesis
 % that there is no difference between the MS coherence and the Control-S
 % coherence (same for the receiver). In other words, the null that the
 % coherence difference MS-CS and MR-CR is not different from zero.
+% 
+% The code creates pseudo MS coherence and pseudo CS coherences by swapping
+% the MS and CS coherences with each other randomly N times. From these
+% pseudo MS and CS coherences one can calculate MS-CS pseudo-coh difference
+% and create a null distribution. The code also does permutatio test for
+% the CS same area and CS other areas coherence, computing the null
+% distribution for this difference
+%
 %
 % This is used in Fig 5 and 6 in the theta paper
 %
@@ -70,12 +78,18 @@ L_SA = size(ctrl_SA,2);
 L_OA = size(ctrl_OA,2);
 
 % matrices to store the null distributions 
-diff_SA_ms_all = zeros(iterations,409);
-diff_OA_ms_all = zeros(iterations,409);
+diff_SA_ms_all = zeros(iterations,409);  % difference between MS and CS same area
+diff_OA_ms_all = zeros(iterations,409);  % difference between MS and CS other area
+diff_SA_OA_ms_all = zeros(iterations,409);   % difference between CS same area and CS other area
 diff_SA_mr_all = zeros(iterations,409);
 diff_OA_mr_all = zeros(iterations,409);
+diff_SA_OA_mr_all = zeros(iterations,409);
 
 for iter=1:iterations
+    
+    if mod(iter,100) == 0
+        disp(['iteration = ',num2str(iter)])
+    end
     
     % %%%%%%%%%%%%%%%%%%%
     % MS Coherence Null distribution 
@@ -83,6 +97,7 @@ for iter=1:iterations
     % Pick as many controls as modulators and pick them randomly  
     perm_SA = randperm(L_SA);
     perm_OA = randperm(L_OA);
+    perm_SA_OA = randperm(min(L_SA,L_OA));
     perm_SA = perm_SA(1:L_m); % same length (statistics) of the coherence MS
     perm_OA = perm_OA(1:L_m);
     
@@ -90,31 +105,42 @@ for iter=1:iterations
     SA_coh_ms = ctrl_SA_ms(perm_SA,:);
     OA_coh_ms = ctrl_OA_ms(perm_OA,:);
     
+    
     % concatenate modulator and controls coherences
     mod_SA_ms = [coh_ms;SA_coh_ms];
     mod_OA_ms = [coh_ms;OA_coh_ms];
+    SA_OA_ms = [ctrl_SA_ms(perm_SA_OA,:); ctrl_OA_ms(perm_SA_OA,:)]; % concatenate ctrl SA and OA 
     
     % random permutation for null distribution 
     p_SA = randperm(size(mod_SA_ms,1));
     p_OA = randperm(size(mod_OA_ms,1));
+    p_SA_OA = randperm(size(SA_OA_ms,1));
     
     % permute the concatenated coherences in order to create two pseudo sets 
     mod_SA_ms = mod_SA_ms(p_SA,:);
-    mod_OA_ms = mod_SA_ms(p_OA,:);
+    mod_OA_ms = mod_OA_ms(p_OA,:);
+    SA_OA_ms = SA_OA_ms(p_SA_OA,:);
     
     % Pseudo coherence difference modulator-controls_SA
     pseudo_mod_SA_ms_1 = mod_SA_ms(1:round(size(mod_SA_ms,1)/2),:); % pseudo data set 1
     pseudo_mod_SA_ms_2 = mod_SA_ms(round(size(mod_SA_ms,1)/2)+1:end,:); % pseudo data set 2
     diff_SA_ms = mean(abs(pseudo_mod_SA_ms_1) - abs(pseudo_mod_SA_ms_2)); % pseudo coherence difference 
     
+    % Pseudo coherence difference modulator-controls_OA
     pseudo_mod_OA_ms_1 = mod_OA_ms(1:round(size(mod_OA_ms,1)/2),:); % pseudo data set 1
     pseudo_mod_OA_ms_2 = mod_OA_ms(round(size(mod_OA_ms,1)/2)+1:end,:); % pseudo data set 2
     diff_OA_ms = mean(abs(pseudo_mod_OA_ms_1) - abs(pseudo_mod_OA_ms_2)); % pseudo coherence difference
     
+    % Pseudo coherence difference Controls_SA-controls_OA
+    pseudo_SA_OA_ms_1 = SA_OA_ms(1:round(size(SA_OA_ms,1)/2),:); % pseudo data set 1
+    pseudo_SA_OA_ms_2 = SA_OA_ms(round(size(SA_OA_ms,1)/2)+1:end,:); % pseudo data set 2
+    diff_SA_OA_ms = mean(abs(pseudo_SA_OA_ms_1) - abs(pseudo_SA_OA_ms_2)); % pseudo coherence difference
+    
+    
     % MS pseudo differences 
     diff_SA_ms_all(iter,:) = diff_SA_ms;
     diff_OA_ms_all(iter,:) = diff_OA_ms;
-    
+    diff_SA_OA_ms_all(iter,:) = diff_SA_OA_ms;
     
   
     
@@ -135,6 +161,8 @@ for iter=1:iterations
     % concatenate modulator and controls coherences
     mod_SA_mr = [coh_mr; SA_coh_mr];
     mod_OA_mr = [coh_mr; OA_coh_mr];
+    SA_OA_mr = [ctrl_SA_mr(perm_SA_OA,:); ctrl_OA_mr(perm_SA_OA,:)]; % concatenate ctrl SA and OA, the number of coherences (perm_SA_OA) is the same for the MS case above
+
     
     % random permutation for null distribution 
     p_SA = randperm(size(mod_SA_mr,1));
@@ -142,28 +170,41 @@ for iter=1:iterations
     
     % permute the concatenated coherences in order to create two pseudo sets 
     mod_SA_mr = mod_SA_mr(p_SA,:);
-    mod_OA_mr = mod_SA_mr(p_OA,:);
+    mod_OA_mr = mod_OA_mr(p_OA,:);
+    SA_OA_mr = SA_OA_mr(p_SA_OA,:); % p_SA_OA is the same for both CS and CR 
     
     % Pseudo coherence difference modulator-controls_SA
     pseudo_mod_SA_mr_1 = mod_SA_mr(1:round(size(mod_SA_mr,1)/2),:); % pseudo data set 1
     pseudo_mod_SA_mr_2 = mod_SA_mr(round(size(mod_SA_mr,1)/2)+1:end,:); % pseudo data set 2
     diff_SA_mr = mean(abs(pseudo_mod_SA_mr_1) - abs(pseudo_mod_SA_mr_2)); % pseudo coherence difference 
     
+    % Pseudo coherence difference modulator-controls_SA
     pseudo_mod_OA_mr_1 = mod_OA_mr(1:round(size(mod_OA_mr,1)/2),:); % pseudo data set 1
     pseudo_mod_OA_mr_2 = mod_OA_mr(round(size(mod_OA_mr,1)/2)+1:end,:); % pseudo data set 2
     diff_OA_mr = mean(abs(pseudo_mod_OA_mr_1) - abs(pseudo_mod_OA_mr_2)); % pseudo coherence difference
     
+    % Pseudo coherence difference Controls_SA-controls_OA
+    pseudo_SA_OA_mr_1 = SA_OA_mr(1:round(size(SA_OA_mr,1)/2),:); % pseudo data set 1
+    pseudo_SA_OA_mr_2 = SA_OA_mr(round(size(SA_OA_mr,1)/2)+1:end,:); % pseudo data set 2
+    diff_SA_OA_mr = mean(abs(pseudo_SA_OA_mr_1) - abs(pseudo_SA_OA_mr_2)); % pseudo coherence difference
+    
+    
     % MS pseudo differences 
     diff_SA_mr_all(iter,:) = diff_SA_mr;
     diff_OA_mr_all(iter,:) = diff_OA_mr;
+    diff_SA_OA_mr_all(iter,:) = diff_SA_OA_mr;
     
     
 end
 
+% differences for the MS and CS
 save(strcat(dir_out,'/pseudo_coherence_diff_MS_mod_ctrl_SA.mat'),'diff_SA_ms_all');
 save(strcat(dir_out,'/pseudo_coherence_diff_MS_mod_ctrl_OA.mat'),'diff_OA_ms_all');
+save(strcat(dir_out,'/pseudo_coherence_diff_MS_ctrl_SA_ctrl_OA.mat'),'diff_SA_OA_ms_all');
+% differences for the MR and CR
 save(strcat(dir_out,'/pseudo_coherence_diff_MR_mod_ctrl_SA.mat'),'diff_SA_mr_all');
 save(strcat(dir_out,'/pseudo_coherence_diff_MR_mod_ctrl_OA.mat'),'diff_OA_mr_all');
+save(strcat(dir_out,'/pseudo_coherence_diff_MR_ctrl_SA_ctrl_OA.mat'),'diff_SA_OA_mr_all');
 
 
 

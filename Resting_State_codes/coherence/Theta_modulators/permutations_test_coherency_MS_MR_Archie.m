@@ -1,3 +1,4 @@
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code computes the permutation test for the MS and MR coherence. 
 % It creates the null distribution for such test by computing null
@@ -7,7 +8,7 @@
 % stored session by session. N iterations for each session = 1000
 %
 %    @ Gino Del Ferraro, Jan 2023, Pesaran lab, NYU
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all; close all;
 

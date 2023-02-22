@@ -183,6 +183,9 @@ pval_diff_mod_OA_mr = nnz(abs(mean(diff_mod_OA_mr(9:21))) < mean(diff_mod_OA_mr_
 pval_diff_SA_OA_mr = nnz(abs(mean(diff_SA_OA_mr(9:21))) < mean(diff_SA_OA_mr_ALL(:,9:21),2) | -abs(mean(diff_SA_OA_mr(9:21))) > mean(diff_SA_OA_mr_ALL(:,9:21),2) )/size(diff_SA_OA_mr_ALL,1); % MS-coherence in theta band
 
 
+figure;
+histogram(mean(diff_SA_OA_mr_ALL(:,9:21),2),30)
+
 
 
 
