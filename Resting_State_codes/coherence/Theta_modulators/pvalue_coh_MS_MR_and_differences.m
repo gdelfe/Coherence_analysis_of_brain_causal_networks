@@ -51,6 +51,9 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
+% %%%%%%%%%%%%%%%%%%
+% Modulator-Sender coherence null distribution 
+
 c_ms_perm = [];
 c_mr_perm = [];
 
@@ -71,6 +74,52 @@ for i = 1:size(sess_info{1},1)
     
 end
 
+% %%%%%%%%%%%%%%%%%%
+% Control_SA-Sender coherence null distribution 
+
+c_cs_SA_perm = [];
+c_cr_SA_perm = [];
+
+for i = 1:size(sess_info{1},1)
+    
+    Sess = sess_info{1}(i); % Session number
+    dir_Ctrl_permute = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area/permutations',Sess));
+    
+    if exist(dir_Ctrl_permute, 'dir') % if dir exist, i.e. if modulator is not also a receiver (from permutation_test_coherence_MS_MR.m code)
+        load(strcat(dir_Ctrl_permute,'/coherence_CS_CR_permuted_single.mat'));
+        
+        for m = 1:size(coh_perm.mod,2)
+            c_cs_SA_perm = [c_cs_SA_perm; abs(coh_perm.mod(m).c_ms_perm) ];
+            c_cr_SA_perm = [c_cr_SA_perm; abs(coh_perm.mod(m).c_mr_perm) ];
+        end
+        
+    end
+    
+end
+
+% %%%%%%%%%%%%%%%%%%
+% Control_OA-Sender coherence null distribution 
+
+c_cs_OA_perm = [];
+c_cr_OA_perm = [];
+
+for i = 1:size(sess_info{1},1)
+    
+    Sess = sess_info{1}(i); % Session number
+    dir_Ctrl_permute = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_other_areas/permutations',Sess));
+    
+    if exist(dir_Ctrl_permute, 'dir') % if dir exist, i.e. if modulator is not also a receiver (from permutation_test_coherence_MS_MR.m code)
+        load(strcat(dir_Ctrl_permute,'/coherence_CS_CR_permuted_single.mat'));
+        
+        for m = 1:size(coh_perm.mod,2)
+            c_cs_OA_perm = [c_cs_OA_perm; abs(coh_perm.mod(m).c_ms_perm) ];
+            c_cr_OA_perm = [c_cr_OA_perm; abs(coh_perm.mod(m).c_mr_perm) ];
+        end
+        
+    end
+    
+end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 % ARCHIE -
@@ -83,6 +132,8 @@ fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % l
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
+% %%%%%%%%%%%%%%%%%%
+% Modulator-Sender coherence null distribution 
 
 for i = 1:size(sess_info{1},1)
     
@@ -103,17 +154,73 @@ for i = 1:size(sess_info{1},1)
     
 end
 
+
+% %%%%%%%%%%%%%%%%%%
+% Control_SA-Sender coherence null distribution 
+
+for i = 1:size(sess_info{1},1)
+    
+    Sess = sess_info{1}(i); % Session number
+    dir_Ctrl_permute = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_same_area/permutations',Sess));
+    
+    if exist(dir_Ctrl_permute, 'dir') % if dir exist, i.e. if modulator is not also a receiver (from permutation_test_coherence_MS_MR.m code)
+        load(strcat(dir_Ctrl_permute,'/coherence_CS_CR_permuted_single.mat'));
+        
+        for m = 1:size(coh_perm.mod,2)
+            c_cs_SA_perm = [c_cs_SA_perm; abs(coh_perm.mod(m).c_ms_perm) ];
+            c_cr_SA_perm = [c_cr_SA_perm; abs(coh_perm.mod(m).c_mr_perm) ];
+        end
+        
+    end
+    
+end
+
+% %%%%%%%%%%%%%%%%%%
+% Control_OA-Sender coherence null distribution 
+
+for i = 1:size(sess_info{1},1)
+    
+    Sess = sess_info{1}(i); % Session number
+    dir_Ctrl_permute = strcat(dir_RS_Theta,sprintf('/Sess_%d/Controls_other_areas/permutations',Sess));
+    
+    if exist(dir_Ctrl_permute, 'dir') % if dir exist, i.e. if modulator is not also a receiver (from permutation_test_coherence_MS_MR.m code)
+        load(strcat(dir_Ctrl_permute,'/coherence_CS_CR_permuted_single.mat'));
+        
+        for m = 1:size(coh_perm.mod,2)
+            c_cs_OA_perm = [c_cs_OA_perm; abs(coh_perm.mod(m).c_ms_perm) ];
+            c_cr_OA_perm = [c_cr_OA_perm; abs(coh_perm.mod(m).c_mr_perm) ];
+        end
+        
+    end
+    
+end
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PVALUES for single coherence
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % P-values calculation -- one tail test (coherence is always positive)
-pval_ms = nnz(mean(modulators.mean_coh_ms(9:21)) < c_ms_perm(:,9:21))/size(c_ms_perm,1); % MS-coherence in theta band
-pval_mr = nnz(mean(modulators.mean_coh_mr(9:21)) < c_mr_perm(:,9:21))/size(c_mr_perm,1); % MR-coherence in theta band
+pval_ms = nnz(mean(modulators.mean_coh_ms(9:21)) < mean(c_ms_perm(:,9:21),2) )/size(c_ms_perm,1); % MS-coherence in theta band
+pval_mr = nnz(mean(modulators.mean_coh_mr(9:21)) < mean(c_mr_perm(:,9:21),2) )/size(c_mr_perm,1); % MR-coherence in theta band
+
+pval_cs_SA = nnz(mean(ctrl_SA.mean_coh_ms(9:21)) < mean(c_cs_SA_perm(:,9:21),2) )/size(c_cs_SA_perm,1); % CS-SA-coherence in theta band
+pval_cr_SA = nnz(mean(ctrl_SA.mean_coh_mr(9:21)) < mean(c_cr_SA_perm(:,9:21),2) )/size(c_cr_SA_perm,1); % CR-SA-coherence in theta band
+
+pval_cs_OA = nnz(mean(ctrl_OA.mean_coh_ms(9:21)) < mean(c_cs_OA_perm(:,9:21),2) )/size(c_cs_OA_perm,1); % CS-OA-coherence in theta band
+pval_cr_OA = nnz(mean(ctrl_OA.mean_coh_mr(9:21)) < mean(c_cr_OA_perm(:,9:21),2) )/size(c_cr_OA_perm,1); % CR-OA-coherence in theta band
+
 
 % define pval = 0 such as 1/n_iterations
 if pval_ms == 0 ; pval_ms = 1/size(c_ms_perm,1); end
 if pval_mr == 0 ; pval_mr = 1/size(c_mr_perm,1); end
+if pval_cs_SA == 0 ; pval_cs_SA = 1/size(c_cs_SA_perm,1); end
+if pval_cr_SA == 0 ; pval_cr_SA = 1/size(c_cs_SA_perm,1); end
+if pval_cs_OA == 0 ; pval_cs_OA = 1/size(c_cs_OA_perm,1); end
+if pval_cr_OA == 0 ; pval_cr_OA = 1/size(c_cs_OA_perm,1); end
+
+
+
+
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PVALUES for coherence difference
