@@ -2,7 +2,9 @@
 
 I created and wrote the codes in this repo for the following research study: </br>
 
-<a href=https://www.biorxiv.org/content/10.1101/2023.09.20.558632v2>Causal evidence of coherent theta rhythms in the modulation of multiregional brain communication</a> </br>
+<a href=https://www.biorxiv.org/content/10.1101/2023.09.20.558632v2>Causal evidence of coherent theta rhythms in the modulation of multiregional brain communication</a> </br> 
+Gino Del Ferraro, Shaoyu Qiao, J. Isaac Sedillo, Bijan Pesaran
+doi: https://doi.org/10.1101/2023.09.20.558632
 
 
 Understanding the mechanisms behind neuromodulation is crucial to shed light on multi-regional
