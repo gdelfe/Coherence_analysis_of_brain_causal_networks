@@ -1,4 +1,4 @@
-# Neuro-modulator identification of sender-receiver communication in brain networks and coherence spectral analysis
+# Neuro-modulation in causal brain networks and coherence spectral analysis
 
 I created and wrote the codes in this repo for the following research study: </br>
 
