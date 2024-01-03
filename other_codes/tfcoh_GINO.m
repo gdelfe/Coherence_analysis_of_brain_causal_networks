@@ -180,7 +180,7 @@ elseif flag == 11
     end
 end
 
-tf = linspace(N/2,nt-N/2,nwin);
+	
 
 if flag == 0
     coh = permute(coh,[2,1,3]);
