@@ -1,21 +1,13 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This code computes the Resting State coherence between the THETA
-% modulators and both the sender and the receiver
+%  Compute the granger-causality test for sender-receiver (and viceversa),
+%  sender-modulator (and viceversa), and receiver-modulator (and
+%  viceversa). Perform the test for each trial. For each pair of electrode,
+%  compute the rate of GC test passed (null-hypothesis not rejected) across
+%  trials. Store this rate for each session, for all the pair SR, SM, RM
+%  into a structure called gc_rate'
 %
-% It computes the mean and the std of such coherence, across all the
-% channels that have causal modulators
-%
-% In contrast to other codes that employes the coherence-gram to estimate
-% the coherence vs frequency, this code employes directly coherency.m
-%
-% INPUT: sess_data_lfp.mat
-%        structure containing all modulator infos + RS LFP split
-%
-% OUTPUT: txt files with the values of the coherence MR, MS, SR and
-% corresponding figures
-%
-%    @ Gino Del Ferraro, November 2020, Pesaran lab, NYU
+%    @ Gino Del Ferraro, March 2024, NYU, Pesaran Lab
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all; close all;
@@ -38,17 +30,15 @@ recording = 'last_recording';
 freq_band = 'theta_band';
 monkey = 'Maverick';
 dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
-
+Lag = 10; % maxLag for the computation of GC test 
 
 fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
 
-cnt_sr = 1; % counter sender-receiver coherencies
-cnt_el = 1; % counter for how many modulators excluding the receivers modulators
-% sess_list = [1,3,4,5]
+gcRate_SR_RS = zeros(size(sess_info{1},1),2); % 2D-vector to store gc_rate for SR and RS
 
-for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
+for i = 1:2 %size(sess_info{1},1)  % For each session with at least one modulator
     
     
     close all
@@ -59,6 +49,7 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     load(strcat(dir_Modulators,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
     
     dir_Mod_recording = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording));
+    load(strcat(dir_Mod_recording,'/sess_data_lfp_coherence_fk_200_W_5.mat'))
     if ~exist(dir_Mod_recording, 'dir')
         mkdir(dir_Mod_recording)
     end
@@ -81,21 +72,27 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     % --- GRANGER CAUSALITY - Sender-Receiver -- %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-
+    disp(['Computng sender-receiver GC test'])
     tic
-    gcMatrix = granger_causality_X_Y(lfp_S, lfp_R, 1);
+    gcRate_SR = granger_causality_X_Y(lfp_S, lfp_R, Lag); % sender-receeiver test
+    gcRate_RS = granger_causality_X_Y(lfp_R, lfp_S, Lag); % receiver-sender test
     toc 
 
-    [h,pValue,stat] = gctest(lfp_S,lfp_R,'NumLags'g);
+    % store GC for sender-receiver and receiver-sender in structure 
+    gc_struct(i).SR = gcRate_SR;
+    gc_struct(i).RS = gcRate_RS;
+  
     
-    mod_Ch = sess_data_lfp.mod_idx; % -- modulators (not controls!) index
-    
-    % --- Remove channels with artifacts
-    if Sess == 19
-        mod_Ch(mod_Ch == 60) = []; % remove channel 
-    end
-    if Sess == 41
-        mod_Ch(mod_Ch == 8) = []; % remove channel 
+    mod_Ch = sess_data_lfp.mod_idx; % -- modulators index
+
+    % --- Remove channels with artifacts for Maverick
+    if strcmp(monkey,"Maverick")
+        if Sess == 19
+            mod_Ch(mod_Ch == 60) = []; % remove channel
+        end
+        if Sess == 41
+            mod_Ch(mod_Ch == 8) = []; % remove channel
+        end
     end
     
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch)])
@@ -130,9 +127,16 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
             lfp_S(outliers_ES,:) = [];
             lfp_E(outliers_ES,:) = [];
             
-            sess_data_lfp.lfp_E_clean(cnt_m).lfp = lfp_E;   % -- save to structure
+            disp(['Computng sender-modlator GC test. Modulator ',num2str(cnt_m),' Out of ',num2str(length(mod_Ch))])
+            tic % compute granger-test for SM and MS
+            gcRate_SM = granger_causality_X_Y(lfp_S, lfp_E, Lag); % sender-modulator test
+            gcRate_MS = granger_causality_X_Y(lfp_E, lfp_S, Lag); % modulator-sender test
+            toc 
             
-          
+            % store GC for sender-modulator and modlator-sender in structure
+            gc_struct(i).mod(cnt_m).SM = gcRate_SM; 
+            gc_struct(i).mod(cnt_m).MS = gcRate_MS;
+
             
             % -- MODULATOR - RECEIVER
             % -- modulaor lfp
@@ -147,115 +151,32 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
             % -- remove outliers from sender and modulator 
             lfp_R(outliers_ER,:) = [];
             lfp_E(outliers_ER,:) = [];
-           
-        
-            display(['Computing modulator-receiver coherence...'])
-            [c_mr,f,S_m,S_r] = coherency(lfp_E,lfp_R,[N W],fs,fk,pad,0.05,1,1);
+          
+            disp(['Computng receiver-modlator GC test. Modulator ',num2str(cnt_m),' Out of ',num2str(length(mod_Ch))])
+            tic % compute granger-test for RM and MR
+            gcRate_RM = granger_causality_X_Y(lfp_R, lfp_E, Lag); % receiver-modulator test
+            gcRate_MR = granger_causality_X_Y(lfp_E, lfp_R, Lag); % modulator-receiver test
+            toc 
             
+            % store GC for receiver-modulator and modlator-sender in structure
+            gc_struct(i).mod(cnt_m).RM = gcRate_RM; 
+            gc_struct(i).mod(cnt_m).MR = gcRate_MR;
             
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % ABS COHERENCE                 %%%%%
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            
-            % --- FIGURE --------- %%
-            % -- Coherence vs frequency --- %
-            fig = figure;
-            plot(f,abs(c_sr))
-            hold on
-            plot(f,abs(c_ms))
-            hold on
-            plot(f,abs(c_mr))
-            grid on
-            title(sprintf('Abs coherence vs frequency, ch = %d, causal mod',Ch),'FontSize',10);
-            legend('S-R coherence','M-S coherence','M-R coherence')
-            %         xlim([0 60])
-            set(gcf, 'Position',  [100, 600, 1000, 500])
-            
-            fname = strcat(dir_Mod_recording,sprintf('/coherency_vs_freq_ch_%d_fk_%d.jpg',Ch,fk));
-            saveas(fig,fname);
-            
-            % -- structure assignements
-            mod(cnt_el).c_ms = c_ms ; % assign M-S coherence value for this modulator
-            mod(cnt_el).c_mr = c_mr;  % M-R coherence
-            mod(cnt_el).s_m = S_m; % Modulator spectrum
-            
-            sess_data_lfp.mod(cnt_m).c_ms = c_ms;
-            sess_data_lfp.mod(cnt_m).c_mr = c_mr;
-            sess_data_lfp.mod(cnt_m).S_m = S_m;
-
-            
-            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %   FIGURES     %%%%%%%%%%%%%%%%
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            % --- full length with artifacts
-            lfp_S_rshape = reshape(sess_data_lfp.lfp_S',[],1)';
-            lfp_R_rshape = reshape(sess_data_lfp.lfp_R',[],1)';
-            lfp_E_rshape = reshape(sq(sess_data_lfp.lfp_E(Ch,:,:))',[],1)';
-            
-            fig = figure;
-            plot(lfp_S_rshape)
-            hold on
-            plot(lfp_R_rshape)
-            hold on
-            plot(lfp_E_rshape)
-            grid on
-            title(sprintf('full length - modulator %d',Ch),'FontSize',11)
-            legend('Sender','Receiver','Modulator')
-            set(gcf, 'Position',  [100, 600, 1000, 500])
-            
-            fig_name = strcat(dir_Mod_recording,sprintf('/LFP_S-R-M_full_length_mod_%d.fig',Ch));
-            saveas(fig,fig_name);
-            fig_name = strcat(dir_Mod_recording,sprintf('/LFP_S-R-M_full_length_mod_%d.png',Ch));
-            saveas(fig,fig_name);
-            
-              % -- full length without artifacts
-            lfp_S_rshape = reshape(lfp_S',[],1)';
-            lfp_R_rshape = reshape(lfp_R',[],1)';
-            lfp_E_rshape = reshape(lfp_E',[],1)';
-            
-            fig = figure;
-            plot(lfp_S_rshape)
-            hold on
-            plot(lfp_R_rshape)
-            hold on
-            plot(lfp_E_rshape)
-            grid on
-            title('Cleaned version LFP ','FontSize',11)
-            legend('Sender','Receiver','Modulator')
-            set(gcf, 'Position',  [100, 600, 1000, 500])
-            
-            fig_name = strcat(dir_Mod_recording,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.fig',Ch));
-            saveas(fig,fig_name);
-            fig_name = strcat(dir_Mod_recording,sprintf('/LFP_S-R-M_cleaned_version_no-artifacts_%d.png',Ch));
-            saveas(fig,fig_name);
-            
-            cnt_el = cnt_el + 1; % total modulators counter                     
-        end
+        end                     
         cnt_m = cnt_m + 1; % counter for modulators within this session
     end
-    save(strcat(dir_Mod_recording,sprintf('/sess_data_lfp_coherence_fk_%d_W_%d%s',fk,W,filename)),'sess_data_lfp');
 end
 
-keyboard 
 
-% dir_Mod_results = strcat(dir_RS_Theta,sprintf('/Modulators_Controls_avg_results/%s',recording));
-% if ~exist(dir_Mod_results, 'dir')
-%     mkdir(dir_Mod_results)
-% end    
-% 
-% 
-% % Save coherence and spectrum data in structure format
-% save(strcat(dir_Mod_results,sprintf('/coh_spec_m_fk_%d_W_%d%s',fk,W,filename)),'mod');
-% save(strcat(dir_Mod_results,sprintf('/coh_spec_sr_fk_%d_W_%d%s',fk,W,filename)),'stim');
-% 
-% keyboard
-% % 
-% % -- load structure files
-% fk = 200;
-% load(strcat(dir_Mod_results,sprintf('/coh_spec_m_fk_%d_W_%d%s',fk,W,filename)))
-% load(strcat(dir_Mod_results,sprintf('/coh_spec_sr_fk_%d_W_%d%s',fk,W,filename)))
-% 
+dir_GC_results = strcat(dir_RS_Theta,sprintf('/GC_results/'));
+if ~exist(dir_GC_results, 'dir')
+    mkdir(dir_GC_results)
+end    
+
+
+% Save coherence and spectrum data in structure format
+save(strcat(dir_GC_results,sprintf('GC_rate_%d.mat',Lag)),'gc_struct');
+
+load(strcat(dir_GC_results,sprintf('GC_rate_%d.mat',Lag)))
+
 
