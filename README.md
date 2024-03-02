@@ -1,6 +1,11 @@
-# Neuro-modulator identification of sender-receiver communication in brain networks and coherence spectral analysis
+# Neuro-modulation in causal brain networks and coherence spectral analysis
 
+I created and wrote the codes in this repo for the following research study: </br>
 
+<a href=https://www.biorxiv.org/content/10.1101/2023.09.20.558632v2>Causal evidence of coherent theta rhythms in the modulation of multiregional brain communication</a> </br> 
+Gino Del Ferraro, Shaoyu Qiao, J. Isaac Sedillo, Bijan Pesaran
+
+Brief Summary: </br>
 Understanding the mechanisms behind neuromodulation is crucial to shed light on multi-regional
 brain communication and to manipulate brain activity through BMIs. In this work we first establish a sender-receiver causal network in the non-human primate brain by simultaneously stimulation and recording of multiple electrodes covering several brain areas. Additionally, we identify a class of recorded sites which modulate the sender-receiver communication by acting as a gate.
 
