@@ -8,9 +8,10 @@ clear all; close all;
 set(0,'DefaultFigureVisible','on')
 
 
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
-dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+addpath('/vol/bd5/People/Gino/Coherence_modulator_analysis/Gino_codes')
+addpath('/vol/bd5/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
+% dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+dir_main = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
 dir_Maverick = strcat(dir_main,sprintf('Maverick/Resting_state/%s',freq_band));
@@ -106,6 +107,7 @@ ylabel('coherence');
 legend('Modulators-Receivers','Controls-Receivers  same area','Controls-Receiver  other areas','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
+xlim([0 90])
 
 fname = strcat(dir_Ctrl_Maverick,sprintf('/coherency_MR_Modulators_vs_Controls_both_monkeys_W_%d_fk_%d%s.png',W,fk,fn_fig));
 saveas(fig,fname)

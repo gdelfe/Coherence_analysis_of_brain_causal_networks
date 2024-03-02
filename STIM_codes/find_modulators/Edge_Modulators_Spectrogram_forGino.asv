@@ -191,8 +191,8 @@ for iSubject = 1% : length(subjects)
                             %% modulator decoder hit vs miss
                             % plot ROC curve of modulator activity in hit vs miss events
                             subplot(2,7,2)
-                            % [auc,se,S1,S2,roc_Thresh,maxYoudenIndex] = calcRocSpecDiff_HistAUC(X1,X2,AnalParams);
-                            [auc,se,S1,S2,roc_Thresh,maxYoudenIndex] = calcRocSpecDiff(X1,X2,AnalParams);
+                            [auc,se,S1,S2,roc_Thresh,maxYoudenIndex] = calcRocSpecDiff_HistAUC(X1,X2,AnalParams);
+                            [auc,se,S1,S2,roc_Thresh,maxYoudenIndex] = calcRocSpecDiff_HistAUC(X1,X2,AnalParams);
 
                             
                             

@@ -1,7 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This code computes the Resting State coherence between the THETA
-% modulators and both the sender and the receiver
+% modulators found by Shaoyand both the sender and the receiver
 %
 % It computes the mean and the std of such coherence, across all the
 % channels that have causal modulators
@@ -29,7 +29,7 @@ set(0,'DefaultLineLineWidth',2)
 %%%%%%%%%%%%%%%%%%%
 
 % addpath('T:/People/Gino/Coherence_modulator_analysis/Gino_codes');
-dir_main = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+dir_main = 'T:/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 name_struct_input = '/session_data_lfp.mat';
 filename = '.mat'; % -- filename for sess_data_info.mat 
@@ -122,7 +122,7 @@ for i = 16 %1:size(sess_info{1},1)  % For each session with at least one modulat
     
     mod_Ch = sess_data_lfp.mod_idx; % -- modulators (not controls!) index
     
-    % --- Remove channels with artifacts
+    % --- Remove 
     if Sess == 19
         mod_Ch(mod_Ch == 60) = []; % remove channel 
     end
