@@ -50,7 +50,7 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     load(strcat(dir_Modulators,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
     
     dir_Mod_recording = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording));
-    load(strcat(dir_Mod_recording,'/sess_data_lfp_coherence_fk_200_W_5.mat'))
+
     if ~exist(dir_Mod_recording, 'dir')
         mkdir(dir_Mod_recording)
     end
@@ -128,7 +128,7 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
             lfp_S(outliers_ES,:) = [];
             lfp_E(outliers_ES,:) = [];
             
-            disp(['Computng sender-modlator GC test. Modulator ',num2str(cnt_m),' Out of ',num2str(length(mod_Ch))])
+            disp(['Computng sender-modulator GC test. Modulator ',num2str(cnt_m),' Out of ',num2str(length(mod_Ch))])
             tic % compute granger-test for SM and MS
             gcRate_SM = granger_causality_X_Y(lfp_S, lfp_E, Lag); % sender-modulator test
             gcRate_MS = granger_causality_X_Y(lfp_E, lfp_S, Lag); % modulator-sender test
@@ -153,7 +153,7 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
             lfp_R(outliers_ER,:) = [];
             lfp_E(outliers_ER,:) = [];
           
-            disp(['Computng receiver-modlator GC test. Modulator ',num2str(cnt_m),' Out of ',num2str(length(mod_Ch))])
+            disp(['Computng receiver-modulator GC test. Modulator ',num2str(cnt_m),' Out of ',num2str(length(mod_Ch))])
             tic % compute granger-test for RM and MR
             gcRate_RM = granger_causality_X_Y(lfp_R, lfp_E, Lag); % receiver-modulator test
             gcRate_MR = granger_causality_X_Y(lfp_E, lfp_R, Lag); % modulator-receiver test
@@ -178,6 +178,6 @@ end
 % Save coherence and spectrum data in structure format
 save(strcat(dir_GC_results,sprintf('GC_rate_%d.mat',Lag)),'gc_struct');
 
-load(strcat(dir_GC_results,sprintf('GC_rate_%d.mat',Lag)))
+% load(strcat(dir_GC_results,sprintf('GC_rate_%d.mat',Lag)))
 
 
