@@ -107,11 +107,8 @@ ylabel('coherence');
 legend('Modulators-Receivers','Controls-Receivers  same area','Controls-Receiver  other areas','FontSize',10)
 set(gcf, 'Position',  [100, 600, 1000, 600])
 grid on
-<<<<<<<< HEAD:Resting_State_codes/plotting/plot_coherence_across_monkeys.asv
 xlim([0 90])
-========
 xlim([0 95])
->>>>>>>> 0e3ed3cc6967807d782b10cea1c1a659ff86d4bb:Resting_State_codes/plotting/plot_coherence_across_monkeys/plot_coherence_across_monkeys.m
 
 fname = strcat(dir_Ctrl_Maverick,sprintf('/coherency_MR_Modulators_vs_Controls_both_monkeys_W_%d_fk_%d%s.png',W,fk,fn_fig));
 saveas(fig,fname)

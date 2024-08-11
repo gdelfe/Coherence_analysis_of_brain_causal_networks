@@ -9,19 +9,19 @@ set(0,'DefaultFigureVisible','on')
 set(0,'DefaultLineLineWidth',2)
 
 
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
-dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+addpath('/vol/bd5/People/Gino/Coherence_modulator_analysis/Gino_codes')
+addpath('/vol/bd5/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
+dir_main = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
 freq_modulators = 'theta band';
 
 % maverick
-filename_mav = '_movie';
-recording_mav = 'movie';
+filename_mav = '';
+recording_mav = 'last_recording';
 % archie
-filename_arc = '_movie_all';
-recording_arc = 'movie_all_Sess'
+filename_arc = '_movie';
+recording_arc = 'movie_all_sessions'
 % both
 title_rec = 'movie (all Sess)';
 both_fname = '_movie_all';

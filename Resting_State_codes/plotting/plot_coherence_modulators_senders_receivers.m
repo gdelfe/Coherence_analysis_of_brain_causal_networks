@@ -9,9 +9,9 @@ set(0,'DefaultLineLineWidth',2)
 
 
 
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
-dir_main = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+addpath('/vol/bd5/People/Gino/Coherence_modulator_analysis/Gino_codes')
+addpath('/vol/bd5/People/Gino/Coherence_modulator_analysis/Gino_codes/Resting_State_codes')
+dir_main = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
 monkey = 'Archie';

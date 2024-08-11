@@ -56,7 +56,7 @@ for iSubject = 1% : length(subjects)
         disp('Done with Pre data loading')
         toc
         
-        %% identifying beta modulators %%%%%%
+        %% identifying theta modulators %%%%%%
         fs = Data.Fs.lfp;% lfp sampling rate
         Fs = Data.Fs.raw;% raw sampling rate
         
@@ -193,11 +193,6 @@ for iSubject = 1% : length(subjects)
                             subplot(2,7,2)
                             % [auc,se,S1,S2,roc_Thresh,maxYoudenIndex] = calcRocSpecDiff_HistAUC(X1,X2,AnalParams);
                             [auc,se,S1,S2,roc_Thresh,maxYoudenIndex] = calcRocSpecDiff(X1,X2,AnalParams);
-
-                            
-                            
-                            
-                            
                             
                             S_all = [];
                             

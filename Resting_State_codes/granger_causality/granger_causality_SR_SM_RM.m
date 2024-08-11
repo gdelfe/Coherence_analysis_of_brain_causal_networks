@@ -24,20 +24,47 @@ set(0,'DefaultLineLineWidth',2)
 %%%%%%%%%%%%%%%%%%%
 
 % addpath('T:/People/Gino/Coherence_modulator_analysis/Gino_codes');
-dir_main = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+% dir_main = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+% Main directory path
 
-name_struct_input = '/session_data_lfp.mat';
-filename = '.mat'; % -- filename for sess_data_info.mat 
+
+% Main directory path
+dir_main = 'T:\People\Gino\Coherence_modulator_analysis\Shaoyu_data\';
+
+% File names and parameters
+name_struct_input = '\session_data_lfp.mat';
+filename = '.mat'; % Filename for sess_data_info.mat 
 recording = 'last_recording';
 
+% Frequency band and monkey information
 freq_band = 'theta_band';
-monkey = 'Maverick';
-dir_RS_Theta = strcat(dir_main,sprintf('%s/Resting_state/%s',monkey,freq_band));
-Lag = 10; % maxLag for the computation of GC test 
+monkey = 'Archie';
 
-fid = fopen(strcat(dir_RS_Theta,'/Sessions_with_modulator_info_movie.txt')); % load session info with no repetition
-sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
+% Construct the directory path for Resting State Theta
+dir_RS_Theta = fullfile(dir_main, sprintf('%s\\Resting_state\\%s', monkey, freq_band));
+
+% Maximum lag for the computation of GC test
+Lag = 50;
+
+% Full path to the session info file
+session_info_file = fullfile(dir_RS_Theta, 'Sessions_with_modulator_info_movie.txt');
+
+% Attempt to open the session info file
+fid = fopen(session_info_file);
+if fid == -1
+    error('Failed to open file. Check if the file exists and the path is correct: %s', session_info_file);
+end
+
+% Read the session information from the file
+sess_info = textscan(fid, '%d%s%s'); % sess label, date, RS label
+
+% Close the file after processing
 fclose(fid);
+
+% Display the contents of sess_info (optional)
+disp(sess_info);
+
+
 
 for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
     

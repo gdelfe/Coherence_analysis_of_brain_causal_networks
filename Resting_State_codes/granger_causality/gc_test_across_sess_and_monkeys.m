@@ -1,11 +1,23 @@
 
+% This code loads the results of the GC test for each monkey and for each
+% trial, repectively for sender-receiver (and viceversa), for
+% sender-modulator (and viceversa), and for receiver-modulator (and
+% viceversa). It then computes the average rate of trials which pass the GC
+% test across monkeys, giving an overall estimate of the causality between
+% the pairs aformentioned. 
+%
+% OUTPUT: GC rate of trials that passed the test for SR, SM, RM, saved into
+% a structure called gc_avg
+%
+% @ Gino Del Ferraro, NYU, Pesaran Lab, 2024
+
 clear all; close all;
 
 
 dir_main = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 
 freq_band = 'theta_band';
-Lag = 10; % maxLag for the computation of GC test 
+Lag = 50; % maxLag for the computation of GC test 
 
 % Monkey Maverick -----------------
 monkey = 'Maverick';

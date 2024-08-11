@@ -17,8 +17,8 @@ clear all; close all;
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
-addpath('/mnt/pesaranlab/People/Gino/DL-modulators/Gino_codes')
-dir_RS = '/mnt/pesaranlab/People/Gino/DL-modulators/Shaoyu_data/Resting_State';
+addpath('/vol/bd5/People/Gino/Gino_codes')
+dir_RS = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_State';
 
 step = 110;
 

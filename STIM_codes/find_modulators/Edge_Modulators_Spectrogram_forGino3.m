@@ -435,7 +435,7 @@ for iSess = 16 %UsedSess
                         %
                         
                         
-                        1. %%% Standard spectrogram, i.e. homogeneous weighted sum with 1/K weights
+                        %%% Standard spectrogram, i.e. homogeneous weighted sum with 1/K weights
                         homogeneous_proj(ModulatorLFP_Pre,hitIndx,missIndx,tapers,fs,dn,fk,pad,iSubject,iSess,iCh)
                         
                         % 1. %%% Complex analysis, homogeneous projections
