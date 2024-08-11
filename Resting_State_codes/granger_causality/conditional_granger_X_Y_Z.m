@@ -14,16 +14,13 @@ set(0,'DefaultLineLineWidth',2)
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
 
-% addpath('T:/People/Gino/Coherence_modulator_analysis/Gino_codes');
-% dir_main = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+addpath('T:/People/Gino/Coherence_modulator_analysis/Gino_codes');
 % Main directory path
-
-
-% Main directory path
-dir_main = 'T:\People\Gino\Coherence_modulator_analysis\Shaoyu_data\';
+dir_main = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+% dir_main = 'T:\People\Gino\Coherence_modulator_analysis\Shaoyu_data';
 
 % File names and parameters
-name_struct_input = '\session_data_lfp.mat';
+name_struct_input = '/session_data_lfp.mat';
 filename = '.mat'; % Filename for sess_data_info.mat
 recording = 'last_recording';
 
@@ -32,13 +29,14 @@ freq_band = 'theta_band';
 monkey = 'Maverick';
 
 % Construct the directory path for Resting State Theta
-dir_RS_Theta = fullfile(dir_main, sprintf('%s\\Resting_state\\%s', monkey, freq_band));
+dir_RS_Theta = fullfile(dir_main, monkey, 'Resting_state', freq_band);
 
 % Maximum lag for the computation of GC test
 Lag = 50;
 
 % Full path to the session info file
 session_info_file = fullfile(dir_RS_Theta, 'Sessions_with_modulator_info_movie.txt');
+session_info_file = strrep(session_info_file, '\', '/');  % Ensure all separators are consistent
 
 % Attempt to open the session info file
 fid = fopen(session_info_file);
@@ -138,9 +136,9 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
             % Calculate information criteria up to specified maximum model order.
 
-            ptic('\n*** tsdata_to_infocrit\n');
+            % ptic('\n*** tsdata_to_infocrit\n');
             [AIC,BIC,moAIC,moBIC] = tsdata_to_infocrit(X,momax,icregmode);
-            ptoc('*** tsdata_to_infocrit took ');
+            % ptoc('*** tsdata_to_infocrit took ');
 
             dir_model = fullfile(dir_main, sprintf('%s\\Resting_state\\granger\\model_order\\', monkey));
             if ~exist(dir_model, 'dir')
