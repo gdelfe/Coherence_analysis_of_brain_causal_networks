@@ -54,7 +54,8 @@ fclose(fid);
 disp(sess_info);
 
 
-
+sess_cnt = 0; SR_cnt = 0; RS_cnt = 0; % Session count, SR granger count, RS granger count
+gc = {};
 for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
     close all
@@ -89,6 +90,8 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
 
     if ~ismember(sess_data_lfp.receiver_idx,mod_Ch) % if receiver is not in modulators list
+        
+        sess_cnt = sess_cnt + 1;
 
         close all
         lfp_S = sess_data_lfp.lfp_S; % Sender lfp
@@ -131,24 +134,24 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
         % Calculate information criteria up to specified maximum model order.
 
-            % ptic('\n*** tsdata_to_infocrit\n');
-            [AIC,BIC,moAIC,moBIC] = tsdata_to_infocrit(X,momax,icregmode);
-            % ptoc('*** tsdata_to_infocrit took ');
-    
-            dir_model = fullfile(dir_main, sprintf('%s\\Resting_state\\granger_gino\\model_order\\SR\\', monkey));
-            if ~exist(dir_model, 'dir')
-                mkdir(dir_model);
-            end
-    
-            % Plot information criteria.
-    
-            fig = figure(1); clf;
-            plot_tsdata([AIC BIC]',{'AIC','BIC'},1/fs);
-            title(sprintf('Model order estimation\nSess = %d',i));
-    
-            fprintf('\nbest model order (AIC) = %d\n',moAIC);
-            fprintf('best model order (BIC) = %d\n',moBIC);
-            saveas(fig,fullfile(dir_model,sprintf('Model_order_sess_%d.jpg',i)));
+        % ptic('\n*** tsdata_to_infocrit\n');
+        [AIC,BIC,moAIC,moBIC] = tsdata_to_infocrit(X,momax,icregmode);
+        % ptoc('*** tsdata_to_infocrit took ');
+
+        dir_model = fullfile(dir_main, sprintf('%s/Resting_state/granger_gino/model_order/SR/', monkey));
+        if ~exist(dir_model, 'dir')
+            mkdir(dir_model);
+        end
+
+        % Plot information criteria.
+
+        fig = figure(1); clf;
+        plot_tsdata([AIC BIC]',{'AIC','BIC'},1/fs);
+        title(sprintf('Model order estimation\nSess = %d',i));
+
+        fprintf('\nbest model order (AIC) = %d\n',moAIC);
+        fprintf('best model order (BIC) = %d\n',moBIC);
+        saveas(fig,fullfile(dir_model,sprintf('Model_order_sess_%d.jpg',i)));
 
         % Select model order.
 
@@ -217,12 +220,15 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
         pval = mvgc_pval(F,morder,nobs,ntrials,1,1,nvars-2,tstat); % take careful note of arguments!
         sig  = significance(pval,alpha,mhtc);
+        
+        RS_cnt = RS_cnt + sig(1,2); % increase count for significant RS granger causality
+        SR_cnt = SR_cnt + sig(2,1); % increase count for significant SR granger causality 
 
         % Plot time-domain causal graph, p-values and significance.
 
         fig = figure(2); clf;
         set(gcf, 'Position', [100, 100, 1400, 400]); % [left, bottom, width, height]
-        sgtitlex(sprintf('Pairwise-conditional Granger causality - time domain \nSession = %d',i));
+        sgtitlex(sprintf('Pairwise Granger causality - time domain \nSession = %d',i));
         subplot(1,4,1);
         plot_pw_Gino(F);
         title('Pairwise-conditional GC');
@@ -233,9 +239,10 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
         plot_pw_Gino(sig);
         title(['Significant at p = ' num2str(alpha)])
         subplot(1,4,4)
-        Granger_graph(sig,i,cnt_m)
+        Granger_graph(sig,i)
 
-        dir_granger = fullfile(dir_main, sprintf('%s\\Resting_state\\granger\\granger_graphs\\SR\\', monkey));
+
+        dir_granger = fullfile(dir_main, sprintf('%s/Resting_state/granger/granger_graphs/SR/', monkey));
         if ~exist(dir_granger, 'dir')
             mkdir(dir_granger);
         end
@@ -256,7 +263,13 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
         ptic('\n*** autocov_to_spwcgc... ');
         f = autocov_to_spwcgc(G,fres);
         ptoc;
-
+        
+        if sig(1,2)== 1
+            gc.RS = f;
+        end
+        if sig(2,1)== 1
+            gc.SR = f;
+        end
         % Check for failed spectral GC calculation
 
         assert(~isbad(f,false),'spectral GC calculation failed');
@@ -265,8 +278,8 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
         fig = figure(3); clf;
         set(gcf, 'Position', [300, 300, 1000, 1000]); % [left, bottom, width, height]
-        sgtitlex(sprintf('Pairwise-conditional Granger causality - frequency domain\nSess = %d',i));
-        plot_spw_Gino(f,fs,[0,150]);
+        sgtitlex(sprintf('Pairwise Granger causality - frequency domain\nSess = %d',i));
+        plot_spw_Gino(f,fs,[0,50]);
         saveas(fig,fullfile(dir_granger,sprintf('Sess_%d_granger_frequency.jpg',i)))
 
         %% Granger causality calculation: frequency domain -> time-domain  (<mvgc_schema.html#3 |A15|>)
@@ -284,8 +297,9 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
         else
             fprintf(2,'WARNING: high maximum relative error ~ %.0e\n',mre);
         end
-
-
-
+    
     end
 end
+
+RS_rate = RS_cnt/sess_cnt
+SR_rate = SR_cnt/sess_cnt
