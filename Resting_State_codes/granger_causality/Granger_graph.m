@@ -1,15 +1,7 @@
-function Granger_graph(sig,i,cnt_m)
+function Granger_graph(sig,nodeNames,title_name)
 
 sig_graph = sig;
 sig_graph(logical(eye(size(sig_graph)))) = 0;
-% Create the directed graph
-% Create the directed graph
-% Create the directed graph with node names
-if nargin == 3
-    nodeNames = {'S', 'R', 'M'};
-elseif nargin == 2
-    nodeNames = {'S','R'}
-end
 
 Graph = digraph(sig_graph', nodeNames);
 
@@ -38,10 +30,6 @@ for k = 1:length(X)
     text(X(k) + xOffset, Y(k) + yOffset, nodeNames{k}, 'FontSize', 15, 'HorizontalAlignment', 'right', 'VerticalAlignment', 'cap');
 end
 
-if nargin == 3
-    title(sprintf('Network CGC SRM- Session %d, mod cnt = %d',i,cnt_m));
-elseif nargin == 2 
-    title(sprintf('Network GC SR - Session %d',i));
-end
+title(title_name);
 
 end

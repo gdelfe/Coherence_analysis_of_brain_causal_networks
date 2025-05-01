@@ -33,9 +33,9 @@
 %
 %%
 
-function plot_pw_Gino(P,cm)
+function plot_pw_Gino(P,X,Y)
 
-if nargin < 2 || isempty(cm), cm =flipud(bone); end;
+cm =flipud(bone);
 
 n = size(P,1);
 assert(ismatrix(P) && size(P,2) == n,'input must be a square 2D matrix');
@@ -48,6 +48,6 @@ axis('square');
 xlabel('from');
 ylabel('to');
 set(gca,'XTick',1:n);
-set(gca,'XTickLabel',{'S','R','M'});
+set(gca,'XTickLabel',{X,Y});
 set(gca,'YTick',1:n);
-set(gca,'YTickLabel',{'S','R','M'});
+set(gca,'YTickLabel',{X,Y});

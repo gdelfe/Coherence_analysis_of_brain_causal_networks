@@ -73,7 +73,7 @@
 %
 %%
 
-function [f,fres] = autocov_to_spwcgc(G,fres,useFFT)
+function [f, freq_axis] = autocov_to_spwcgc(G, fres, useFFT, fs)
 
 if nargin < 3, useFFT = []; end % force autocov_xform default
 
@@ -119,4 +119,7 @@ for j = 1:n
             f(i,j,k) = LSji - log(real(Sji-Hji(:,:,k)*SIGji*Hji(:,:,k)'));
         end
     end
+
+    % Compute the frequency axis (x-axis) based on fres and sampling frequency fs
+    freq_axis = sfreqs(fres, fs);  % sfreqs computes the frequency axis
 end

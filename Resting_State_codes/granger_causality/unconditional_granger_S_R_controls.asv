@@ -6,27 +6,37 @@
 
 clear all; close all;
 
-% set(0,'DefaultFigureVisible','off')
-set(0,'DefaultFigureVisible','on')
+set(0,'DefaultFigureVisible','off')
+% set(0,'DefaultFigureVisible','on')
 set(0,'DefaultLineLineWidth',2)
 
 %%%%%%%%%%%%%%%%%%%
 % - LOAD DATA --- %
 %%%%%%%%%%%%%%%%%%%
 
-addpath('T:/People/Gino/Coherence_modulator_analysis/Gino_codes');
-% Main directory path
+monkey = 'Maverick'
 dir_main = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
-% dir_main = 'T:\People\Gino\Coherence_modulator_analysis\Shaoyu_data';
+dir_RS = fullfile(dir_main, monkey, 'Resting_state/theta_band/')
 
 % File names and parameters
 name_struct_input = '/session_data_lfp.mat';
+name_struct_ctrl = '/session_Receiver_controls_same_area_info.mat';
 filename = '.mat'; % Filename for sess_data_info.mat
+
 recording = 'last_recording';
+dir_Receiver_ctrl = '/Receiver_controls_same_area';
+output_dir = 'SR_controls_SA';
+dir_out_name = sprintf('%s/Resting_state/granger/granger_analysis/', monkey);
+dir_model = fullfile(dir_main, sprintf('%s/Resting_state/granger_gino/model_order/%s/', monkey,output_dir));
+dir_granger_graphs = fullfile(dir_main, sprintf('%s/Resting_state/granger/granger_graphs/%s/', monkey,output_dir));
 
 % Frequency band and monkey information
 freq_band = 'theta_band';
-monkey = 'Maverick';
+output_filename = "gc_SR_ctrl_OA_struct.mat"
+
+% parameters for plots
+U = 'S';
+V = 'R ctrl';
 
 % Construct the directory path for Resting State Theta
 dir_RS_Theta = fullfile(dir_main, monkey, 'Resting_state', freq_band);
@@ -53,56 +63,42 @@ fclose(fid);
 % Display the contents of sess_info (optional)
 disp(sess_info);
 
+sess_cnt = 0;
+gc = {};
+SR_all = [];
+RS_all = [];
+cnt_r_tot = 0; % global modulator count across sessions
 
-sess_cnt = 0; SR_cnt = 0; RS_cnt = 0; % Session count, SR granger count, RS granger count
-gSR = {};
+
 for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
     close all
     Sess = sess_info{1}(i); % Session number
     display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),', out of tot  ',num2str(size(sess_info{1},1)),' sessions'])
     dir_Modulators = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators',Sess));
-
     load(strcat(dir_Modulators,name_struct_input)); % RS LFP split into 1 sec window and artifacts removed
-
-    dir_Mod_recording = strcat(dir_RS_Theta,sprintf('/Sess_%d/Modulators/%s',Sess,recording));
-
-    if ~exist(dir_Mod_recording, 'dir')
-        mkdir(dir_Mod_recording)
-    end
-    %     % ---  time parameter
-    tot_time = 150001;
-
-    mod_Ch = sess_data_lfp.mod_idx; % -- modulators index
-
-    % --- Remove channels with artifacts for Maverick
-    if strcmp(monkey,"Maverick")
-        if Sess == 19
-            mod_Ch(mod_Ch == 60) = []; % remove channel
-        end
-        if Sess == 41
-            mod_Ch(mod_Ch == 8) = []; % remove channel
-        end
-    end
-
-    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess),',  -- true mod_Ch:  ',num2str(mod_Ch)])
+    dir_Receiver = strcat(dir_Modulators,dir_Receiver_ctrl);
+    load(strcat(dir_Receiver,name_struct_ctrl)); % Structure control. Receiver controls
 
 
+    display(['-- Session ',num2str(i),' -- label: ',num2str(Sess)])
 
-    if ~ismember(sess_data_lfp.receiver_idx,mod_Ch) % if receiver is not in modulators list
-        
-        sess_cnt = sess_cnt + 1;
 
-        close all
+    sess_Rec_ctrl_other_areas
+
+
+    sess_cnt = sess_cnt + 1;
+
+    close all
+
+
+    cnt_r = 0; % local count for receiver control
+    for ch_R = sess_Rec_ctrl_other_areas.ctrl_idx % for all receiver controls
+
+        cnt_r_tot = cnt_r_tot + 1;
         lfp_S = sess_data_lfp.lfp_S; % Sender lfp
-        lfp_R = sess_data_lfp.lfp_R; % Receiver lfp
+        lfp_R = sq(sess_data_lfp.lfp_E(ch_R,:,:)); % Receiver control lfp
 
-        outliers_SR = [sess_data_lfp.outliers_S, sess_data_lfp.outliers_R]; % get outliers trials in Sender, Receiver, Modulator
-        outliers_SR = unique(outliers_SR);  % -- remove repeated entries in outliers
-
-        % -- remove outliers from sender, receiver, modulator
-        lfp_S(outliers_SR,:) = [];
-        lfp_R(outliers_SR,:) = [];
 
         Xtemp = cat(3, lfp_S, lfp_R);
         X = permute(Xtemp, [3, 2, 1]);  % vector for time series data
@@ -125,7 +121,7 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
         mhtc      = 'FDR';  % multiple hypothesis test correction (see routine 'significance')
 
         fs        = 1000;    % sample rate (Hz)
-        fres      = [];     % frequency resolution (empty for automatic calculation)
+        fres      = 1000;     % frequency resolution (empty for automatic calculation)
 
         seed      = 0;      % random seed (0 for unseeded)
 
@@ -138,7 +134,7 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
         [AIC,BIC,moAIC,moBIC] = tsdata_to_infocrit(X,momax,icregmode);
         % ptoc('*** tsdata_to_infocrit took ');
 
-        dir_model = fullfile(dir_main, sprintf('%s/Resting_state/granger_gino/model_order/SR/', monkey));
+        
         if ~exist(dir_model, 'dir')
             mkdir(dir_model);
         end
@@ -220,34 +216,32 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
 
         pval = mvgc_pval(F,morder,nobs,ntrials,1,1,nvars-2,tstat); % take careful note of arguments!
         sig  = significance(pval,alpha,mhtc);
-        
-        RS_cnt = RS_cnt + sig(1,2); % increase count for significant RS granger causality
-        SR_cnt = SR_cnt + sig(2,1); % increase count for significant SR granger causality 
+
+
 
         % Plot time-domain causal graph, p-values and significance.
 
         fig = figure(2); clf;
         set(gcf, 'Position', [100, 100, 1400, 400]); % [left, bottom, width, height]
-        sgtitlex(sprintf('Pairwise Granger causality - time domain \nSession = %d',i));
-        subplot(1,4,1);
-        plot_pw_Gino(F);
+        sgtitlex(sprintf('Pairwise GC - time domain \nSession = %d, R-ctrl n. %d',i,ch_R));
+        subplot(1,4,1)
+        plot_pw_Gino(F,U,V);
         title('Pairwise-conditional GC');
         subplot(1,4,2);
-        plot_pw_Gino(pval);
+        plot_pw_Gino(pval,U,V);
         title('p-values');
         subplot(1,4,3);
-        plot_pw_Gino(sig);
+        plot_pw_Gino(sig,U,V);
         title(['Significant at p = ' num2str(alpha)])
         subplot(1,4,4)
-        Granger_graph(sig,i)
+        Granger_graph(sig,{U,V},'S-Rctrl Granger graph');
 
 
-        dir_granger = fullfile(dir_main, sprintf('%s/Resting_state/granger/granger_graphs/SR/', monkey));
-        if ~exist(dir_granger, 'dir')
-            mkdir(dir_granger);
+        if ~exist(dir_granger_graphs, 'dir')
+            mkdir(dir_granger_grapshs);
         end
 
-        saveas(fig,fullfile(dir_granger,sprintf('Sess_%d_granger_graph.jpg',i)))
+        saveas(fig,fullfile(dir_granger_graphs,sprintf('Sess_%d_granger_graph_R_ctrl_%d.jpg',i,cnt_r)))
 
 
 
@@ -261,23 +255,26 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
         % resolution - again, this only requires the autocovariance sequence.
 
         ptic('\n*** autocov_to_spwcgc... ');
-        f = autocov_to_spwcgc(G,fres);
+        [GC, freq_axis] = autocov_to_spwcgc(G,fres, [], fs);
         ptoc;
-        
-        if sig(1,2)== 1
-            gcSR 
-        end
-        % Check for failed spectral GC calculation
 
-        assert(~isbad(f,false),'spectral GC calculation failed');
+        if sig(1,2)== 1 % Receveir to Modulator
+            RS_all = [RS_all; real(GC(1,2,:))];
+        end
+        if sig(2,1)== 1 % Sender to receiver
+            SR_all = [SR_all; real(GC(2,1,:))];
+        end
+
+        % Check for failed spectral GC calculation
+        assert(~isbad(real(GC),false),'spectral GC calculation failed');
 
         % Plot spectral causal graph.
 
         fig = figure(3); clf;
         set(gcf, 'Position', [300, 300, 1000, 1000]); % [left, bottom, width, height]
         sgtitlex(sprintf('Pairwise Granger causality - frequency domain\nSess = %d',i));
-        plot_spw_Gino(f,fs,[0,50]);
-        saveas(fig,fullfile(dir_granger,sprintf('Sess_%d_granger_frequency.jpg',i)))
+        plot_spw_Gino(real(GC),fs,[0,50]);
+        saveas(fig,fullfile(dir_granger_graphs,sprintf('Sess_%d_granger_frequency.jpg',i)))
 
         %% Granger causality calculation: frequency domain -> time-domain  (<mvgc_schema.html#3 |A15|>)
 
@@ -285,7 +282,7 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
         % causalities, as they should according to theory.
 
         fprintf('\nfrequency-domain GC integration check... ');
-        Fint = smvgc_to_mvgc(f); % integrate spectral MVGCs
+        Fint = smvgc_to_mvgc(GC); % integrate spectral MVGCs
         amax = maxabs(F+Fint)/2;
         if amax < 1e-5; amax = 1; end % in case all GCs very small
         mre = maxabs(F-Fint)/amax;
@@ -294,9 +291,21 @@ for i = 1:size(sess_info{1},1)  % For each session with at least one modulator
         else
             fprintf(2,'WARNING: high maximum relative error ~ %.0e\n',mre);
         end
-    
+
     end
 end
 
-RS_rate = RS_cnt/sess_cnt
-SR_rate = SR_cnt/sess_cnt
+RS_all = sq(RS_all);
+SR_all = sq(SR_all);
+
+gc.RS_all = RS_all;
+gc.SR_all = SR_all;
+
+gc.RS_rate = size(RS_all,1)/cnt_r_tot;
+gc.SR_rate = size(SR_all,1)/cnt_r_tot;
+gc.cnt_r_tot = cnt_r_tot;
+gc.freq = freq_axis;
+
+
+file_path = make_dir_get_file_path(dir_main, dir_out_name, output_filename)
+save(file_path,'gc')

@@ -34,7 +34,7 @@
 %
 %%
 
-function plot_spw_Gino(P,fs,frange)
+function plot_spw_Gino(P,fs,frange,J,K)
 
 n = size(P,1);
 assert(ndims(P) == 3 && size(P,2) == n,'must be a 3-dim matrix with the first two dims square');
@@ -58,7 +58,7 @@ xlims = [lam(1) lam(end)];
 ylims = [min(P(:)) 1.1*max(P(:))];
 if isempty(fs), xlab = 'normalised frequency'; else xlab = 'frequency (Hz)'; end
 
-V = {'S','R','M'};
+V = {J,K};
 k = 0;
 for i = 1:n
     for j = 1:n

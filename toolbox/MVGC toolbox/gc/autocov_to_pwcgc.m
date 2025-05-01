@@ -54,7 +54,6 @@
 % installation directory for licensing terms.
 %
 %%
-
 function F = autocov_to_pwcgc(G)
 
 n = size(G,1);

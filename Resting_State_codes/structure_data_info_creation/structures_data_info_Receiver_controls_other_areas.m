@@ -15,9 +15,9 @@ clear all; close all;
 % set(0,'DefaultFigureVisible','off')
 set(0,'DefaultFigureVisible','on')
 
-addpath('/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Gino_codes')
-dir_RS = '/mnt/pesaranlab/People/Gino/Coherence_modulator_analysis/Shaoyu_data/Resting_state';
-
+monkey = 'Maverick';
+dir_main = '/vol/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+dir_RS = fullfile(dir_main, monkey, 'Resting_state', 'theta_band');
 fid = fopen(strcat(dir_RS,'/Sessions_with_modulator_info.txt')); % load session info with no repetition
 sess_info = textscan(fid,'%d%s%s'); % sess label, date, RS label
 fclose(fid);
@@ -31,7 +31,7 @@ set(0,'DefaultLineLineWidth',2)
 for s=1:size(sess_info{1},1)
     
     Sess = sess_info{1}(s); % Session number
-    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d',Sess));
+    dir_Sess = strcat(dir_RS,sprintf('/Sess_%d/Modulators',Sess));
     load(strcat(dir_Sess,'/session_data_info.mat')); % --- dataG: all data info and LFP
     
     mod_Ch = sess_data.mod_idx;
