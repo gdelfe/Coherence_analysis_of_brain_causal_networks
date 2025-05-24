@@ -3,7 +3,7 @@ function Granger_graph(sig,nodeNames,title_name)
 sig_graph = sig;
 sig_graph(logical(eye(size(sig_graph)))) = 0;
 
-Graph = digraph(sig_graph', nodeNames);
+Graph = digraph(sig_graph',nodeNames);
 
 % Plot the graph
 h = plot(Graph, 'Layout', 'circle');
