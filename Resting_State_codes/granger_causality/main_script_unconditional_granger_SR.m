@@ -22,7 +22,11 @@ U =  'S';
 V = 'R';
 Lag = 50;
 fs = 1000;
-fres = 1000;
+fres = 500;
+
+% parameters for VAR
+regmode = 'OLS'; icregmode = 'LWR'; morder = 'AIC'; momax = 50;
+acmaxlags = 2000; tstat = 'F'; alpha = 0.05; mhtc = 'FDR';
 
 % File paths and session info
 
@@ -55,12 +59,18 @@ for i = 1:size(sess_info{1},1)
     lfp_S(outliers_SR,:) = [];
     lfp_R(outliers_SR,:) = [];
 
+    lfp_S = detrend(lfp_S')';  % Remove linear trends
+    lfp_R = detrend(lfp_R')';
+
+    lfp_S = resample(lfp_S, 1, 4);  % Downsample
+    lfp_R = resample(lfp_R, 1, 4);
+    fs = 250;
+
+
     X = permute(cat(3, lfp_S, lfp_R), [3,2,1]);
     ntrials = size(X,3);
     nobs = size(X,2);
 
-    regmode = 'LWR'; icregmode = 'LWR'; morder = 'AIC'; momax = 20;
-    acmaxlags = 2000; tstat = 'F'; alpha = 0.05; mhtc = 'FDR';
 
     dir_model = fullfile(dir_main, monkey, directory_model);
     if ~exist(dir_model, 'dir'), mkdir(dir_model); end
