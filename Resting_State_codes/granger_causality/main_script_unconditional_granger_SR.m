@@ -66,11 +66,9 @@ for i = 1:size(sess_info{1},1)
     lfp_R = resample(lfp_R, 1, 4);
     fs = 250;
 
-
     X = permute(cat(3, lfp_S, lfp_R), [3,2,1]);
     ntrials = size(X,3);
     nobs = size(X,2);
-
 
     dir_model = fullfile(dir_main, monkey, directory_model);
     if ~exist(dir_model, 'dir'), mkdir(dir_model); end
@@ -86,7 +84,7 @@ for i = 1:size(sess_info{1},1)
 
     [F, pval, sig] = compute_time_domain_gc(G, X, morder, nobs, ntrials, tstat, alpha, mhtc);
     sig(isnan(sig)) = 0;
-    
+
     dir_granger = fullfile(dir_main, monkey, directory_graphs);
     if ~exist(dir_granger, 'dir'), mkdir(dir_granger); end
 
@@ -113,6 +111,15 @@ for i = 1:size(sess_info{1},1)
         sr_cnt = sr_cnt + 1;
     end
 
+    % Save data needed for permutation test
+    session_data(i).GC = GC;
+    session_data(i).X = X;
+    session_data(i).freq = freq_axis;
+    session_data(i).sess_id = Sess;
+    session_data(i).morder = morder;
+    session_data(i).ntrials = ntrials;
+
+
     assert(~isbad(GC, false),'spectral GC calculation failed');
     plot_frequency_domain_gc(GC, fs, i, dir_granger, U, V);
 
@@ -137,3 +144,7 @@ gc(1).sess_tot = sess_cnt;
 dir_name = fullfile(monkey, dir_output);
 file_path = make_dir_get_file_path(dir_main, dir_name, output_filename);
 save(file_path,'gc');
+
+file_path = make_dir_get_file_path(dir_main, dir_name, 'gc_session_data.mat');
+save(file_path, 'session_data');
+
