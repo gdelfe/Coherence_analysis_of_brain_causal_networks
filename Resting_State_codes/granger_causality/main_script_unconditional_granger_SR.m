@@ -1,7 +1,7 @@
 % Main script: Granger Causality Analysis
 
 clear all; close all;
-set(0,'DefaultFigureVisible','on')
+set(0,'DefaultFigureVisible','off')
 set(0,'DefaultLineLineWidth',2)
 
 addpath('T:/People/Gino/Coherence_modulator_analysis/Gino_codes');
@@ -16,7 +16,7 @@ name_struct_input = '/session_data_lfp.mat';
 filename = '.mat';
 recording = 'last_recording';
 freq_band = 'theta_band';
-monkey = 'Maverick';
+monkey = 'Archie';
 output_filename = "gc_SR_struct.mat";
 U =  'S';
 V = 'R';
@@ -29,7 +29,6 @@ regmode = 'OLS'; icregmode = 'LWR'; morder = 'AIC'; momax = 50;
 acmaxlags = 2000; tstat = 'F'; alpha = 0.05; mhtc = 'FDR';
 
 % File paths and session info
-
 session_info_file = fullfile(dir_main, monkey, 'Resting_state', freq_band, 'Sessions_with_modulator_info_movie.txt');
 session_info_file = strrep(session_info_file, '\\', '/');
 fid = fopen(session_info_file);
@@ -61,6 +60,11 @@ for i = 1:size(sess_info{1},1)
 
     lfp_S = detrend(lfp_S')';  % Remove linear trends
     lfp_R = detrend(lfp_R')';
+
+    [b, a] = butter(2, 1/(fs/2), 'high');  % 1 Hz cutoff
+    lfp_S = filtfilt(b, a, lfp_S')';
+    lfp_R = filtfilt(b, a, lfp_R')';
+
 
     lfp_S = resample(lfp_S, 1, 4);  % Downsample
     lfp_R = resample(lfp_R, 1, 4);
@@ -145,6 +149,6 @@ dir_name = fullfile(monkey, dir_output);
 file_path = make_dir_get_file_path(dir_main, dir_name, output_filename);
 save(file_path,'gc');
 
-file_path = make_dir_get_file_path(dir_main, dir_name, 'gc_session_data.mat');
+file_path = make_dir_get_file_path(dir_main, dir_name, output_filename);
 save(file_path, 'session_data');
 

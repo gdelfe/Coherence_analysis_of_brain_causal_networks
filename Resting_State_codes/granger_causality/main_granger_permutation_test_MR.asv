@@ -1,0 +1,95 @@
+% Permutation test for Granger Causality (Modulator <-> Receiver)
+
+clear all;
+
+monkey = 'Maverick';
+dir_main = '/vol/brains/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
+dir_output = 'Resting_state/granger/granger_results/MR';
+file_path = fullfile(dir_main, monkey, dir_output, 'gc_MR_struct.mat');
+
+load(file_path);  % loads variable 'gc'
+
+nPerm = 20;
+alpha_perm = 0.05;
+
+% Initialize containers
+all_GC_MR = {}; all_GC_RM = {};
+perm_GC_MR = {}; perm_GC_RM = {};
+GC_thresh_MR = {}; GC_thresh_RM = {};
+
+entry_count = 0;
+for i = 2:length(gc)  % skip gc{1} which holds meta info
+    has_MR = isfield(gc{i}, 'MR');
+    has_RM = isfield(gc{i}, 'RM');
+    if ~(has_MR || has_RM), continue; end
+
+    GC_ref = has_MR * gc{i}.MR + has_RM * gc{i}.RM;  % use either as ref
+    freq = gc{i}.freq;
+    fres = length(freq);
+
+    entry_count = entry_count + 1;
+    perm_GC_MR{entry_count} = zeros(nPerm, fres);
+    perm_GC_RM{entry_count} = zeros(nPerm, fres);
+
+    % Load session data for this modulator
+    sess = gc{i}.sess;
+    mod_ch = gc{i}.mod_ch;
+    data_path = fullfile(dir_main, monkey, 'Resting_state/theta_band', sprintf('Sess_%d/Modulators', sess), 'session_data_lfp.mat');
+    load(data_path);
+
+    lfp_M = squeeze(sess_data_lfp.lfp_E(mod_ch,:,:));
+    lfp_R = sess_data_lfp.lfp_R;
+    cnt_m = find(sess_data_lfp.mod_idx == mod_ch);
+    outliers_MR = unique([sess_data_lfp.outliers_E(cnt_m).idx, sess_data_lfp.outliers_R]);
+    lfp_M(outliers_MR,:) = [];
+    lfp_R(outliers_MR,:) = [];
+
+    lfp_M = detrend(lfp_M')'; lfp_R = detrend(lfp_R')';
+    [b, a] = butter(2, 1/(250/2), 'high');
+    lfp_M = filtfilt(b, a, lfp_M')';
+    lfp_R = filtfilt(b, a, lfp_R')';
+
+    X = permute(cat(3, lfp_M, lfp_R), [3,2,1]);
+    morder = gc{1}.morder;  % reuse model order across entries if desired
+
+    if has_MR
+        all_GC_MR{entry_count} = squeeze(gc{i}.MR(1,2,1:fres))';
+    end
+    if has_RM
+        all_GC_RM{entry_count} = squeeze(gc{i}.RM(2,1,1:fres))';
+    end
+
+    for p = 1:nPerm
+        perm_idx_r = randperm(size(X,3));  % shuffle R trials (for M→R)
+        perm_idx_m = randperm(size(X,3));  % shuffle M trials (for R→M)
+
+        % M → R permutation
+        X_perm_MR = X;
+        X_perm_MR(2,:,:) = X(2,:,perm_idx_r);
+        [A_mr, SIG_mr] = estimate_var_model(X_perm_MR, morder, 'OLS');
+        [G_mr, ~] = compute_autocovariance(A_mr, SIG_mr, 2000);
+        GC_mr = autocov_to_spwcgc(G_mr, [], [], 250);
+        perm_GC_MR{entry_count}(p,:) = squeeze(GC_mr(1,2,1:fres))';
+
+        % R → M permutation
+        X_perm_RM = X;
+        X_perm_RM(1,:,:) = X(1,:,perm_idx_m);
+        [A_rm, SIG_rm] = estimate_var_model(X_perm_RM, morder, 'OLS');
+        [G_rm, ~] = compute_autocovariance(A_rm, SIG_rm, 2000);
+        GC_rm = autocov_to_spwcgc(G_rm, [], [], 250);
+        perm_GC_RM{entry_count}(p,:) = squeeze(GC_rm(2,1,1:fres))';
+
+        if mod(p, 50) == 0
+            fprintf('  Perm %d/%d (Modulator %d, Sess %d)\n', p, nPerm, mod_ch, sess);
+        end
+    end
+
+    GC_thresh_MR{entry_count} = prctile(perm_GC_MR{entry_count}, 100*(1 - alpha_perm), 1);
+    GC_thresh_RM{entry_count} = prctile(perm_GC_RM{entry_count}, 100*(1 - alpha_perm), 1);
+end
+
+% Save results
+save(fullfile(dir_main, monkey, dir_output, 'gc_MR_permutation_results.mat'), ...
+    'all_GC_MR', 'perm_GC_MR', 'GC_thresh_MR', 'all_GC_RM', 'perm_GC_RM', 'GC_thresh_RM');
+
+fprintf('\nPermutation test for MR and RM completed and saved.\n');

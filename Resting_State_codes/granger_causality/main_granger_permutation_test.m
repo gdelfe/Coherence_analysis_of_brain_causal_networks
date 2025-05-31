@@ -7,7 +7,7 @@
 % Load session GC data saved from main_script_unconditional_granger_SR.m
 dir_main = '/vol/brains/bd5/People/Gino/Coherence_modulator_analysis/Shaoyu_data/';
 dir_output = 'Resting_state/granger/granger_results/SR';
-monkey = 'Maverick';
+monkey = 'Archie';
 
 % Load session GC data saved from main_script_unconditional_granger_SR.m
 load(fullfile(dir_main, monkey, dir_output,'gc_session_data.mat'));
